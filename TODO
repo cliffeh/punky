@@ -4,8 +4,6 @@
 * robust-ify your "test suite"
 * make errors return a stack trace instead of a single overwritten message
 * code cleanup
-* licensing
-* put on github
 * do something about floating-point precision
 * implement string operations
 * implement if/for/while

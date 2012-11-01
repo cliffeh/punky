@@ -1,6 +1,44 @@
 punky - a simple functional language interpreter
 
-NOTES:
+BUILDING
+
+make
+
+RUNNING
+
+./punky
+
+WHAT WORKS
+
+* simple integer and floating-point arithmetic; e.g.,
+
+  (+ 1 2)
+  (* 5 7)
+  (+ 4 (* 6 3) 5)
+
+* variable and function definition; e.g.,
+
+  (defvar foo 27)
+  (defun double (x) (* x 2))
+
+* quote, car, and cdr; e.g.,
+
+  (car '(a b c d))
+
+* let; e.g.,
+
+  (let ((x 10) (y 20)) (+ x y))
+
+WHAT DOESN'T WORK
+
+* lambda functions
+* strings are accepted as atoms and can be defined as variables, but there
+  are as yet no string operations (substring, char-at, etc.)
+* boolean atoms
+* program control/looping structures (if/for/when/etc.)
+* ...and anything else not listed under "WHAT WORKS" :-)
+
+NOTES
 
 * mathematical operations work in the following way:
   * a math operation with all integer operands will return an integer

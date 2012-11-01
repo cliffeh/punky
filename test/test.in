@@ -1,0 +1,30 @@
+1                                ; integer
+1.0				 ; float
+"abc"                            ; string
+2                                ; integer
+2.345				 ; float
+"def"                            ; string
+3                                ; integer
+3.789e3				 ; float
+"ghi"                            ; string
+(+ 1 2)                          ; simple addition
+(+ 4 (+ 2 5))                    ; nested addition
+(* 6 (+ 4 3))                    ; nested addition/multiplication
+(- 10 1 4 3)                     ; subtraction with 4 operands (int)
+(- 10.0 1.0 4.0 3.0)             ; subtraction with 4 operands (float)
+(/ 9 3)                          ; simple division
+(/ 64 2 4)                       ; division with 3 operands
+(* 12 (/ 12 3) 2)                ; nested multiplication/division
+(/ (* 4.0 (* 2 3) 2 (+  1 1)) 6) ; nested arithmetic (mixed float/int)
+(defvar a 2)                     ; variable definition
+a                                ; variable lookup
+(defvar b 3)                     ; variable definition
+b                                ; variable lookup
+(defvar b 5)                     ; variable re-definition
+b                                ; variable lookup
+(defun double (x) (* x 2))       ; function definition
+(double 7)                       ; function call
+(double (double 4))              ; nested function call
+(let ((x 10) (y 20)) (+ y x))    ; let expression
+(defvar c 7)                     ; variable definition
+(let ((x a) (y b)) (+ x y c))    ; let w/complex variable/scope stuff going on

@@ -1,0 +1,12 @@
+* be more careful about error-handling and cleaning up after yourself
+  when an error occurs
+* autotools!
+* robust-ify your "test suite"
+* make errors return a stack trace instead of a single overwritten message
+* code cleanup
+* licensing
+* put on github
+* do something about floating-point precision
+* implement string operations
+* implement if/for/while
+* more printing options (e.g., pretty-printing option with multiple lines, indentation, etc.)

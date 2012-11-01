@@ -1,1 +1,4 @@
+
+* 2012-11-1 - pretty-printing has been implemented (see: -P, -I flags)
+	...but it's a matter of opinion just how "pretty" it is...
 * 2012-11-1 - initial commit to github with basic functionality

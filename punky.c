@@ -18,6 +18,9 @@ punky_t *init(punky_t *p)
   p->debug = 0;
   p->eval = 1;
 
+  p->indent = 2;
+  p->pretty = 0;
+
   return p;
 }
 

@@ -15,8 +15,12 @@ static struct argp_option options[] = {
     "read input from FILE (default: stdin)" },
   { "output",        'o', "FILE",   0, 
     "write output to FILE (default: stdout)" },
-  { "parse-only",    'P', 0,        0,
+  { "parse-only",    'p', 0,        0,
     "print parsed input expressions without evaluating them" },
+  { "pretty-print",  'P', 0,        0,
+    "pretty-print the output" },
+  { "indent",        'I', "NUM",    0,
+    "amount to indent pretty-printed expressions (default: 2; only works when -p is specified)" },
   { "debug",         'd', 0,        0,
     "enable debugging output" },
   { 0 }
@@ -31,7 +35,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state){
   case 'i': args->in = (strcmp("-", arg) == 0) ? stdin : fopen(arg, "r"); break;
   case 'o': args->out = (strcmp("-", arg) == 0) ? stdout : fopen(arg, "w"); break;
   case 'd': args->debug = 1; break;
-  case 'P': args->eval = 0; break;
+  case 'p': args->eval = 0; break;
+  case 'P': args->pretty = 1; break;
+  case 'I': args->indent = atoi(arg); break;
   default: return ARGP_ERR_UNKNOWN;
   }
   return 0;

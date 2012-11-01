@@ -22,6 +22,8 @@ typedef struct punky_t
   int debug;
   /* eval flag */
   int eval;
+  /* printing flags */
+  int indent, pretty;
 } punky_t;
 
 punky_t *init(punky_t *p);

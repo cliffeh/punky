@@ -1,27 +1,29 @@
 #include "punky.h"
 
-/* output flags */
-#define NOFLAGS 0
-#define PARENS  (1<<0)
-#define NEWLINE (1<<1)
-#define ROOT    (PARENS|NEWLINE)
-
-static void __print(FILE *out, expr_t *e, int flags, int indent)
+static void nl_and_spaces(FILE *out, int count)
 {
-  // this definitely shouldn't happen...
-  if(!e) { fprintf(stderr, "SHIT MANG WE GOT A NULL\n"); return; }
+  fprintf(out, "\n");
+  int i;
+  for(i = 0; i < count; i++) fputc(' ', out);
+}
 
+static void _print(FILE *out, expr_t *e, int indent, int depth)
+{
   switch(e->type){
 
   case LIST_T: {
+    // is this the only case where we need to pretty-print something?
+    if(indent && depth) nl_and_spaces(out, indent*depth); 
     fprintf(out, "(");
-    __print(out, e->car, flags, indent);
+    // _print(out, e->car, indent, depth+1);
     expr_t *ptr;
-    for(ptr = e->cdr; ptr != &NIL; ptr = ptr->cdr) {
-      fprintf(out, " ");
-      __print(out, ptr->car, flags, indent);
+    for(ptr = e; ptr != &NIL; ptr = ptr->cdr) {
+      //      fprintf(out, " ");
+      _print(out, ptr->car, indent, depth+1);
+      if(ptr->cdr != &NIL) fprintf(out, " ");
     }
     fprintf(out, ")");
+    if(indent && depth) nl_and_spaces(out, indent*(depth-1)); 
   }break;
 
   case INTEGER_T: fprintf(out, "%i", e->intval); break;
@@ -52,18 +54,13 @@ static void __print(FILE *out, expr_t *e, int flags, int indent)
   default: fprintf(stderr, "print error: unknown expression type %i\n", e->type); return;
   }
 
-  // if(flags&NEWLINE) fprintf(out, "\n");
-}
-
-static void _print(FILE *out, expr_t *e)
-{
-  __print(out, e, ROOT, 0);
-  fprintf(out, "\n");
+  // we're always going to want a newline after the initial print
+  if(!depth) fprintf(out, "\n");
 }
 
 punky_t *print(punky_t *p)
 {
   // TODO error-checking of p->e?
-  _print(p->out, p->e);
+  _print(p->out, p->e, (p->pretty) ? p->indent : 0, 0);
   return p;
 }

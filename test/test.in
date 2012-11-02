@@ -36,3 +36,4 @@ b                                ; variable lookup
 (let ((x 10) (y 20)) (+ y x))    ; let expression
 (defvar c 7)                     ; variable definition
 (let ((x a) (y b)) (+ x y c))    ; let w/complex variable/scope stuff going on
+'(a b c d)                       ; quote

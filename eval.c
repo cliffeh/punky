@@ -305,6 +305,29 @@ static expr_t *eval_let(env_t *env, expr_t *e) // expr_t *defs, expr_t *let)
   return result;
 }
 
+static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
+{
+  switch(op) {
+  case ADD_OP: return eval_add(env, e);
+  case SUB_OP: return eval_sub(env, e);
+  case MUL_OP: return eval_mul(env, e);
+  case DIV_OP: return eval_div(env, e);
+  case CAR_OP: return _eval(env, e->car)->car; // TODO error checking!
+  case CDR_OP: return _eval(env, e->car)->cdr; // TODO error checking!
+  case QUOTE_OP: return _clone_expr(e->car); // TODO error checking!
+  case DEFVAR_OP: { // TODO error checking!
+    expr_t *value = _eval(env, e->cdr->car);
+    expr_t *result = eval_var_def(env, e->car, value);
+    _free_expr(value);
+    return result;
+  }break;
+  case DEFUN_OP: return eval_fun_def(env, e);
+  case LET_OP: return eval_let(env, e);
+    
+  default: return _error("unknown op type");
+  }
+}
+
 static expr_t *eval_list(env_t *env, expr_t *car, expr_t *cdr)
 {
   // the only options we should have here:
@@ -313,27 +336,9 @@ static expr_t *eval_list(env_t *env, expr_t *car, expr_t *cdr)
   case IDENTIFIER_T: // function call
     return eval_fun_call(env, car->strval, cdr);
 
-  case OP_T: {
-    switch(car->op) {
-    case ADD_OP: return eval_add(env, cdr);
-    case SUB_OP: return eval_sub(env, cdr);
-    case MUL_OP: return eval_mul(env, cdr);
-    case DIV_OP: return eval_div(env, cdr);
-    case CAR_OP: return _eval(env, cdr->car)->car; // TODO error checking!
-    case CDR_OP: return _eval(env, cdr->car)->cdr; // TODO error checking!
-    case QUOTE_OP: return _clone_expr(cdr->car); // TODO error checking!
-    case DEFVAR_OP: { // TODO error checking!
-      expr_t *value = _eval(env, cdr->cdr->car);
-      expr_t *result = eval_var_def(env, cdr->car, value);
-      _free_expr(value);
-      return result;
-    }break;
-    case DEFUN_OP: return eval_fun_def(env, cdr);
-    case LET_OP: return eval_let(env, cdr);
+  case OP_T: return eval_op(env, car->op, cdr);
 
-    default: return _error("unknown op type");
-    }
-  }break;
+    // TODO need a default...
   }
 }
 

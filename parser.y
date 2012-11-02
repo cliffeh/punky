@@ -24,11 +24,20 @@
 }
 
 %token LPAREN RPAREN PLUS DASH STAR SQUOTE FSLASH EOFTOK
- // keywords
-%token DEFVAR DEFUN LET CAR CDR QUOTE
+ // variable/function definition
+%token DEFVAR DEFUN 
+ // list operations
+%token CAR CDR
+ // misc operations
+%token LET QUOTE
+ // string operations
+%token SUBSTR
+
+ // atoms
 %token <e> INTLIT FLOATLIT
 %token <strval> IDENT STRLIT
 
+ // non-terminals
 %type <e> sexpr list seq atom
 %type <op> op
 
@@ -70,6 +79,7 @@ op: PLUS { $$=ADD_OP; }
 | DEFVAR { $$=DEFVAR_OP; }
 | DEFUN  { $$=DEFUN_OP; }
 | LET    { $$=LET_OP; }
+| SUBSTR { $$=SUBSTR; }
 ;
 
 %%

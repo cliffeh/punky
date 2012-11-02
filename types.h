@@ -24,7 +24,8 @@ enum PUNKY_OP_TYPE {
   QUOTE_OP,
   DEFVAR_OP,
   DEFUN_OP,
-  LET_OP
+  LET_OP,
+  SUBSTR_OP
 };
 
 typedef struct expr_t

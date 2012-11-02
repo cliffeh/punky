@@ -15,14 +15,22 @@
   return(FLOATLIT);
 }
 
+%{ /* variable/function definition */ %}
 "defvar" { return(DEFVAR); }
 "defun"  { return(DEFUN);  }
-"let"    { return(LET); }
+
+%{ /* list operations */ %}
 "car"    { return(CAR); }
 "cdr"    { return(CDR); }
+
+%{ /* misc operations */ %}
+"let"    { return(LET); }
 "quote"  { return(QUOTE); }
 
-[_a-zA-Z][_a-zA-Z0-9]* {
+%{ /* string operations */ %}
+"substr" { return(SUBSTR); }
+
+[_a-zA-Z][_\-a-zA-Z0-9]* {
   return(IDENT);
 }
 

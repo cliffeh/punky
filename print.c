@@ -56,6 +56,12 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
     case NOT_OP: fprintf(out, "not"); break;
     case AND_OP: fprintf(out, "and"); break;
     case OR_OP: fprintf(out, "or"); break;
+    case EQUAL_OP: fprintf(out, "="); break;
+    case LT_OP: fprintf(out, "<"); break;
+    case GT_OP: fprintf(out, ">"); break;
+    case LE_OP: fprintf(out, "<="); break;
+    case GE_OP: fprintf(out, ">="); break;
+
     default: fprintf(out, "UNKNOWN_OP");
     }
     // TODO COMPLETE THIS!

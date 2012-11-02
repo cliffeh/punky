@@ -33,7 +33,12 @@ enum PUNKY_OP_TYPE {
   WHILE_OP,
   NOT_OP,
   AND_OP,
-  OR_OP
+  OR_OP,
+  EQUAL_OP,
+  LT_OP,
+  GT_OP,
+  LE_OP,
+  GE_OP
 };
 
 typedef struct expr_t

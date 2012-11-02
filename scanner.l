@@ -44,6 +44,13 @@
 %{ /* string operations */ %}
 "substr" { return(SUBSTR); }
 
+%{ /* equality operations */ %}
+"="  { return(EQUAL); }
+"<"  { return(LT); }
+">"  { return(GT); }
+"<=" { return(LE); }
+">=" { return(GE); }
+
 [_a-zA-Z][_\-a-zA-Z0-9]* {
   return(IDENT);
 }

@@ -36,7 +36,8 @@
 %token SUBSTR
  // booleans and boolean operations
 %token TRU FALS NOT AND OR
-
+ // equality
+%token EQUAL LT GT LE GE
  // atoms (do we need to define their types?)
 %token <e> INTLIT FLOATLIT
 %token <strval> IDENT STRLIT
@@ -94,6 +95,11 @@ op: PLUS { $$=ADD_OP; }
 | NOT    { $$=NOT_OP; }
 | AND    { $$=AND_OP; }
 | OR     { $$=OR_OP; }
+| EQUAL  { $$=EQUAL_OP; }
+| LT     { $$=LT_OP; }
+| GT     { $$=GT_OP; }
+| LE     { $$=LE_OP; }
+| GE     { $$=GE_OP; }
 ;
 
 %%

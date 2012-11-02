@@ -403,6 +403,13 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
     return result;
   }break;
 
+    /* equality operations */
+  case EQUAL_OP:
+  case LT_OP:
+  case GT_OP:
+  case LE_OP:
+  case GE_OP:
+    
   default: return _error("unknown op type");
   }
 }

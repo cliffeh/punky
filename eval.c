@@ -312,8 +312,16 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
   case SUB_OP: return eval_sub(env, e);
   case MUL_OP: return eval_mul(env, e);
   case DIV_OP: return eval_div(env, e);
-  case CAR_OP: return _eval(env, e->car)->car; // TODO error checking!
-  case CDR_OP: return _eval(env, e->car)->cdr; // TODO error checking!
+  case CAR_OP: { // TODO error checking!
+    expr_t *e1 = _eval(env, e->car), *result = _clone_expr(e1->car); 
+    _free_expr(e1);
+    return result; 
+  }break; 
+  case CDR_OP: { // TODO error checking!
+    expr_t *e1 = _eval(env, e->car), *result = _clone_expr(e1->cdr); 
+    _free_expr(e1);
+    return result; 
+  }break;
   case QUOTE_OP: return _clone_expr(e->car); // TODO error checking!
   case DEFVAR_OP: { // TODO error checking!
     expr_t *value = _eval(env, e->cdr->car);
@@ -323,6 +331,16 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
   }break;
   case DEFUN_OP: return eval_fun_def(env, e);
   case LET_OP: return eval_let(env, e);
+  case SUBSTR_OP: { // TODO error checking!
+    expr_t *e1 = _eval(env, e->car); // the string
+    int pos = 0, len = strlen(e1->strval);
+    if(e->cdr != &NIL) pos = _eval(env, e->cdr->car)->intval;
+    if(e->cdr->cdr != &NIL) len = _eval(env, e->cdr->cdr->car)->intval;
+    char *p = malloc(sizeof(char)*len);
+    strncpy(p, e1->strval+pos, len);
+    _free_expr(e1);
+    return _str_expr(p);
+  }break;
     
   default: return _error("unknown op type");
   }

@@ -43,6 +43,7 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
     case DEFVAR_OP: fprintf(out, "defvar"); break;
     case DEFUN_OP: fprintf(out, "defun"); break;
     case LET_OP: fprintf(out, "let"); break;
+    case SUBSTR_OP: fprintf(out, "substr"); break;
     default: fprintf(out, "UNKNOWN_OP");
     }
     // TODO COMPLETE THIS!

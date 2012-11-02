@@ -79,7 +79,7 @@ op: PLUS { $$=ADD_OP; }
 | DEFVAR { $$=DEFVAR_OP; }
 | DEFUN  { $$=DEFUN_OP; }
 | LET    { $$=LET_OP; }
-| SUBSTR { $$=SUBSTR; }
+| SUBSTR { $$=SUBSTR_OP; }
 ;
 
 %%

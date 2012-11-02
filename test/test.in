@@ -37,3 +37,5 @@ b                                ; variable lookup
 (defvar c 7)                     ; variable definition
 (let ((x a) (y b)) (+ x y c))    ; let w/complex variable/scope stuff going on
 '(a b c d)                       ; quote
+(car '(a b c d))                 ; car
+(cdr '(a b c d))                 ; cdr

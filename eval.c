@@ -322,6 +322,9 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
     _free_expr(e1);
     return result; 
   }break;
+  case CONS_OP: { // TODO error checking!
+    return _list_expr(_eval(env, e->car), _eval(env, e->cdr->car));
+  }break;
   case QUOTE_OP: return _clone_expr(e->car); // TODO error checking!
   case DEFVAR_OP: { // TODO error checking!
     expr_t *value = _eval(env, e->cdr->car);

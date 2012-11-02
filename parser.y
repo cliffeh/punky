@@ -23,11 +23,11 @@
   struct expr_t *e;
 }
 
-%token LPAREN RPAREN PLUS DASH STAR SQUOTE FSLASH EOFTOK
+%token LPAREN RPAREN PLUS DASH STAR FSLASH SQUOTE DOT EOFTOK
  // variable/function definition
 %token DEFVAR DEFUN 
  // list operations
-%token CAR CDR
+%token CAR CDR CONS
  // misc operations
 %token LET QUOTE
  // string operations
@@ -62,6 +62,7 @@ atom: INTLIT { $$ = _int_expr(atoi(yytext)); }
 ;
 
 list: LPAREN seq RPAREN { $$ = $2; }
+| LPAREN sexpr DOT sexpr RPAREN { $$ = _list_expr($2, $4); }
 | LPAREN op seq RPAREN { $$ = _list_expr(_op_expr($2), $3); }
 ;
 
@@ -75,6 +76,7 @@ op: PLUS { $$=ADD_OP; }
 | FSLASH { $$=DIV_OP; }
 | CAR    { $$=CAR_OP; } 
 | CDR    { $$=CDR_OP; }
+| CONS   { $$=CONS_OP; }
 | QUOTE  { $$=QUOTE_OP; }
 | DEFVAR { $$=DEFVAR_OP; }
 | DEFUN  { $$=DEFUN_OP; }

@@ -15,12 +15,16 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
     // is this the only case where we need to pretty-print something?
     if(indent && depth) nl_and_spaces(out, indent*depth); 
     fprintf(out, "(");
-    // _print(out, e->car, indent, depth+1);
+    _print(out, e->car, indent, depth+1);
     expr_t *ptr;
-    for(ptr = e; ptr != &NIL; ptr = ptr->cdr) {
-      //      fprintf(out, " ");
+    for(ptr = e->cdr; ptr->type == LIST_T; ptr = ptr->cdr) {
+      fprintf(out, " ");
       _print(out, ptr->car, indent, depth+1);
-      if(ptr->cdr != &NIL) fprintf(out, " ");
+      //      if(ptr->cdr != &NIL) fprintf(out, " ");
+    }
+    if(ptr != &NIL) { // we must have a dot expression
+      fprintf(out, " . ");
+      _print(out, ptr, indent, depth+1);
     }
     fprintf(out, ")");
     if(indent && depth) nl_and_spaces(out, indent*(depth-1)); 
@@ -39,6 +43,7 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
     case DIV_OP: fprintf(out, "/"); break;
     case CAR_OP: fprintf(out, "car"); break;
     case CDR_OP: fprintf(out, "cdr"); break;
+    case CONS_OP: fprintf(out, "cons"); break;
     case QUOTE_OP: fprintf(out, "quote"); break;
     case DEFVAR_OP: fprintf(out, "defvar"); break;
     case DEFUN_OP: fprintf(out, "defun"); break;

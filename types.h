@@ -21,6 +21,7 @@ enum PUNKY_OP_TYPE {
   DIV_OP,
   CAR_OP,
   CDR_OP,
+  CONS_OP,
   QUOTE_OP,
   DEFVAR_OP,
   DEFUN_OP,

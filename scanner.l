@@ -22,6 +22,7 @@
 %{ /* list operations */ %}
 "car"    { return(CAR); }
 "cdr"    { return(CDR); }
+"cons"   { return(CONS); }
 
 %{ /* misc operations */ %}
 "let"    { return(LET); }
@@ -49,7 +50,8 @@
 "*" { return(STAR); }
 "/" { return(FSLASH); }
 
-\'  { return(SQUOTE); }
+"'" { return(SQUOTE); }
+"." { return(DOT); }
 
 \n       /* ignore end of line */
 [ \t]+   /* ignore whitespace */

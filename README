@@ -37,6 +37,12 @@ WHAT WORKS
 
 * string operations: substr
 
+* simple boolean operations; e.g.,
+
+  (not #t)
+  (and #f #t)
+  (or #t #f)
+
 WHAT DOESN'T WORK
 
 * lambda functions
@@ -48,6 +54,9 @@ WHAT DOESN'T WORK
 
 NOTES
 
+* boolean operations are c-like; i.e., they will accept either boolean
+  or integer values (where 0 i equivalent to #f and any non-zero value
+  is equivalent to #t)
 * mathematical operations work in the following way:
   * a math operation with all integer operands will return an integer
   * a math operation with all float operands will return a float

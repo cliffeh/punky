@@ -376,6 +376,21 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
     e1->intval = !(e1->intval);
     return e1;
   }break;
+  case AND_OP: { // TODO error checking!
+    expr_t *e1 = _eval(env, e->car);
+    expr_t *e2 = _eval(env, e->cdr->car);
+    e1->intval = (e1->intval && e2->intval);
+    _free_expr(e2);
+    return e1;
+  }break;
+  case OR_OP: { // TODO error checking!
+    expr_t *e1 = _eval(env, e->car);
+    expr_t *e2 = _eval(env, e->cdr->car);
+    e1->intval = (e1->intval || e2->intval);
+    _free_expr(e2);
+    return e1;
+  }break;
+
   default: return _error("unknown op type");
   }
 }

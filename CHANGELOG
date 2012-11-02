@@ -1,6 +1,7 @@
 2012-11-1 Clifton Snyder <cliff.snyder@gmail.com>
 	* everything: added scanning, parsing, printing for boolean types (#t, #f)
 	* scanner.l, parser.y, eval.c: list expressions (car, cdr, cons, list) now work
+	* scanner.l, parser.y, eval.c: simple boolean operations (not, and, or)
 	* scanner.l, parser.y, eval.c: dot notation works
 	* scanner.l, parser.y, eval.c: substr string operation
 	* print.c: printer now knows how to handle dot notation

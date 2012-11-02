@@ -384,7 +384,7 @@ static expr_t *eval_list(env_t *env, expr_t *car, expr_t *cdr)
 
   case OP_T: return eval_op(env, car->op, cdr);
 
-    // TODO need a default...
+  default: return _error("i don't know how to evaluate this kind of list");
   }
 }
 
@@ -403,6 +403,7 @@ static expr_t *_eval(env_t *env, expr_t *e)
 
     // i tried being "fancy" and re-using these types. in the end, it
     // causes a lot less headache by just returning a copy (double frees ftl)
+  case BOOL_T: result = _bool_expr(e->intval); break;
   case INTEGER_T: result = _int_expr(e->intval); break; // result = _int_expr(e->intval); break;
   case FLOAT_T: result = _float_expr(e->floatval); break;
   case STRING_T: result = _str_expr(strdup(e->strval)); break;

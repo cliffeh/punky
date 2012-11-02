@@ -39,3 +39,5 @@ b                                ; variable lookup
 '(a b c d)                       ; quote
 (car '(a b c d))                 ; car
 (cdr '(a b c d))                 ; cdr
+(cons 'a '(b c d))               ; cons
+(list 'a 'b 'c 'd)               ; list

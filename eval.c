@@ -370,6 +370,12 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
     return _str_expr(p);
   }break;
     
+    /* boolean operations */
+  case NOT_OP: { // TODO error checking!
+    expr_t *e1 = _eval(env, e->car);
+    e1->intval = !(e1->intval);
+    return e1;
+  }break;
   default: return _error("unknown op type");
   }
 }

@@ -53,6 +53,9 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
     case SUBSTR_OP: fprintf(out, "substr"); break;
     case IF_OP: fprintf(out, "if"); break;
     case WHILE_OP: fprintf(out, "while"); break;
+    case NOT_OP: fprintf(out, "not"); break;
+    case AND_OP: fprintf(out, "and"); break;
+    case OR_OP: fprintf(out, "or"); break;
     default: fprintf(out, "UNKNOWN_OP");
     }
     // TODO COMPLETE THIS!

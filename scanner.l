@@ -18,6 +18,11 @@
 "#t" { return(TRU); }
 "#f" { return(FALS); }
 
+%{ /* boolean operations */ %}
+"not" { return(NOT); }
+"and" { return(AND); }
+"or"  { return(OR); }
+
 %{ /* variable/function definition */ %}
 "defvar" { return(DEFVAR); }
 "defun"  { return(DEFUN);  }

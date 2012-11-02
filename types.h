@@ -30,7 +30,10 @@ enum PUNKY_OP_TYPE {
   LET_OP,
   SUBSTR_OP,
   IF_OP,
-  WHILE_OP
+  WHILE_OP,
+  NOT_OP,
+  AND_OP,
+  OR_OP
 };
 
 typedef struct expr_t

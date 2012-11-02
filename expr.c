@@ -87,6 +87,7 @@ expr_t *_clone_expr(expr_t *e)
 {
   switch(e->type) {
   case LIST_T: return _list_expr(_clone_expr(e->car), _clone_expr(e->cdr));
+  case BOOL_T: return _bool_expr(e->intval);
   case INTEGER_T: return _int_expr(e->intval);
   case FLOAT_T: return _float_expr(e->floatval);
   case STRING_T: return _str_expr(strdup(e->strval));

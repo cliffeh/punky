@@ -34,10 +34,10 @@
 %token LET QUOTE
  // string operations
 %token SUBSTR
- // booleans
-%token TRU FALS
+ // booleans and boolean operations
+%token TRU FALS NOT AND OR
 
- // atoms
+ // atoms (do we need to define their types?)
 %token <e> INTLIT FLOATLIT
 %token <strval> IDENT STRLIT
 
@@ -91,6 +91,9 @@ op: PLUS { $$=ADD_OP; }
 | SUBSTR { $$=SUBSTR_OP; }
 | IF     { $$=IF_OP; }
 | WHILE  { $$=WHILE_OP; }
+| NOT    { $$=NOT_OP; }
+| AND    { $$=AND_OP; }
+| OR     { $$=OR_OP; }
 ;
 
 %%

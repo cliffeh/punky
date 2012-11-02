@@ -57,6 +57,7 @@ typedef struct expr_t
     /* pretty much everything else is a list */
     struct
     {
+      int length; // not strictly necessary, but convenient
       struct expr_t *car;
       struct expr_t *cdr;      
     };

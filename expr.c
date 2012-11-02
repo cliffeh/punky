@@ -10,9 +10,9 @@ static expr_t *_new_expr(enum PUNKY_TYPE type)
 expr_t *_list_expr(expr_t *car, expr_t *cdr)
 {
   expr_t *e = _new_expr(LIST_T);
-  // e->type = LIST;
   e->car = car;
   e->cdr = cdr;
+  e->length = (cdr->type == LIST_T) ? cdr->length+1 : 1;
   return e;
 }
 

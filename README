@@ -43,13 +43,18 @@ WHAT WORKS
   (and #f #t)
   (or #t #f)
 
+* if statements; e.g.,
+
+  (if #t 5 7)
+  (if #f 5 7)
+
 WHAT DOESN'T WORK
 
 * lambda functions
 * strings are accepted as atoms and can be defined as variables, but there
   are as yet very few string operations
 * boolean atoms
-* program control/looping structures (if/for/when/etc.)
+* looping structures (for/when/etc.)
 * ...and anything else not listed under "WHAT WORKS" :-)
 
 NOTES

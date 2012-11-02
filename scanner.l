@@ -23,6 +23,7 @@
 "car"    { return(CAR); }
 "cdr"    { return(CDR); }
 "cons"   { return(CONS); }
+"list"   { return(LIST); }
 
 %{ /* misc operations */ %}
 "let"    { return(LET); }

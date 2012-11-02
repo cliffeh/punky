@@ -44,6 +44,7 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
     case CAR_OP: fprintf(out, "car"); break;
     case CDR_OP: fprintf(out, "cdr"); break;
     case CONS_OP: fprintf(out, "cons"); break;
+    case LIST_OP: fprintf(out, "list"); break;
     case QUOTE_OP: fprintf(out, "quote"); break;
     case DEFVAR_OP: fprintf(out, "defvar"); break;
     case DEFUN_OP: fprintf(out, "defun"); break;

@@ -308,10 +308,13 @@ static expr_t *eval_let(env_t *env, expr_t *e) // expr_t *defs, expr_t *let)
 static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
 {
   switch(op) {
+    /* arithmetic operations */
   case ADD_OP: return eval_add(env, e);
   case SUB_OP: return eval_sub(env, e);
   case MUL_OP: return eval_mul(env, e);
   case DIV_OP: return eval_div(env, e);
+
+    /* list operations */
   case CAR_OP: { // TODO error checking!
     expr_t *e1 = _eval(env, e->car), *result = _clone_expr(e1->car); 
     _free_expr(e1);
@@ -325,7 +328,24 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
   case CONS_OP: { // TODO error checking!
     return _list_expr(_eval(env, e->car), _eval(env, e->cdr->car));
   }break;
-  case QUOTE_OP: return _clone_expr(e->car); // TODO error checking!
+  case LIST_OP: {
+    expr_t *e1 = _eval(env, e->car);
+    if(e1->type == ERROR_T) return e1;
+
+    expr_t *ptr, *result = _list_expr(e1, &NIL), *r_ptr = result;
+    for(ptr = e->cdr; ptr->type == LIST_T; ptr = ptr->cdr) {
+      e1 = _eval(env, ptr->car);
+      if(e1->type == ERROR_T) {
+	_free_expr(result);
+	return e1;
+      }
+      r_ptr->cdr = _list_expr(e1, &NIL);
+      r_ptr = r_ptr->cdr;
+    }
+    return result;
+  }break;
+
+    /* variable/function definition */
   case DEFVAR_OP: { // TODO error checking!
     expr_t *value = _eval(env, e->cdr->car);
     expr_t *result = eval_var_def(env, e->car, value);
@@ -333,7 +353,12 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
     return result;
   }break;
   case DEFUN_OP: return eval_fun_def(env, e);
+
+    /* misc operations */
   case LET_OP: return eval_let(env, e);
+  case QUOTE_OP: return _clone_expr(e->car); // TODO error checking!
+
+    /* string operations */
   case SUBSTR_OP: { // TODO error checking!
     expr_t *e1 = _eval(env, e->car); // the string
     int pos = 0, len = strlen(e1->strval);

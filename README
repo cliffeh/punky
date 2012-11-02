@@ -21,19 +21,27 @@ WHAT WORKS
   (defvar foo 27)
   (defun double (x) (* x 2))
 
-* quote, car, and cdr; e.g.,
+* quote, car, cdr, cons, list; e.g.,
 
   (car '(a b c d))
+  (list 'a 'b 'c 'd)
+  (cons 1 '(2 3 4))
+
+* dot notation; e.g.,
+
+  (1 . 2)
 
 * let; e.g.,
 
   (let ((x 10) (y 20)) (+ x y))
 
+* string operations: substr
+
 WHAT DOESN'T WORK
 
 * lambda functions
 * strings are accepted as atoms and can be defined as variables, but there
-  are as yet no string operations (substring, char-at, etc.)
+  are as yet very few string operations
 * boolean atoms
 * program control/looping structures (if/for/when/etc.)
 * ...and anything else not listed under "WHAT WORKS" :-)

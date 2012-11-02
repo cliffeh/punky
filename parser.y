@@ -27,7 +27,7 @@
  // variable/function definition
 %token DEFVAR DEFUN 
  // list operations
-%token CAR CDR CONS
+%token CAR CDR CONS LIST
  // misc operations
 %token LET QUOTE
  // string operations
@@ -77,6 +77,7 @@ op: PLUS { $$=ADD_OP; }
 | CAR    { $$=CAR_OP; } 
 | CDR    { $$=CDR_OP; }
 | CONS   { $$=CONS_OP; }
+| LIST   { $$=LIST_OP; }
 | QUOTE  { $$=QUOTE_OP; }
 | DEFVAR { $$=DEFVAR_OP; }
 | DEFUN  { $$=DEFUN_OP; }

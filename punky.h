@@ -34,6 +34,7 @@ punky_t *cleanup(punky_t *p);
 
 /* private functions for allocating expressions - use at your own risk! */
 expr_t *_list_expr(expr_t *car, expr_t *cdr);
+expr_t *_bool_expr(int value);
 expr_t *_int_expr(int value);
 expr_t *_float_expr(float value);
 expr_t *_str_expr(char *value);

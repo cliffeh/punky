@@ -34,6 +34,8 @@
 %token LET QUOTE
  // string operations
 %token SUBSTR
+ // booleans
+%token TRU FALS
 
  // atoms
 %token <e> INTLIT FLOATLIT
@@ -61,6 +63,8 @@ atom: INTLIT { $$ = _int_expr(atoi(yytext)); }
 | FLOATLIT { $$ = _float_expr(atof(yytext)); }
 | STRLIT { $$ = _str_expr(strdup(yytext)); }
 | IDENT { $$ = _id_expr(strdup(yytext)); }
+| TRU   { $$ = _bool_expr(1); }
+| FALS  { $$ = _bool_expr(0); }
 ;
 
 list: LPAREN seq RPAREN { $$ = $2; }

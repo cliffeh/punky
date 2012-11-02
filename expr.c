@@ -16,6 +16,13 @@ expr_t *_list_expr(expr_t *car, expr_t *cdr)
   return e;
 }
 
+expr_t *_bool_expr(int value)
+{
+  expr_t *e = _new_expr(BOOL_T);
+  e->intval = value;
+  return e;
+}
+
 expr_t *_int_expr(int value)
 {
   expr_t *e = _new_expr(INTEGER_T);
@@ -102,7 +109,7 @@ void _free_expr(expr_t *e)
     _free_expr(e->cdr);
   }break;
     
-  case INTEGER_T: case FLOAT_T: { 
+  case BOOL_T: case INTEGER_T: case FLOAT_T: { 
     // e will be freed at the end
   }break;
     

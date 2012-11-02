@@ -15,6 +15,9 @@
   return(FLOATLIT);
 }
 
+"#t" { return(TRU); }
+"#f" { return(FALS); }
+
 %{ /* variable/function definition */ %}
 "defvar" { return(DEFVAR); }
 "defun"  { return(DEFUN);  }

@@ -3,6 +3,7 @@
 
 enum PUNKY_TYPE {
   LIST_T,
+  BOOL_T,
   INTEGER_T,
   FLOAT_T,
   STRING_T,

@@ -2,223 +2,218 @@
 #include "env.h"
 
 static expr_t *_eval(env_t *env, expr_t *e);
+static expr_t *eval_add_float(env_t *env, expr_t *e, float partial);
+static expr_t *eval_add_int(env_t *env, expr_t *e, int partial);
+static expr_t *eval_add(env_t *env, expr_t *e);
+static expr_t *eval_sub_float(env_t *env, expr_t *e, float partial);
+static expr_t *eval_sub_int(env_t *env, expr_t *e, int partial);
+static expr_t *eval_sub(env_t *env, expr_t *e);
+static expr_t *eval_mul_float(env_t *env, expr_t *e, float partial);
+static expr_t *eval_mul_int(env_t *env, expr_t *e, int partial);
+static expr_t *eval_mul(env_t *env, expr_t *e);
+static expr_t *eval_div_float(env_t *env, expr_t *e, float partial);
+static expr_t *eval_div_int(env_t *env, expr_t *e, int partial);
+static expr_t *eval_div(env_t *env, expr_t *e);
 
-static expr_t *eval_add_float(env_t *env, expr_t *operands, float partial)
+static expr_t *eval_add_float(env_t *env, expr_t *e, float partial)
 {
-  expr_t *result = _float_expr(partial), *e, *e1;
-  for(e = operands; (e != &NIL); e = e->cdr) {
-    //    if(config.debug) { fprintf(stderr, "eval_add_float: current value: %f\n", result->floatval); }
-    e1 = _eval(env, e->car);
-    switch(e1->type) {
-    case INTEGER_T: result->floatval += (float)e1->intval; break;
-    case FLOAT_T: result->floatval += e1->floatval; break;
-    default: {
-      // clean up our partial result
-      _free_expr(result);
-      if(e1 == &ERROR) return e1;
-      _free_expr(e1);
-      return _error("attempt to add a non-numeric value");
-    }
-    }
-    // we must clean up after ourselves
-    _free_expr(e1);
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to add a non-numeric value"); // TODO this error message isn't quite sensible
+
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_add_float(env, e->cdr, partial + (float)e1->intval); break;
+  case FLOAT_T: result = eval_add_float(env, e->cdr, partial + e1->floatval); break;
+  default: result = _error("attempt to add to a non-numeric value");
   }
-  // if(config.debug) { fprintf(stderr, "eval_add_float: final value: %f\n", result->floatval); }
+  
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
   return result;
 }
 
-static expr_t *eval_add_int(env_t *env, expr_t *operands, int partial)
+static expr_t *eval_add_int(env_t *env, expr_t *e, int partial)
 {
-  expr_t *result = _int_expr(partial), *e, *e1;
-  for(e = operands; e != &NIL; e = e->cdr) {
-    // if(config.debug) { fprintf(stderr, "eval_add_int: current value: %i\n", result->intval); }
-    e1 = _eval(env, e->car);
-    switch(e1->type) {
-      // so long as we keep seeing INTEGERs, we'll use integer operations
-    case INTEGER_T: result->intval += e1->intval; break;
-      // once we see a FLOAT, it's all floating-point from there on out
-    case FLOAT_T: {
-      float partial = ((float)result->intval)+e1->floatval;
-      _free_expr(result);
-      _free_expr(e1);
-      return eval_add_float(env, e->cdr, partial);
-    }
-    default: {
-      // clean up our partial result
-      _free_expr(result);
-      if(e1 == &ERROR) return e1;
-      _free_expr(e1);
-      return _error("attempt to add a non-numeric value");
-    }
-    }
-    // we must clean up after ourselves
-    _free_expr(e1);
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to add a non-numeric value"); // TODO this error message isn't quite sensible
+
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_add_int(env, e->cdr, partial + e1->intval); break;
+  case FLOAT_T: result = eval_add_float(env, e->cdr, (float)partial + e1->floatval); break;
+  default: result = _error("attempt to add a non-numeric value");
   }
-  // if(config.debug) { fprintf(stderr, "eval_add_int: final value: %i\n", result->intval); }
+  
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
   return result;
 }
 
-static expr_t *eval_add(env_t *env, expr_t *operands)
+static expr_t *eval_add(env_t *env, expr_t *e)
 {
-  return eval_add_int(env, operands, 0);
+  return eval_add_int(env, e, 0);
 }
 
-static expr_t *eval_sub(env_t *env, expr_t *operands)
+static expr_t *eval_sub_float(env_t *env, expr_t *e, float partial)
 {
-  expr_t *result, *e = operands, *e1;
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to subtract a non-numeric value"); // TODO this error message isn't quite sensible
 
-  // if we have no operands, we return 0
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_sub_int(env, e->cdr, partial - (float)e1->intval); break;
+  case FLOAT_T: result = eval_sub_float(env, e->cdr, partial - e1->floatval); break;
+  default: result = _error("attempt to subtract a non-numeric value");
+  }
+  
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
+  return result;
+}
+
+static expr_t *eval_sub_int(env_t *env, expr_t *e, int partial)
+{
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to subtract a non-numeric value"); // TODO this error message isn't quite sensible
+
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_sub_int(env, e->cdr, partial - e1->intval); break;
+  case FLOAT_T: result = eval_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
+  default: result = _error("attempt to subtract a non-numeric value");
+  }
+  
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
+  return result;
+}
+
+static expr_t *eval_sub(env_t *env, expr_t *e)
+{
   if(e == &NIL) return _int_expr(0);
+  if(e->type != LIST_T) return _error("attempt to subtract a non-numeric value"); // TODO this error message isn't quite sensible
 
-  // if we have only 1 operand, we'll return the negative of that value
-  e1 = _eval(env, e->car);
+  expr_t *e1 = _eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = _int_expr(e1->intval); break;
-  case FLOAT_T: result = _float_expr(e1->floatval); break;
-  case ERROR_T: return e1; // we'll pass the error along
-  default: _free_expr(e1); return _error("attempt to subtract a non-numeric value");
+  case INTEGER_T: result = eval_sub_int(env, e->cdr, e1->intval); break;
+  case FLOAT_T: result = eval_sub_float(env, e->cdr, (float)e1->floatval); break;
+  default: result = _error("attempt to subtract a non-numeric value");
   }
-  // we must clean up after ourselves
-  _free_expr(e1);
-  e = e->cdr;
-  if(e == &NIL) {
-    switch(result->type) {
+  
+  // if we only had one operand, we want to return the negative of it
+  if(e->cdr == &NIL) {
+    switch(e1->type) {
     case INTEGER_T: result->intval = -result->intval; break;
-    case FLOAT_T: result->floatval = -result->floatval; break;
-    default: {} // this should never happen!
+    case FLOAT_T: result->floatval = -result->intval; break;
     }
-    return result;
-  }
-  
-  // if we have more than one operand, we'll subtract the summed result
-  // of the remaining operands from the first
-  e1 = eval_add(env, e);
-
-  // this is the only way we can end up with an INTEGER result
-  if((result->type == INTEGER_T) && (e1->type == INTEGER_T)) {
-    result->intval -= e1->intval;
-  } else if(e1->type == ERROR_T) { 
-    free(result); 
-    return e1; 
-  } else { // otherwise, we've got a float
-    result = _to_float(result);
-    e1 = _to_float(e1);
-    result->floatval -= e1->floatval;
   }
 
-  // we must clean up after ourselves
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
   _free_expr(e1);
-
   return result;
 }
 
-static expr_t *eval_mul_float(env_t *env, expr_t *operands, float partial)
+static expr_t *eval_mul_float(env_t *env, expr_t *e, float partial)
 {
-  expr_t *result = _float_expr(partial), *e, *e1;
-  for(e = operands; e != &NIL; e = e->cdr) {
-    e1 = _eval(env, e->car);
-    switch(e1->type) {
-    case INTEGER_T: result->floatval *= ((float)e1->intval); break;
-    case FLOAT_T: result->floatval *= e1->floatval; break;
-    default: {
-      // clean up our partial result
-      _free_expr(result);
-      if(e1 == &ERROR) return e1;
-      _free_expr(e1);
-      return _error("attempt to multiply a non-numeric value");
-    }
-    }
-    // we must clean up after ourselves
-    _free_expr(e1);
-  }
-  return result;
-}
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to multiply a non-numeric value"); // TODO this error message isn't quite sensible
 
-static expr_t *eval_mul_int(env_t *env, expr_t *operands, int partial)
-{
-  expr_t *result = _int_expr(partial), *e, *e1;
-  // if(config.debug) { fprintf(stderr, "eval_mul_int: current value: %i\n", result->intval); }
-  for(e = operands; e != &NIL; e = e->cdr) {
-    e1 = _eval(env, e->car);
-    switch(e1->type) {
-
-    case INTEGER_T: result->intval *= e1->intval; break;
-    case FLOAT_T: {
-      float partial = ((float)result->intval)*e1->floatval;
-      _free_expr(result);
-      _free_expr(e1);
-      return eval_mul_float(env, e->cdr, partial);
-    }
-    default: {
-      // clean up our partial result
-      _free_expr(result);
-      if(e1 == &ERROR) return e1;
-      _free_expr(e1);
-      return _error("attempt to multiply a non-numeric value");
-    }
-    }
-    // we must clean up after ourselves
-    _free_expr(e1);
-  }
-  return result;
-}
-
-
-static expr_t *eval_mul(env_t *env, expr_t *operands)
-{
-  return eval_mul_int(env, operands, 1);
-}
-
-static expr_t *eval_div(env_t *env, expr_t *operands)
-{
-  int result, is_float=0;
-  float fresult;
-  expr_t *e = operands, *e1, *ret;
-  
-  // first we must check that we have at least two operands
-  if(e == &NIL || e->cdr == &NIL) // || e->cdr->car == &NIL)
-    return _error("division attempted with less than 2 operands");
-
-  // check the type of the first operand
-  e1 = _eval(env, e->car);
-  switch(e1->type){
-  case INTEGER_T: result = e1->intval; break;
-  case FLOAT_T: fresult = e1->floatval; is_float=1; break;
-  case ERROR_T: return e1; // we'll pass the error along
-  default: _free_expr(e1); return _error("attempt to divide with a non-numeric numerator");
-  }
-
-  // we must clean up after ourselves
-  _free_expr(e1); 
-  
-  // multiply the rest of the operands to get the denominator
-  e1 = is_float ? eval_mul_float(env, e->cdr, 1.0) : eval_mul_int(env, e->cdr, 1);
-
-  // divide the numerator with the denominator, of course
-  // checking to make sure the denominator is non-zero
+  expr_t *e1 = _eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: {
-    if(e1->intval == 0) {
-     ret = _error("attempt to divide by zero");
-    } else {
-      ret = is_float ? _float_expr(fresult/((float)e1->intval)) : _int_expr(result/e1->intval);
-    }
-  }break;
-  case FLOAT_T: {
-    if(e1->floatval == 0.0) {
-      ret = _error("attempt to divide by zero");
-    } else {
-      ret = is_float ? _float_expr(fresult/e1->floatval) : _float_expr(((float)result)/e1->floatval);
-    }
-  }break;
-  case ERROR_T: return e1; // we'll pass the error along
-  default: ret = _error("unknown denominator type");
+  case INTEGER_T: result = eval_mul_float(env, e->cdr, partial * (float)e1->intval); break;
+  case FLOAT_T: result = eval_mul_float(env, e->cdr, partial * e1->floatval); break;
+  default: result = _error("attempt to multiply a non-numeric value");
   }
-
-  // we must clean up after ourselves
-  _free_expr(e1);
   
-  return ret;
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
+  return result;
+}
+
+static expr_t *eval_mul_int(env_t *env, expr_t *e, int partial)
+{
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to multiply a non-numeric value"); // TODO this error message isn't quite sensible
+
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_mul_int(env, e->cdr, partial * e1->intval); break;
+  case FLOAT_T: result = eval_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
+  default: result = _error("attempt to multiply a non-numeric value");
+  }
+  
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
+  return result;
+}
+
+static expr_t *eval_mul(env_t *env, expr_t *e)
+{
+  return eval_mul_int(env, e, 1);
+}
+
+static expr_t *eval_div_float(env_t *env, expr_t *e, float partial)
+{
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to divide a non-numeric value"); // TODO this error message isn't quite sensible
+
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_div_float(env, e->cdr, partial / (float)e1->intval); break;
+  case FLOAT_T: result = eval_div_float(env, e->cdr, partial / e1->floatval); break;
+  default: result = _error("attempt to divide a non-numeric value");
+  }
+  
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
+  return result;
+}
+
+static expr_t *eval_div_int(env_t *env, expr_t *e, int partial)
+{
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) return _error("attempt to divide a non-numeric value"); // TODO this error message isn't quite sensible
+
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_div_int(env, e->cdr, partial / e1->intval); break;
+  case FLOAT_T: result = eval_div_float(env, e->cdr, (float)partial / e1->floatval); break;
+  default: result = _error("attempt to divide a non-numeric value");
+  }
+  
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
+  return result;
+}
+
+static expr_t *eval_div(env_t *env, expr_t *e)
+{
+  if(e == &NIL) return _error("need at least two arguments for division");
+  if(e->type != LIST_T) return _error("attempt to divide a non-numeric value"); // TODO this error message isn't quite sensible
+
+  expr_t *e1 = _eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_div_int(env, e->cdr, e1->intval); break;
+  case FLOAT_T: result = eval_div_float(env, e->cdr, (float)e1->floatval); break;
+  default: result = _error("attempt to divide a non-numeric value");
+  }
+  
+  // if we only had one operand, that's an error!
+  if(e->cdr == &NIL) result = _error("need at least two arguments for division");
+
+  // TODO how can we get rid of this in-eval cleanup?
+  //we must clean up after ourselves
+  _free_expr(e1);
+  return result;
 }
 
 static expr_t *eval_var_def(env_t *env, expr_t *id_expr, expr_t *value)

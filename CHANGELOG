@@ -1,4 +1,6 @@
-
-* 2012-11-1 - pretty-printing has been implemented (see: -P, -I flags)
-	...but it's a matter of opinion just how "pretty" it is...
-* 2012-11-1 - initial commit to github with basic functionality
+* 2012-11-1 Clifton Snyder <cliff.snyder@gmail.com>
+	* eval.c: cleaned up +/-/*// code a bit
+* 2012-11-1 Clifton Snyder <cliff.snyder@gmail.com>
+	* print.c: pretty-printing has been implemented (see: -P, -I flags)
+* 2012-11-1 Clifton Snyder <cliff.snyder@gmail.com>
+	* everything: initial commit to github with basic functionality

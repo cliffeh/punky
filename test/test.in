@@ -7,6 +7,14 @@
 3                                ; integer
 3.789e3				 ; float
 "ghi"                            ; string
+(+)                              ; empty add operation
+(+ 1)                            ; single-operand add operation
+(-)                              ; empty subtract operation
+(- 1)                            ; single-operand subtract operation
+(- 7 3)                          ; subtraction
+(*)                              ; empty multiply operation
+(* 2)                            ; single-operand multiply operation
+(* 3 4)                          ; multiplication
 (+ 1 2)                          ; simple addition
 (+ 4 (+ 2 5))                    ; nested addition
 (* 6 (+ 4 3))                    ; nested addition/multiplication

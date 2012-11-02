@@ -41,3 +41,5 @@ b                                ; variable lookup
 (cdr '(a b c d))                 ; cdr
 (cons 'a '(b c d))               ; cons
 (list 'a 'b 'c 'd)               ; list
+#t                               ; true
+#f                               ; false

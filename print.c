@@ -50,6 +50,8 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
     case DEFUN_OP: fprintf(out, "defun"); break;
     case LET_OP: fprintf(out, "let"); break;
     case SUBSTR_OP: fprintf(out, "substr"); break;
+    case IF_OP: fprintf(out, "if"); break;
+    case WHILE_OP: fprintf(out, "while"); break;
     default: fprintf(out, "UNKNOWN_OP");
     }
     // TODO COMPLETE THIS!

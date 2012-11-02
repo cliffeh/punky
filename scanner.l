@@ -25,6 +25,10 @@
 "cons"   { return(CONS); }
 "list"   { return(LIST); }
 
+%{ /* program control/looping structures */ %}
+"if"     { return(IF); }
+"while"  { return(WHILE); }
+
 %{ /* misc operations */ %}
 "let"    { return(LET); }
 "quote"  { return(QUOTE); }

@@ -27,7 +27,9 @@ enum PUNKY_OP_TYPE {
   DEFVAR_OP,
   DEFUN_OP,
   LET_OP,
-  SUBSTR_OP
+  SUBSTR_OP,
+  IF_OP,
+  WHILE_OP
 };
 
 typedef struct expr_t

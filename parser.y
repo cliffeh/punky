@@ -28,6 +28,8 @@
 %token DEFVAR DEFUN 
  // list operations
 %token CAR CDR CONS LIST
+ // program control/looping structures
+%token IF WHILE
  // misc operations
 %token LET QUOTE
  // string operations
@@ -83,6 +85,8 @@ op: PLUS { $$=ADD_OP; }
 | DEFUN  { $$=DEFUN_OP; }
 | LET    { $$=LET_OP; }
 | SUBSTR { $$=SUBSTR_OP; }
+| IF     { $$=IF_OP; }
+| WHILE  { $$=WHILE_OP; }
 ;
 
 %%

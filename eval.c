@@ -1,5 +1,6 @@
 #include "punky.h"
 #include "env.h"
+#include "eval.h"
 
 static expr_t *_eval(env_t *env, expr_t *e);
 static expr_t *eval_add_float(env_t *env, expr_t *e, float partial);
@@ -14,6 +15,23 @@ static expr_t *eval_mul(env_t *env, expr_t *e);
 static expr_t *eval_div_float(env_t *env, expr_t *e, float partial);
 static expr_t *eval_div_int(env_t *env, expr_t *e, int partial);
 static expr_t *eval_div(env_t *env, expr_t *e);
+
+expr_t *eval_args(env_t *env, expr_t *e, int count)
+{
+  if((count == 0) && (e == &NIL)) return e;
+  if(e->type != LIST_T) return _error("expected a list of arguments");
+
+  int i;
+  expr_t *result = _list_expr(_eval(env, e->car), &NIL), *r_ptr, *e_ptr;
+  for(i = 1, r_ptr = result, e_ptr = e->cdr; e_ptr->type == LIST_T; i++, r_ptr = r_ptr->cdr, e_ptr = e_ptr->cdr) {
+    r_ptr->cdr = _list_expr(e_ptr->car, &NIL);
+  }
+  if(i != count) {
+    _free_expr(result);
+    return _error("incorrect number of arguments");
+  }
+  return result;
+}
 
 static expr_t *eval_add_float(env_t *env, expr_t *e, float partial)
 {
@@ -315,10 +333,10 @@ static expr_t *eval_op(env_t *env, enum PUNKY_OP_TYPE op, expr_t *e)
   case DIV_OP: return eval_div(env, e);
 
     /* list operations */
-  case CAR_OP: { // TODO error checking!
-    expr_t *e1 = _eval(env, e->car), *result = _clone_expr(e1->car); 
-    _free_expr(e1);
-    return result; 
+  case CAR_OP: {
+    expr_t *args = eval_args(env, e, 1), *result = _clone_expr(args->car->car);
+    _free_expr(args);
+    return result;
   }break; 
   case CDR_OP: { // TODO error checking!
     expr_t *e1 = _eval(env, e->car), *result = _clone_expr(e1->cdr); 

@@ -1,9 +1,59 @@
-(defun is-sorted (list) ; #t if list is sorted; otherwise #f
-  ()
-)
+(define is-sorted ; #t if list is sorted; otherwise #f
+  (lambda (l)
+    (if (null? (cdr l))
+	t ; single-element lists are always sorted
+      (and 
+       (< (car l) (car (cdr l)))
+       (is-sorted (cdr l))
+       ) ; end and
+      ) ; end if (null? (cddr l))
+    ) ; end lambda
+  )
+  
+(define less-than-list
+  (lambda (a l)
+    (if (null? l)
+	()
+      (if (< (car l) a)
+	  (cons (car l) (less-than-list a (cdr l)))
+	(less-than-list a (cdr l))
+	) ; end if (< (car l) a
+      ) ; end if (null? l)
+    ) ; end lambda
+  )
 
-(defun sort (list)
-  ()
-)
+(define greater-equal-list
+  (lambda (a l)
+    (if (null? l)
+	()
+      (if (>= (car l) a)
+	  (cons (car l) (greater-equal-list a (cdr l)))
+	(greater-equal-list a (cdr l))
+	) ; end if (>= (car l) a
+      ) ; end if (null? l)
+    ) ; end lambda
+  )
+	
+
+(define sort 
+  (lambda (l)
+    (if (null? l)
+	() ; zero-element lists are always sorted
+      (append (sort (less-than-list (car l) (cdr l))) (cons (car l) (sort (greater-equal-list (car l) (cdr l)))))
+      ) ; end if (null? (cdr l))
+    ) ; end lambda
+  )
+
+(define reverse
+  (lambda (l)
+    (if (null? l)
+	()
+      (append (reverse (cdr l)) (car l))
+      )
+    )
+  )
 
 (sort '(2 7 1 9 5 3 4 8 6)) ; expecting output: (1 2 3 4 5 6 7 8 9)
+(is-sorted '(2 7 1 9 5 3 4 8 6)) ; #f
+(is-sorted '(1 2 3 4 5 6 7 8 9)) ; #t
+

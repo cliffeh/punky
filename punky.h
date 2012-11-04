@@ -41,10 +41,6 @@ expr_t *_str_expr(char *value);
 expr_t *_id_expr(char *value);
 expr_t *_op_expr(enum PUNKY_OP_TYPE op);
 
-/* casting */ // TODO GET RID OF THIS SHITE!
-expr_t *_to_int(expr_t *e);
-expr_t *_to_float(expr_t *e);
-
 /* memory management */
 void _free_expr(expr_t *e);
 expr_t *_clone_expr(expr_t *src);

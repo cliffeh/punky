@@ -56,6 +56,7 @@ static expr_t *eval_add_int(env_t *env, expr_t *e, int partial)
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) return _error("attempt to add a non-numeric value"); // TODO this error message isn't quite sensible
 
+  // we'll use this to hold the result
   expr_t *e1 = _eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_add_int(env, e->cdr, partial + e1->intval); break;
@@ -451,8 +452,6 @@ static expr_t *_eval(env_t *env, expr_t *e)
   // if(config.debug) { fprintf(stderr, "eval: %s: ", type_to_string(e->type)); print(e); }
   expr_t *result;
 
-  if(!e) { return _error("OH SHIZZLE! WE HAVE A NULL SHIT!\n"); }
-
   switch(e->type) {
     
   case LIST_T: {
@@ -462,9 +461,9 @@ static expr_t *_eval(env_t *env, expr_t *e)
     // i tried being "fancy" and re-using these types. in the end, it
     // causes a lot less headache by just returning a copy (double frees ftl)
   case BOOL_T: result = _bool_expr(e->intval); break;
-  case INTEGER_T: result = _int_expr(e->intval); break; // result = _int_expr(e->intval); break;
+  case INTEGER_T: result = _int_expr(e->intval); break;
   case FLOAT_T: result = _float_expr(e->floatval); break;
-  case STRING_T: result = _str_expr(strdup(e->strval)); break;
+  case STRING_T: result = e; e->_ref++; break;
 
   case IDENTIFIER_T: {
     result = get_var(env, e->strval);
@@ -477,14 +476,14 @@ static expr_t *_eval(env_t *env, expr_t *e)
   default: result = _error("attempted evaluation of unknown expression type");
   }
 
-  // if(e != result) _free_expr(e);
+  if(!(e->_ref)) _free_expr(e);
   return result;
 }
 
 punky_t *eval(punky_t *p)
 {
   expr_t *e = _eval(&p->env, p->e);
-  _free_expr(p->e); // free up whatever we parsed
+  // _free_expr(p->e); // free up whatever we parsed
   p->e = e;
   return p;
 }

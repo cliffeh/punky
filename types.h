@@ -44,6 +44,7 @@ enum PUNKY_OP_TYPE {
 typedef struct expr_t
 {
   enum PUNKY_TYPE type;
+  int _ref; // memory management
   union 
   {
     /* for primitive types (INTEGER, STRING, FLOAT, IDENT) */

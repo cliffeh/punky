@@ -4,12 +4,15 @@ static expr_t *_new_expr(enum PUNKY_TYPE type)
 {
   expr_t *e = malloc(sizeof(expr_t));
   e->type = type;
+  e->_ref = 0;
   return e;
 }
 
 expr_t *_list_expr(expr_t *car, expr_t *cdr)
 {
   expr_t *e = _new_expr(LIST_T);
+  car->_ref++;
+  cdr->_ref++;
   e->car = car;
   e->cdr = cdr;
   return e;
@@ -59,27 +62,6 @@ expr_t *_op_expr(enum PUNKY_OP_TYPE op)
   expr_t *e = _new_expr(OP_T);
   e->op = op;
   return e;
-}
-
-/* casting; would like to get rid of these... */
-expr_t *_to_int(expr_t *e)
-{
-  switch(e->type) {
-  case INTEGER_T: return e;
-  case FLOAT_T: { expr_t *result = _int_expr(((int)e->floatval)); _free_expr(e); return result; }
-  case ERROR_T: return e;
-  default: return _error("attempt to convert non-numeric value to an integer");
-  }
-}
-
-expr_t *_to_float(expr_t *e)
-{
-  switch(e->type) {
-  case INTEGER_T: { expr_t *result = _float_expr(((float)e->intval)); _free_expr(e); return result; }
-  case FLOAT_T: return e;
-  case ERROR_T: return e;
-  default: return _error("attempt to convert non-numeric value to a float");
-  }
 }
 
 expr_t *_clone_expr(expr_t *e)

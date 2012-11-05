@@ -281,15 +281,34 @@ expr_t *eval_op_equal(env_t *env, expr_t *e)
 expr_t *eval_op_lt(env_t *env, expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
-  return (compare(e1, e2) < 0) ? &T : &F;
+  expr_t *result = (compare(e1, e2) < 0) ? &T : &F;
+  _free_expr(e1); _free_expr(e2);
+  return result;
 }
 
 expr_t *eval_op_gt(env_t *env, expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
-  return (compare(e1, e2) > 0) ? &T : &F;
+  expr_t *result = (compare(e1, e2) > 0) ? &T : &F;
+  _free_expr(e1); _free_expr(e2);
+  return result;
 }
 
+expr_t *eval_op_le(env_t *env, expr_t *e)
+{
+  expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
+  expr_t *result = (compare(e1, e2) <= 0) ? &T : &F;
+  _free_expr(e1); _free_expr(e2);
+  return result;
+}
+
+expr_t *eval_op_ge(env_t *env, expr_t *e)
+{
+  expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
+  expr_t *result = (compare(e1, e2) >= 0) ? &T : &F;
+  _free_expr(e1); _free_expr(e2);
+  return result;
+}
 
 static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
 {

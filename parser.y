@@ -97,9 +97,9 @@ op: PLUS { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | EQUAL  { $$ = _op_expr(strdup(yytext), &eval_op_equal); }
 | LT     { $$ = _op_expr(strdup(yytext), &eval_op_lt); }
 | GT     { $$ = _op_expr(strdup(yytext), &eval_op_gt); }
+| LE     { $$ = _op_expr(strdup(yytext), &eval_op_le); }
+| GE     { $$ = _op_expr(strdup(yytext), &eval_op_ge); }
 /*
-| LE     { $$=LE_OP; }
-| GE     { $$=GE_OP; }
 | SUBSTR { $$=SUBSTR_OP; }
 */
 ;

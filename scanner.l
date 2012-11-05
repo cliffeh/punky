@@ -24,8 +24,10 @@
 "or"  { return(OR); }
 
 %{ /* variable/function definition */ %}
-"defvar" { return(DEFVAR); }
-"defun"  { return(DEFUN);  }
+"define" { return(DEFINE); }
+
+%{ /* anonymous functions */ %}
+"lambda" { return(LAMBDA); }
 
 %{ /* list operations */ %}
 "car"    { return(CAR); }

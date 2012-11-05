@@ -18,8 +18,8 @@ WHAT WORKS
 
 * variable and function definition; e.g.,
 
-  (defvar foo 27)
-  (defun double (x) (* x 2))
+  (define foo 27)
+  (define double (lambda (x) (* x 2)))
 
 * quote, car, cdr, cons, list; e.g.,
 
@@ -48,20 +48,18 @@ WHAT WORKS
   (if #t 5 7)
   (if #f 5 7)
 
+* lambda functions; e.g.,
+
+  ((lambda (x) (* x 2)) 7)
+
 WHAT DOESN'T WORK
 
-* lambda functions
 * strings are accepted as atoms and can be defined as variables, but there
   are as yet very few string operations
-* boolean atoms
-* looping structures (for/when/etc.)
 * ...and anything else not listed under "WHAT WORKS" :-)
 
 NOTES
 
-* boolean operations are c-like; i.e., they will accept either boolean
-  or integer values (where 0 i equivalent to #f and any non-zero value
-  is equivalent to #t)
 * mathematical operations work in the following way:
   * a math operation with all integer operands will return an integer
   * a math operation with all float operands will return a float

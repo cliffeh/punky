@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "punky.h"
+#include "eval.h"
   extern char *yytext;
   extern FILE *yyin; // , *yyout;
   %}
@@ -18,14 +19,15 @@
 }
 
 %union {
-  enum PUNKY_OP_TYPE op;
   char *strval;
   struct expr_t *e;
 }
 
 %token LPAREN RPAREN PLUS DASH STAR FSLASH SQUOTE DOT EOFTOK
  // variable/function definition
-%token DEFVAR DEFUN 
+%token DEFINE
+ // anonymous functions
+%token LAMBDA
  // list operations
 %token CAR CDR CONS LIST
  // program control/looping structures
@@ -43,8 +45,7 @@
 %token <strval> IDENT STRLIT
 
  // non-terminals
-%type <e> sexpr list seq atom
-%type <op> op
+%type <e> sexpr list seq atom op
 
 %start program
 
@@ -57,49 +58,50 @@ program: /* empty */
 
 sexpr : list
 | atom
-| SQUOTE sexpr { $$ = _list_expr(_op_expr(QUOTE_OP), _list_expr($2, &NIL)); }
+| SQUOTE sexpr { $$ = _list_expr(_op_expr(strdup("quote"), &eval_op_quote), _list_expr($2, &NIL)); }
 ;
 
 atom: INTLIT { $$ = _int_expr(atoi(yytext)); } 
 | FLOATLIT { $$ = _float_expr(atof(yytext)); }
 | STRLIT { $$ = _str_expr(strdup(yytext)); }
 | IDENT { $$ = _id_expr(strdup(yytext)); }
-| TRU   { $$ = _bool_expr(1); }
-| FALS  { $$ = _bool_expr(0); }
+| TRU   { $$ = &T; }
+| FALS  { $$ = &F; }
 ;
 
 list: LPAREN seq RPAREN { $$ = $2; }
 | LPAREN sexpr DOT sexpr RPAREN { $$ = _list_expr($2, $4); }
-| LPAREN op seq RPAREN { $$ = _list_expr(_op_expr($2), $3); }
+| LPAREN op seq RPAREN { $$ = _list_expr($2, $3); }
 ;
 
 seq: /* empty */ { $$ = &NIL; }
 | sexpr seq { $$ = _list_expr($1, $2); }
 ;
 
-op: PLUS { $$=ADD_OP; } 
-| DASH   { $$=SUB_OP; } 
-| STAR   { $$=MUL_OP; } 
-| FSLASH { $$=DIV_OP; }
-| CAR    { $$=CAR_OP; } 
-| CDR    { $$=CDR_OP; }
-| CONS   { $$=CONS_OP; }
-| LIST   { $$=LIST_OP; }
-| QUOTE  { $$=QUOTE_OP; }
-| DEFVAR { $$=DEFVAR_OP; }
-| DEFUN  { $$=DEFUN_OP; }
-| LET    { $$=LET_OP; }
-| SUBSTR { $$=SUBSTR_OP; }
-| IF     { $$=IF_OP; }
-| WHILE  { $$=WHILE_OP; }
-| NOT    { $$=NOT_OP; }
-| AND    { $$=AND_OP; }
-| OR     { $$=OR_OP; }
-| EQUAL  { $$=EQUAL_OP; }
-| LT     { $$=LT_OP; }
-| GT     { $$=GT_OP; }
+op: PLUS { $$ = _op_expr(strdup(yytext), &eval_op_add); }
+| DASH   { $$ = _op_expr(strdup(yytext), &eval_op_sub); }
+| STAR   { $$ = _op_expr(strdup(yytext), &eval_op_mul); }
+| FSLASH { $$ = _op_expr(strdup(yytext), &eval_op_div); }
+| DEFINE { $$ = _op_expr(strdup(yytext), &eval_op_define); }
+| LAMBDA { $$ = _op_expr(strdup(yytext), &eval_op_lambda); }
+| CAR    { $$ = _op_expr(strdup(yytext), &eval_op_car); }
+| CDR    { $$ = _op_expr(strdup(yytext), &eval_op_cdr); }
+| CONS   { $$ = _op_expr(strdup(yytext), &eval_op_cons); }
+| LIST   { $$ = _op_expr(strdup(yytext), &eval_op_list); }
+| QUOTE  { $$ = _op_expr(strdup(yytext), &eval_op_quote); }
+| LET    { $$ = _op_expr(strdup(yytext), &eval_op_let); }
+| IF     { $$ = _op_expr(strdup(yytext), &eval_op_if); }
+| NOT    { $$ = _op_expr(strdup(yytext), &eval_op_not); }
+| AND    { $$ = _op_expr(strdup(yytext), &eval_op_and); }
+| OR     { $$ = _op_expr(strdup(yytext), &eval_op_or); }
+| EQUAL  { $$ = _op_expr(strdup(yytext), &eval_op_equal); }
+| LT     { $$ = _op_expr(strdup(yytext), &eval_op_lt); }
+| GT     { $$ = _op_expr(strdup(yytext), &eval_op_gt); }
+/*
 | LE     { $$=LE_OP; }
 | GE     { $$=GE_OP; }
+| SUBSTR { $$=SUBSTR_OP; }
+*/
 ;
 
 %%
@@ -119,7 +121,7 @@ char *s;
   // TODO handle parse errors better!
   /* ignore unknown input */ 
   fprintf(stderr,
-	     "parse: unable to parse '%s'; ignoring this line\n", yytext); 
+	  "parse: unable to parse '%s'\n", yytext); 
 }
 
 yywrap()

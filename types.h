@@ -15,47 +15,34 @@ enum PUNKY_TYPE {
   ERROR_T
 };
 
-enum PUNKY_OP_TYPE {
-  ADD_OP,
-  SUB_OP,
-  MUL_OP,
-  DIV_OP,
-  CAR_OP,
-  CDR_OP,
-  CONS_OP,
-  LIST_OP,
-  QUOTE_OP,
-  DEFVAR_OP,
-  DEFUN_OP,
-  LET_OP,
-  SUBSTR_OP,
-  IF_OP,
-  WHILE_OP,
-  NOT_OP,
-  AND_OP,
-  OR_OP,
-  EQUAL_OP,
-  LT_OP,
-  GT_OP,
-  LE_OP,
-  GE_OP
-};
+/* environment */
+#define ENV_BUCKETS 50
+
+typedef struct entry_t
+{
+  char *id;
+  struct expr_t *e;
+  struct entry_t *next; // linked list
+} entry_t;
+
+typedef struct env_t
+{
+  struct env_t *parent;
+  entry_t *entries[ENV_BUCKETS];
+} env_t;
 
 typedef struct expr_t
 {
   enum PUNKY_TYPE type;
-  int _ref; // memory management
+  struct expr_t * (*eval)(struct env_t *, struct expr_t *); // pointer to eval function
   union 
   {
-    /* for primitive types (INTEGER, STRING, FLOAT, IDENT) */
+    /* for atoms */
     int intval;
     float floatval;
     char *strval;
 
-    /* for built-in operations */
-    enum PUNKY_OP_TYPE op;
-
-    /* pretty much everything else is a list */
+    /* for lists */
     struct
     {
       struct expr_t *car;

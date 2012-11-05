@@ -1,59 +1,59 @@
-1                                ; 1
-1.0				 ; 1.0
-"abc"                            ; "abc"
-2                                ; 2
-2.345				 ; 2.345000
-"def"                            ; "def"
-3                                ; 3
-3.789e3				 ; 3789.000000
-"ghi"                            ; "ghi"
-(+)                              ; 0
-(+ 1)                            ; 1
-(-)                              ; 0
-(- 1)                            ; -1
-(- 7 3)                          ; 4
-(*)                              ; 1
-(* 2)                            ; 2
-(* 3 4)                          ; 12
-(+ 1 2)                          ; 3
-(+ 4 (+ 2 5))                    ; 11
-(* 6 (+ 4 3))                    ; 42
-(- 10 1 4 3)                     ; 2
-(- 10.0 1.0 4.0 3.0)             ; 2.000000
-(/ 9 3)                          ; 3
-(/ 64 2 4)                       ; 8
-(* 12 (/ 12 3) 2)                ; 96
-(/ (* 4.0 (* 2 3) 2 (+  1 1)) 6) ; 16.000000
-(defvar a 2)                     ; a
-a                                ; 2
-(defvar b 3)                     ; b
-b                                ; 3
-(defvar b 5)                     ; b
-b                                ; 5
-(defun double (x) (* x 2))       ; double
-(double 7)                       ; 14
-(double (double 4))              ; 16
-(let ((x 10) (y 20)) (+ y x))    ; 30
-(defvar c 7)                     ; c
-(let ((x a) (y b)) (+ x y c))    ; 14
-'(a b c d)                       ; (a b c d)
-(car '(a b c d))                 ; a
-(cdr '(a b c d))                 ; (b c d)
-(cons 'a '(b c d))               ; (a b c d)
-(list 'a 'b 'c 'd)               ; (a b c d)
-#t                               ; #t
-#f                               ; #f
-(not #f)                         ; #t
-(not #t)                         ; #f
-(and #f #f)                      ; #f
-(and #t #f)                      ; #f
-(and #f #t)                      ; #f
-(and #t #t)                      ; #t
-(or #f #f)                       ; #f
-(or #t #f)                       ; #t
-(or #f #t)                       ; #t
-(or #t #t)                       ; #t
-(if #t 5 7)                      ; 5
-(if #f 5 7)                      ; 7
-(if #t (+ 7 9))                  ; 16
-(if #f (+ 7 9))                  ; ()
+1                                     ; 1
+1.0				      ; 1.0
+"abc"                                 ; "abc"
+2                                     ; 2
+2.345				      ; 2.345000
+"def"                                 ; "def"
+3                                     ; 3
+3.789e3				      ; 3789.000000
+"ghi"                                 ; "ghi"
+(+)                                   ; 0
+(+ 1)                                 ; 1
+(-)                                   ; 0
+(- 1)                                 ; -1
+(- 7 3)                               ; 4
+(*)                                   ; 1
+(* 2)                                 ; 2
+(* 3 4)                               ; 12
+(+ 1 2)                               ; 3
+(+ 4 (+ 2 5))                         ; 11
+(* 6 (+ 4 3))                         ; 42
+(- 10 1 4 3)                          ; 2
+(- 10.0 1.0 4.0 3.0)                  ; 2.000000
+(/ 9 3)                               ; 3
+(/ 64 2 4)                            ; 8
+(* 12 (/ 12 3) 2)                     ; 96
+(/ (* 4.0 (* 2 3) 2 (+  1 1)) 6)      ; 16.000000
+(define a 2)                          ; a
+a                                     ; 2
+(define b 3)                          ; b
+b                                     ; 3
+(define b 5)                          ; b
+b                                     ; 5
+(define double (lambda (x) (* x 2)))  ; double
+(double 7)                            ; 14
+(double (double 4))                   ; 16
+(let ((x 10) (y 20)) (+ y x))         ; 30
+(define c 7)                          ; c
+(let ((x a) (y b)) (+ x y c))         ; 14
+'(a b c d)                            ; (a b c d)
+(car '(a b c d))                      ; a
+(cdr '(a b c d))                      ; (b c d)
+(cons 'a '(b c d))                    ; (a b c d)
+(list 'a 'b 'c 'd)                    ; (a b c d)
+#t                                    ; #t
+#f                                    ; #f
+(not #f)                              ; #t
+(not #t)                              ; #f
+(and #f #f)                           ; #f
+(and #t #f)                           ; #f
+(and #f #t)                           ; #f
+(and #t #t)                           ; #t
+(or #f #f)                            ; #f
+(or #t #f)                            ; #t
+(or #f #t)                            ; #t
+(or #t #t)                            ; #t
+(if #t 5 7)                           ; 5
+(if #f 5 7)                           ; 7
+(if #t (+ 7 9))                       ; 16
+(if #f (+ 7 9))                       ; ()

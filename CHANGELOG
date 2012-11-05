@@ -1,3 +1,8 @@
+2012-11-5 Clifton Snyder <cliff.snyder@gmail.com>
+	* everything: re-jiggered evaluation to use function pointers
+	* everything: implemented lambda functions
+	* everything: got rid of defun/defvar in favor of define
+
 2012-11-1 Clifton Snyder <cliff.snyder@gmail.com>
 	* everything: added scanning, parsing, printing for boolean types (#t, #f)
 	* scanner.l, parser.y, eval.c: list expressions (car, cdr, cons, list) now work

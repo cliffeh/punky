@@ -10,6 +10,10 @@
 extern expr_t NIL;
 extern expr_t ERROR;
 
+/* booleans */
+extern expr_t T;
+extern expr_t F;
+
 typedef struct punky_t
 {
   /* input, output, and error streams */
@@ -34,16 +38,18 @@ punky_t *cleanup(punky_t *p);
 
 /* private functions for allocating expressions - use at your own risk! */
 expr_t *_list_expr(expr_t *car, expr_t *cdr);
-expr_t *_bool_expr(int value);
 expr_t *_int_expr(int value);
 expr_t *_float_expr(float value);
 expr_t *_str_expr(char *value);
 expr_t *_id_expr(char *value);
-expr_t *_op_expr(enum PUNKY_OP_TYPE op);
+expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, struct expr_t *));
 
 /* memory management */
 void _free_expr(expr_t *e);
 expr_t *_clone_expr(expr_t *src);
+
+/* expr_t comparison */
+int compare(expr_t *e1, expr_t *e2);
 
 /* error handling */
 expr_t *_error(char *msg);

@@ -7,7 +7,25 @@ static void nl_and_spaces(FILE *out, int count)
   for(i = 0; i < count; i++) fputc(' ', out);
 }
 
-static void _print(FILE *out, expr_t *e, int indent, int depth)
+char *type_to_string(enum PUNKY_TYPE t)
+{
+  switch(t) {
+  case LIST_T: return "LIST";
+  case BOOL_T: return "BOOL";
+  case INTEGER_T: return "INTEGER";
+  case FLOAT_T: return "FLOAT";
+  case STRING_T: return "STRING";
+  case IDENTIFIER_T: return "IDENT";
+  case OP_T: return "OP";
+    
+    /* special types */
+  case NIL_T: return "NIL";
+  case ERROR_T: return "ERROR";
+  default: return "UNKNOWN";
+  }
+}
+
+/* static */ void _print(FILE *out, expr_t *e, int indent, int depth)
 {
   switch(e->type){
 
@@ -37,6 +55,7 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
   case IDENTIFIER_T: fprintf(out, "%s", e->strval); break;
 
   case OP_T: {
+    /*
     switch(e->op) {
     case ADD_OP: fprintf(out, "+"); break;
     case SUB_OP: fprintf(out, "-"); break;
@@ -64,13 +83,14 @@ static void _print(FILE *out, expr_t *e, int indent, int depth)
 
     default: fprintf(out, "UNKNOWN_OP");
     }
-    // TODO COMPLETE THIS!
+    */
+    fprintf(out, "%s", e->strval);
   }break;
 
   case NIL_T: fprintf(out, "()"); break;
   case ERROR_T: fprintf(stderr, "error: %s\n", e->strval); return;
 
-  default: fprintf(stderr, "print error: unknown expression type %i\n", e->type); return;
+  default: fprintf(stderr, "print error: unknown expression type: %s\n", type_to_string(e->type)); return;
   }
 
   // we're always going to want a newline after the initial print

@@ -1,14 +1,16 @@
-punky - a simple functional language interpreter
+# punky
 
-BUILDING
+__a simple functional language interpreter__
 
-make
+## BUILDING
 
-RUNNING
+<code>make</code>
 
-./punky
+## RUNNING
 
-WHAT WORKS
+<code>./punky</code>
+
+## WHAT WORKS
 
 * simple integer and floating-point arithmetic; e.g.,
 

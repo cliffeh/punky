@@ -13,3 +13,4 @@
 * be careful about functions that always assume NIL-terminated lists!
 * types to add: file, env
 * put "defun" back in as syntactic sugar?
+* there is a (small) memory leak somewhere (run: valgrind --leak-check=full ./punky -i test/sort.in)

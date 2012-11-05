@@ -185,6 +185,17 @@ expr_t *eval_op_list(env_t *env, expr_t *e)
   */
 }
 
+expr_t *eval_op_append(env_t *env, expr_t *e)
+{
+  expr_t *l1 = e->car->eval(env, e->car), *l2 = e->cdr->car->eval(env, e->cdr->car), *ptr, *result;
+  if(l1 == &NIL) return l2;
+  for(ptr = l1; ptr->cdr != &NIL; ptr = ptr->cdr);
+  ptr->cdr = l2;
+  result = _clone_expr(l1);
+  _free_expr(l1);
+  return result;
+}
+
 expr_t *eval_op_quote(env_t *env, expr_t *e)
 {
   if(!(ONE_ARGS(e))) return _error("quote: incorrect number of arguments");

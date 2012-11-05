@@ -1,4 +1,5 @@
 2012-11-5 Clifton Snyder <cliff.snyder@gmail.com>
+	* test/sort.in: this is now correctly parsed and evaluated by punky! big milestone
 	* everything: re-jiggered evaluation to use function pointers
 	* everything: implemented lambda functions
 	* everything: got rid of defun/defvar in favor of define

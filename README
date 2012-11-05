@@ -52,6 +52,8 @@ WHAT WORKS
 
   ((lambda (x) (* x 2)) 7)
 
+* comparison operators (=, <, >, <=, >=)
+
 WHAT DOESN'T WORK
 
 * strings are accepted as atoms and can be defined as variables, but there

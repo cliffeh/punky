@@ -34,6 +34,7 @@
 "cdr"    { return(CDR); }
 "cons"   { return(CONS); }
 "list"   { return(LIST); }
+"append" { return(APPEND); }
 
 %{ /* program control/looping structures */ %}
 "if"     { return(IF); }

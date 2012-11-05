@@ -29,7 +29,7 @@
  // anonymous functions
 %token LAMBDA
  // list operations
-%token CAR CDR CONS LIST
+%token CAR CDR CONS LIST APPEND
  // program control/looping structures
 %token IF WHILE
  // misc operations
@@ -88,6 +88,7 @@ op: PLUS { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | CDR    { $$ = _op_expr(strdup(yytext), &eval_op_cdr); }
 | CONS   { $$ = _op_expr(strdup(yytext), &eval_op_cons); }
 | LIST   { $$ = _op_expr(strdup(yytext), &eval_op_list); }
+| APPEND { $$ = _op_expr(strdup(yytext), &eval_op_append); }
 | QUOTE  { $$ = _op_expr(strdup(yytext), &eval_op_quote); }
 | LET    { $$ = _op_expr(strdup(yytext), &eval_op_let); }
 | IF     { $$ = _op_expr(strdup(yytext), &eval_op_if); }

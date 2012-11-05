@@ -48,16 +48,6 @@
     ) ; end lambda
   )
 
-(define reverse
-  (lambda (l)
-    (if (null? l)
-	()
-      (append (reverse (cdr l)) (car l))
-      )
-    )
-  )
-
 (sort '(2 7 1 9 5 3 4 8 6)) ; expecting output: (1 2 3 4 5 6 7 8 9)
-(is-sorted '(2 7 1 9 5 3 4 8 6)) ; #f
-(is-sorted '(1 2 3 4 5 6 7 8 9)) ; #t
-
+(is-sorted? '(2 7 1 9 5 3 4 8 6)) ; #f
+(is-sorted? '(1 2 3 4 5 6 7 8 9)) ; #t

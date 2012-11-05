@@ -33,6 +33,7 @@ expr_t *eval_op_car(env_t *env, expr_t *e);
 expr_t *eval_op_cdr(env_t *env, expr_t *e);
 expr_t *eval_op_cons(env_t *env, expr_t *e);
 expr_t *eval_op_list(env_t *env, expr_t *e);
+expr_t *eval_op_append(env_t *env, expr_t *e);
 
 /* misc operations */
 expr_t *eval_op_quote(env_t *env, expr_t *e);

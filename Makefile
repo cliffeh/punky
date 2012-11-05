@@ -1,10 +1,10 @@
-OBJ=parser.o scanner.o main.o expr.o print.o eval.o env.o
+OBJ=parser.o scanner.o main.o expr.o print.o eval.o env.o punky.o
 
 LEX=flex
 CFLAGS=-g
 YFLAGS=--defines=symbols.h
 
-punky: punky.h $(OBJ)
+punky: $(OBJ)
 
 scanner.c: scanner.l
 

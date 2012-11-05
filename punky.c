@@ -6,8 +6,8 @@ extern FILE *yyin; // our scanner's input file
 
 struct expr_t NIL = { .type=NIL_T, .eval=&eval_idem };
 struct expr_t ERROR = { .type=ERROR_T, .eval=&eval_idem };
-struct expr_t T = { .type=BOOL_T, .intval=1, .eval=&eval_idem };
-struct expr_t F = { .type=BOOL_T, .intval=0, .eval=&eval_idem };
+struct expr_t T = { .type=BOOL_T, .eval=&eval_idem };
+struct expr_t F = { .type=BOOL_T, .eval=&eval_idem };
 
 punky_t *init(punky_t *p)
 {

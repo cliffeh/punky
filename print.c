@@ -48,7 +48,7 @@ char *type_to_string(enum PUNKY_TYPE t)
     if(indent && depth) nl_and_spaces(out, indent*(depth-1)); 
   }break;
 
-  case BOOL_T: fprintf(out, "#%c", e->intval ? 't' : 'f'); break;
+  case BOOL_T: fprintf(out, "#%c", (e == &T) ? 't' : 'f'); break;
   case INTEGER_T: fprintf(out, "%i", e->intval); break;
   case FLOAT_T: fprintf(out, "%f", e->floatval); break;
   case STRING_T: fprintf(out, "\"%s\"", e->strval); break;

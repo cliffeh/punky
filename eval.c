@@ -23,7 +23,7 @@ expr_t *eval_idem(env_t *env, expr_t *e)
 
 expr_t *eval_op_define(env_t *env, expr_t *e)
 {
-  // TODO error checking!
+  if(!(TWO_ARGS(e))) return _error("define: incorrect number of arguments");
   expr_t *id_expr = e->car, *value = e->cdr->car->eval(env, e->cdr->car);
   return define_variable(env, id_expr->strval, value);
 }
@@ -35,6 +35,7 @@ expr_t *eval_op_lambda(env_t *env, expr_t *e)
 
 expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 {
+  if(!(THREE_ARGS(fn))) return _error("invalid function call");
   expr_t *formals = fn->cdr->car, *body = fn->cdr->cdr->car, *f_ptr, *a_ptr, *result;
 
   // fprintf(stdout, "formals: "); _print(stdout, formals, 0, 0);
@@ -141,22 +142,30 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
   _free_expr(e1);
   return result;
 }
+
 expr_t *eval_op_car(env_t *env, expr_t *e)
 {
-  expr_t *l = e->car->eval(env, e->car), *car = _clone_expr(l->car);
+  if(!(ONE_ARGS(e))) return _error("car: incorrect number of arguments");
+  expr_t *l = e->car->eval(env, e->car);
+  if(!(IS_LIST(l))) return _error("car: attempted on non-list");
+  expr_t *car = _clone_expr(l->car);
   _free_expr(l);
   return car;
 }
 
 expr_t *eval_op_cdr(env_t *env, expr_t *e)
 {
-  expr_t *l = e->car->eval(env, e->car), *cdr = _clone_expr(l->cdr);
+  if(!(ONE_ARGS(e))) return _error("car: incorrect number of arguments");
+  expr_t *l = e->car->eval(env, e->car);
+  if(!(IS_LIST(l))) return _error("car: attempted on non-list");
+  expr_t *cdr = _clone_expr(l->cdr);
   _free_expr(l);
   return cdr;
 }
 
 expr_t *eval_op_cons(env_t *env, expr_t *e)
 {
+  if(!(TWO_ARGS(e))) return _error("cons: incorrect number of arguments");
   return _list_expr(e->car->eval(env, e->car), e->cdr->car->eval(env, e->cdr->car));
 }
 
@@ -178,6 +187,7 @@ expr_t *eval_op_list(env_t *env, expr_t *e)
 
 expr_t *eval_op_quote(env_t *env, expr_t *e)
 {
+  if(!(ONE_ARGS(e))) return _error("quote: incorrect number of arguments");
   return _clone_expr(e->car);
 }
 

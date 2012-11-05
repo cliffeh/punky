@@ -7,7 +7,8 @@
   extern FILE *yyin; // , *yyout;
   %}
 
-%define api.pure
+// %define api.pure
+%pure-parser
 
 // %parse-param { expr_t *e }
 %parse-param { punky_t *p }

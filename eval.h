@@ -11,6 +11,9 @@
 /* idempotent eval function */
 expr_t *eval_idem(env_t *env, expr_t *e);
 
+/* cloning eval function */
+expr_t *eval_clone(env_t *env, expr_t *e);
+
 /* variable/function definition */
 expr_t *eval_op_define(env_t *env, expr_t *e);
 

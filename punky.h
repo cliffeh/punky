@@ -10,7 +10,7 @@
 extern expr_t NIL;
 extern expr_t ERROR;
 
-/* booleans */
+/* boolean expressions */
 extern expr_t T;
 extern expr_t F;
 

@@ -14,45 +14,48 @@ __a simple functional language interpreter__
 
 * simple integer and floating-point arithmetic; e.g.,
 
-  (+ 1 2)
-  (* 5 7)
-  (+ 4 (* 6 3) 5)
+  * <code>(+ 1 2)</code> => <code>3</code>
+  * <code>(* 5 7)</code> => <code>35</code>
+  * <code>(+ 4 (* 6 3) 5)</code> => <code>27</code>
 
 * variable and function definition; e.g.,
 
-  (define foo 27)
-  (define double (lambda (x) (* x 2)))
+  * <code>(define foo 27)</code>
+  * <code>foo</code> => <code>27</code>
+  * <code>(define double (lambda (x) (* x 2)))</code>
+  * <code>(double 4)</code> => <code>8</code>
+  * <code>(double (double 7))</code> => <code>28</code>
 
 * quote, car, cdr, cons, list; e.g.,
 
-  (car '(a b c d))
-  (list 'a 'b 'c 'd)
-  (cons 1 '(2 3 4))
+  * <code>(car '(a b c d))</code> => <code>a</code>
+  * <code>(list 'a 'b 'c 'd)</code> => <code>(a b c d)</code>
+  * <code>(cons 1 '(2 3 4))</code> => <code>(1 2 3 4)</code>
 
 * dot notation; e.g.,
 
-  (1 . 2)
+  * <code>(1 . 2)</code>
 
 * let; e.g.,
 
-  (let ((x 10) (y 20)) (+ x y))
+  * <code>(let ((x 10) (y 20)) (+ x y))</code> => <code>30</code>
 
 * string operations: substr
 
 * simple boolean operations; e.g.,
 
-  (not #t)
-  (and #f #t)
-  (or #t #f)
+  * <code>(not #t)</code> => <code>#f</code>
+  * <code>(and #f #t)</code> => <code>#f</code>
+  * <code>(or #t #f)</code> => <code>#t</code>
 
 * if statements; e.g.,
 
-  (if #t 5 7)
-  (if #f 5 7)
+  * <code>(if #t 5 7)</code> => <code>5</code>
+  * <code>(if #f 5 7)</code> => <code>7</code>
 
 * lambda functions; e.g.,
 
-  ((lambda (x) (* x 2)) 7)
+  * <code>((lambda (x) (* x 2)) 7)</code>
 
 * comparison operators (=, <, >, <=, >=)
 

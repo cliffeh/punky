@@ -81,6 +81,7 @@ expr_t *eval_list(env_t *env, expr_t *e)
 expr_t *eval_ident(env_t *env, expr_t *e)
 {
   expr_t *result = get(env, e->strval);
+  // if(!result) fprintf(stderr, "no value found for: %s\n", e->strval);
   return result ? result : _error("unbound variable");
 }
 
@@ -231,11 +232,13 @@ expr_t *eval_op_and(env_t *env, expr_t *e)
 {
   expr_t *b1 = e->car->eval(env, e->car);
   if(b1->type != BOOL_T) {
+    // fprintf(stderr, "and: b1: error: "); _print(stderr, b1, 0, 0);
     _free_expr(b1);
     return _error("and: boolean value expected");
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(b2->type != BOOL_T) {
+    // fprintf(stderr, "and: b2: error: "); _print(stderr, b2, 0, 0);
     _free_expr(b2);
     return _error("and: boolean value expected");
   }

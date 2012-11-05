@@ -1,15 +1,19 @@
-(define is-sorted ; #t if list is sorted; otherwise #f
+(define null? (lambda (l) (= l ())))
+
+(define cddr (lambda (l) (cdr (cdr l))))
+
+(define is-sorted? ; #t if list is sorted; otherwise #f
   (lambda (l)
     (if (null? (cdr l))
-	t ; single-element lists are always sorted
-      (and 
+        #t ; single-element lists are always sorted
+      (and
        (< (car l) (car (cdr l)))
-       (is-sorted (cdr l))
+       (is-sorted? (cdr l))
        ) ; end and
       ) ; end if (null? (cddr l))
     ) ; end lambda
   )
-  
+
 (define less-than-list
   (lambda (a l)
     (if (null? l)

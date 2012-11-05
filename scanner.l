@@ -53,7 +53,7 @@
 "<=" { return(LE); }
 ">=" { return(GE); }
 
-[_a-zA-Z][_\-a-zA-Z0-9]* {
+[_a-zA-Z][\?_\-a-zA-Z0-9]* {
   return(IDENT);
 }
 

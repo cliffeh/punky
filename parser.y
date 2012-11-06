@@ -120,10 +120,9 @@ punky_t *read(punky_t *p)
 yyerror(s)
 char *s;
 {
-  // TODO handle parse errors better!
   /* ignore unknown input */ 
   fprintf(stderr,
-	  "parse: unable to parse '%s'\n", yytext); 
+	  "error: read: unable to parse '%s'\n", yytext); 
 }
 
 yywrap()

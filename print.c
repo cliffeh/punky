@@ -20,7 +20,7 @@ char *type_to_string(enum PUNKY_TYPE t)
     
     /* special types */
   case NIL_T: return "NIL";
-  case ERROR_T: return "ERROR";
+  case EOF_T: return "<<EOF>>"; // this probably shouldn't happen
   default: return "UNKNOWN";
   }
 }
@@ -88,9 +88,9 @@ char *type_to_string(enum PUNKY_TYPE t)
   }break;
 
   case NIL_T: fprintf(out, "()"); break;
-  case ERROR_T: fprintf(stderr, "error: %s\n", e->strval); return;
+  case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen
 
-  default: fprintf(stderr, "print error: unknown expression type: %s\n", type_to_string(e->type)); return;
+  default: fprintf(stderr, "print: error: unknown expression type: %s\n", type_to_string(e->type)); return;
   }
 
   // we're always going to want a newline after the initial print

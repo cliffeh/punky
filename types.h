@@ -12,7 +12,6 @@ enum PUNKY_TYPE {
 
   /* special types */
   NIL_T,
-  ERROR_T,
   EOF_T
 };
 

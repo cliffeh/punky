@@ -28,7 +28,7 @@ expr_t *eval_clone(env_t *env, expr_t *e)
 
 expr_t *eval_op_define(env_t *env, expr_t *e)
 {
-  if(!(TWO_ARGS(e))) return _error("define: incorrect number of arguments");
+  if(!(TWO_ARGS(e))) { fprintf(stderr, "eval: error: define: incorrect number of arguments"); return 0; }
   expr_t *id_expr = e->car, *value = e->cdr->car->eval(env, e->cdr->car);
   return define_variable(env, id_expr->strval, value);
 }
@@ -40,12 +40,8 @@ expr_t *eval_op_lambda(env_t *env, expr_t *e)
 
 expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 {
-  if(!(THREE_ARGS(fn))) return _error("invalid function call");
+  if(!(THREE_ARGS(fn))) { fprintf(stderr, "eval: error: invalid function call"); return 0; }
   expr_t *formals = fn->cdr->car, *body = fn->cdr->cdr->car, *f_ptr, *a_ptr, *result;
-
-  // fprintf(stdout, "formals: "); _print(stdout, formals, 0, 0);
-  // fprintf(stdout, "body: "); _print(stdout, body, 0, 0);
-  // fprintf(stdout, "args: "); _print(stdout, args, 0, 0);
 
   env_t funenv;
   init_env(&funenv, env);
@@ -61,7 +57,9 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 
   // make sure we've provided the right number of arguments
   if((f_ptr != &NIL) || (a_ptr != &NIL)) {
-    result = _error("incorrect number of arguments");
+    fprintf(stderr, "eval: error: incorrect number of arguments to function\n");
+    // TODO cleanup?
+    return 0;
   } else {
     result = body->eval(&funenv, body);
   }
@@ -87,8 +85,8 @@ expr_t *eval_list(env_t *env, expr_t *e)
 expr_t *eval_ident(env_t *env, expr_t *e)
 {
   expr_t *result = get(env, e->strval);
-  // if(!result) fprintf(stderr, "no value found for: %s\n", e->strval);
-  return result ? result : _error("unbound variable");
+  if(!result) { fprintf(stderr, "eval: error: unbound variable '%s'\n", e->strval); return 0; }
+  return result;
 }
 
 expr_t *eval_op_add(env_t *env, expr_t *e)
@@ -98,14 +96,17 @@ expr_t *eval_op_add(env_t *env, expr_t *e)
 
 expr_t *eval_op_sub(env_t *env, expr_t *e)
 {
-  if(e == &NIL) return _int_expr(0);
-  if(e->type != LIST_T) return _error("attempt to subtract a non-numeric value"); // TODO this error message isn't quite sensible
+  if(NO_ARGS(e)) return _int_expr(0);
+  if(!(IS_LIST(e))) { fprintf(stderr, "eval: error: attempt to subtract a non-numeric value"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_sub_int(env, e->cdr, e1->intval); break;
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)e1->floatval); break;
-  default: result = _error("attempt to subtract a non-numeric value");
+  default: {
+    fprintf(stderr, "eval: error: attempt to subtract a non-numeric value");
+    return 0;
+  }
   }
   
   // if we only had one operand, we want to return the negative of it
@@ -129,18 +130,19 @@ expr_t *eval_op_mul(env_t *env, expr_t *e)
 
 expr_t *eval_op_div(env_t *env, expr_t *e)
 {
-  if(e == &NIL) return _error("need at least two arguments for division");
-  if(e->type != LIST_T) return _error("attempt to divide a non-numeric value"); // TODO this error message isn't quite sensible
+  // this is a bit inefficient, but makes things easy to read
+  if(NO_ARGS(e)) { fprintf(stderr, "eval: error: div: need at least two arguments for division"); return 0; }
+  if(ONE_ARGS(e)) { fprintf(stderr, "eval: error: div: need at least two arguments for division"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_div_int(env, e->cdr, e1->intval); break;
   case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)e1->floatval); break;
-  default: result = _error("attempt to divide a non-numeric value");
+  default: {
+    fprintf(stderr, "eval: error: div: attempt to divide a non-numeric value\n");
+    return 0;
   }
-  
-  // if we only had one operand, that's an error!
-  if(e->cdr == &NIL) result = _error("need at least two arguments for division");
+  }
 
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
@@ -150,9 +152,9 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
 
 expr_t *eval_op_car(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) return _error("car: incorrect number of arguments");
+  if(!(ONE_ARGS(e))) { fprintf(stderr, "eval: error: car: incorrect number of arguments\n"); return 0; }
   expr_t *l = e->car->eval(env, e->car);
-  if(!(IS_LIST(l))) return _error("car: attempted on non-list");
+  if(!(IS_LIST(l))) { fprintf(stderr, "eval: error: car: attempted on non-list\n"); return 0; }
   expr_t *car = _clone_expr(l->car);
   _free_expr(l);
   return car;
@@ -160,9 +162,9 @@ expr_t *eval_op_car(env_t *env, expr_t *e)
 
 expr_t *eval_op_cdr(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) return _error("car: incorrect number of arguments");
+  if(!(ONE_ARGS(e))) { fprintf(stderr, "eval: error: cdr: incorrect number of arguments\n"); return 0; }
   expr_t *l = e->car->eval(env, e->car);
-  if(!(IS_LIST(l))) return _error("car: attempted on non-list");
+  if(!(IS_LIST(l))) { fprintf(stderr, "eval: error: cdr: attempted on non-list\n"); return 0; }
   expr_t *cdr = _clone_expr(l->cdr);
   _free_expr(l);
   return cdr;
@@ -170,7 +172,7 @@ expr_t *eval_op_cdr(env_t *env, expr_t *e)
 
 expr_t *eval_op_cons(env_t *env, expr_t *e)
 {
-  if(!(TWO_ARGS(e))) return _error("cons: incorrect number of arguments");
+  if(!(TWO_ARGS(e))) { fprintf(stderr, "eval: error: cons: incorrect number of arguments"); return 0; }
   return _list_expr(e->car->eval(env, e->car), e->cdr->car->eval(env, e->cdr->car));
 }
 
@@ -203,7 +205,7 @@ expr_t *eval_op_append(env_t *env, expr_t *e)
 
 expr_t *eval_op_quote(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) return _error("quote: incorrect number of arguments");
+  if(!(ONE_ARGS(e))) { fprintf(stderr, "eval: error: quote: incorrect number of arguments"); return 0; }
   return _clone_expr(e->car);
 }
 
@@ -234,7 +236,7 @@ expr_t *eval_op_if(env_t *env, expr_t *e)
   expr_t *cond = e->car->eval(env, e->car);
   if(cond->type != BOOL_T) {
     _free_expr(cond); 
-    return _error("if: boolean value expected");
+    fprintf(stderr, "eval: error: if: boolean value expected\n");
   } else if(cond == &T) {
     return e->cdr->car->eval(env, e->cdr->car);
   } else if(e->cdr->cdr != &NIL) {
@@ -249,7 +251,8 @@ expr_t *eval_op_not(env_t *env, expr_t *e)
   expr_t *b = e->car->eval(env, e->car);
   if(b->type != BOOL_T) {
     _free_expr(b);
-    return _error("not: boolean value expected");
+    fprintf(stderr, "not: boolean value expected");
+    return 0;
   }
   return (b == &T) ? &F : &T;
 }
@@ -260,13 +263,15 @@ expr_t *eval_op_and(env_t *env, expr_t *e)
   if(b1->type != BOOL_T) {
     // fprintf(stderr, "and: b1: error: "); _print(stderr, b1, 0, 0);
     _free_expr(b1);
-    return _error("and: boolean value expected");
+    fprintf(stderr, "and: boolean value expected");
+    return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(b2->type != BOOL_T) {
     // fprintf(stderr, "and: b2: error: "); _print(stderr, b2, 0, 0);
     _free_expr(b2);
-    return _error("and: boolean value expected");
+    fprintf(stderr, "and: boolean value expected");
+    return 0;
   }
 
   return ((b1 == &T) && (b2 == &T)) ? &T : &F;
@@ -277,12 +282,14 @@ expr_t *eval_op_or(env_t *env, expr_t *e)
   expr_t *b1 = e->car->eval(env, e->car);
   if(b1->type != BOOL_T) {
     _free_expr(b1);
-    return _error("or: boolean value expected");
+    fprintf(stderr, "or: boolean value expected");
+    return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(b2->type != BOOL_T) {
     _free_expr(b2);
-    return _error("or: boolean value expected");
+    fprintf(stderr, "or: boolean value expected");
+    return 0;
   }
 
   return ((b1 == &T) || (b2 == &T)) ? &T : &F;
@@ -331,13 +338,16 @@ expr_t *eval_op_ge(env_t *env, expr_t *e)
 static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to add a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to add a non-numeric value"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
   case FLOAT_T: result = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
-  default: result = _error("attempt to add to a non-numeric value");
+  default: {
+    fprintf(stderr, "attempt to add to a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?
@@ -349,14 +359,17 @@ static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
 static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to add a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to add a non-numeric value"); return 0; }
 
   // we'll use this to hold the result
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_add_int(env, e->cdr, partial + e1->intval); break;
   case FLOAT_T: result = eval_op_add_float(env, e->cdr, (float)partial + e1->floatval); break;
-  default: result = _error("attempt to add a non-numeric value");
+  default: {
+    fprintf(stderr, "attempt to add a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?
@@ -368,13 +381,16 @@ static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
 static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to subtract a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to subtract a non-numeric value"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
-  default: result = _error("attempt to subtract a non-numeric value");
+  default: { 
+    fprintf(stderr, "attempt to subtract a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?
@@ -386,13 +402,16 @@ static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
 static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to subtract a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to subtract a non-numeric value"); }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
-  default: result = _error("attempt to subtract a non-numeric value");
+  default: {
+    fprintf(stderr, "attempt to subtract a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?
@@ -404,13 +423,16 @@ static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
 static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to multiply a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to multiply a non-numeric value"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
   case FLOAT_T: result = eval_op_mul_float(env, e->cdr, partial * e1->floatval); break;
-  default: result = _error("attempt to multiply a non-numeric value");
+  default: {
+    fprintf(stderr, "attempt to multiply a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?
@@ -422,13 +444,16 @@ static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
 static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to multiply a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to multiply a non-numeric value"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
   case FLOAT_T: result = eval_op_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
-  default: result = _error("attempt to multiply a non-numeric value");
+  default: { 
+    fprintf(stderr, "attempt to multiply a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?
@@ -440,13 +465,16 @@ static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial)
 static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to divide a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to divide a non-numeric value"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
   case FLOAT_T: result = eval_op_div_float(env, e->cdr, partial / e1->floatval); break;
-  default: result = _error("attempt to divide a non-numeric value");
+  default: {
+    fprintf(stderr, "attempt to divide a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?
@@ -458,13 +486,16 @@ static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial)
 static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) return _error("attempt to divide a non-numeric value"); // TODO this error message isn't quite sensible
+  if(e->type != LIST_T) { fprintf(stderr, "attempt to divide a non-numeric value"); return 0; }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
   case INTEGER_T: result = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
   case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)partial / e1->floatval); break;
-  default: result = _error("attempt to divide a non-numeric value");
+  default: {
+    fprintf(stderr, "attempt to divide a non-numeric value");
+    return 0;
+  }
   }
   
   // TODO how can we get rid of this in-eval cleanup?

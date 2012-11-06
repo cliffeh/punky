@@ -68,10 +68,13 @@ expr_t *_clone_expr(expr_t *e)
   case IDENTIFIER_T: return _id_expr(strdup(e->strval));
   case OP_T: return _op_expr(strdup(e->strval), e->eval);
 
+  case EOF_T: return &_EOF;
   case NIL_T: return &NIL;
-  case ERROR_T: return &ERROR;
 
-  default: return _error("asked to copy an unknown type of expression");
+  default: {
+    fprintf(stderr, "error: attempt to clone an unknown expression type\n");
+    return 0;
+  }
   }
 }
 
@@ -117,12 +120,6 @@ void _free_expr(expr_t *e)
     // nothing to do!
     // _free_expr(e->operands);
     free(e->strval);
-  }break;
-    
-  case ERROR_T: {
-    // we won't free the expr_t itself, but we may as well let go of the string
-    if(e->strval) { free(e->strval); e->strval = 0; }
-    return;
   }break;
     
   case BOOL_T: case NIL_T: case EOF_T: {

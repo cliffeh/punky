@@ -1,3 +1,6 @@
+2012-11-6 Clifton Snyder <cliff.snyder@gmail.com>
+	* everything: errors are now handled by outputing an error message to stderr and returning null
+	
 2012-11-5 Clifton Snyder <cliff.snyder@gmail.com>
 	* test/sort.in: this is now correctly parsed and evaluated by punky! big milestone
 	* everything: re-jiggered evaluation to use function pointers

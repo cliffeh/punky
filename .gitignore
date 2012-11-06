@@ -24,3 +24,6 @@ punky
 parser.c
 scanner.c
 symbols.h
+
+# logs used for testing
+*.log

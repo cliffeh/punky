@@ -125,7 +125,7 @@ void _free_expr(expr_t *e)
     return;
   }break;
     
-  case BOOL_T: case NIL_T: {
+  case BOOL_T: case NIL_T: case EOF_T: {
     return;
   }break;
     

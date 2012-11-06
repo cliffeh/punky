@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   argp_parse (&argp, argc, argv, 0, 0, &p);
 
   expr_t *e;
-  while(parse(&p)) {
+  while(read(&p)) {
     if(p.eval) eval(&p);
     print(&p);
   }

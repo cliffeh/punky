@@ -14,6 +14,9 @@ extern expr_t ERROR;
 extern expr_t T;
 extern expr_t F;
 
+/* a special expression for end-of-file */
+extern expr_t _EOF;
+
 typedef struct punky_t
 {
   /* input, output, and error streams */
@@ -31,7 +34,7 @@ typedef struct punky_t
 } punky_t;
 
 punky_t *init(punky_t *p);
-punky_t *parse(punky_t *p);
+punky_t *read(punky_t *p);
 punky_t *eval(punky_t *p);
 punky_t *print(punky_t *p);
 punky_t *cleanup(punky_t *p);

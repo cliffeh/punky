@@ -53,7 +53,7 @@
 %%
 
 program: /* empty */
-| EOFTOK { p->e = 0; YYACCEPT; }
+| EOFTOK { p->e = &_EOF; YYACCEPT; }
 | program sexpr { p->e = $2; YYACCEPT; }
 ;
 
@@ -108,13 +108,13 @@ op: PLUS { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 
 %%
 
-punky_t *parse(punky_t *p)
+punky_t *read(punky_t *p)
 {
   // clean up any leftover cruft
   if(p->e) _free_expr(p->e);
   yyparse(p); // TODO grab the return value?
   // p->e = _parse();
-  return (p->e) ? p : 0;
+  return (p->e != &_EOF) ? p : 0;
 }
 
 yyerror(s)

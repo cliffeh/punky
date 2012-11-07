@@ -111,7 +111,7 @@ op: PLUS { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 punky_t *read(punky_t *p)
 {
   // clean up any leftover cruft
-  if(p->e) _free_expr(p->e, 0);
+  if(p->e) _free_expr(p->e);
   yyparse(p); // TODO grab the return value?
   // p->e = _parse();
   return (p->e != &_EOF) ? p : 0;

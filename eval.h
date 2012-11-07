@@ -2,7 +2,6 @@
 #define _PUNKY_EVAL_H 1
 
 // TODO probably a better (and less-dangerous) way to handle this
-#define    IS_LIST(l) (l->type == LIST_T)
 #define    NO_ARGS(l) (l == &NIL)
 #define   ONE_ARGS(l) IS_LIST(l) &&  NO_ARGS(l->cdr)
 #define   TWO_ARGS(l) IS_LIST(l) && ONE_ARGS(l->cdr)

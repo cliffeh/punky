@@ -44,7 +44,7 @@ expr_t *put(env_t *env, char *id, expr_t *e)
 
   if(entry) {
     // we found it! we'll release the old expr_t and replace it with the new one
-    _free_expr(entry->e, e);
+    _free_expr(entry->e);
   } else {  
     // we didn't find it, so let's create a new entry
     entry = malloc(sizeof(entry_t));
@@ -87,7 +87,7 @@ void free_entry(entry_t *entry)
   entry_t *e = entry, *next;
   while(e) {
     free(e->id);
-    _free_expr(e->e, 0);
+    _free_expr(e->e);
     next = e->next;
     free(e);
     e = next;

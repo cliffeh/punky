@@ -99,18 +99,13 @@ int compare(expr_t *e1, expr_t *e2)
   }
 }
 
-void _free_expr(expr_t *e, expr_t *not)
+void _free_expr(expr_t *e)
 {
-  if(e == not) {
-    fprintf(stderr, "free: you've attemted to free a thing that you didn't actually want to\n");
-    return;
-  }
-
   switch(e->type) {
 
   case LIST_T: {
-    _free_expr(e->car, not);
-    _free_expr(e->cdr, not);
+    _free_expr(e->car);
+    _free_expr(e->cdr);
   }break;
     
   case INTEGER_T: case FLOAT_T: { 

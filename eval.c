@@ -1,4 +1,5 @@
 #include "punky.h"
+#include "types.h"
 #include "env.h"
 #include "eval.h"
 
@@ -11,7 +12,6 @@ static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial);
 static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial);
 static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial);
 static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial);
-static expr_t *define_variable(env_t *env, char *id, expr_t *e);
 
 // TODO get rid of this
 void _print(FILE *out, expr_t *e, int indent, int depth);
@@ -29,14 +29,41 @@ expr_t *eval_clone(env_t *env, expr_t *e)
 
 expr_t *eval_op_define(env_t *env, expr_t *e)
 {
-  if(!(TWO_ARGS(e))) { fprintf(stderr, "eval: error: define: incorrect number of arguments"); return 0; }
-  expr_t *id_expr = e->car, *value = e->cdr->car->eval(env, e->cdr->car);
-  return define_variable(env, id_expr->strval, value);
+  // we are expecting two arguments:
+  if(!(TWO_ARGS(e))) { 
+    fprintf(stderr, "eval: error: define: incorrect number of arguments\n");
+    _free_expr(e);
+    return 0; 
+  }
+
+  // an identifier
+  expr_t *id = e->car;
+  if(!IS_IDENT(id)) {
+    fprintf(stderr, "eval: error: define: invalid identifier\n");
+    _free_expr(e);
+    return 0;
+  }
+  
+  // and the value
+  expr_t *value = e->cdr->car->eval(env, e->cdr->car);
+  if(!value) {
+    fprintf(stderr, "eval: error: define: failed to define variable '%s'\n", id->strval);
+    // we'll assume evaluating e->cdr->car consumed that part of e, so
+    // we need only free the rest
+    _free_expr(e->car);
+    free(e->cdr);
+    free(e);
+    return 0;
+  }
+
+  put(env, strdup(id->strval), value);
+  return id;
 }
 
 expr_t *eval_op_lambda(env_t *env, expr_t *e)
 {
-  return _list_expr(_op_expr(strdup("lambda"), &eval_op_lambda), _clone_expr(e));
+  // TODO this is clunky as shit...
+  return _list_expr(_op_expr(strdup("lambda"), &eval_op_lambda), e);
 }
 
 expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
@@ -52,8 +79,7 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
       ((f_ptr != &NIL) && (a_ptr != &NIL)); 
       f_ptr = f_ptr->cdr, a_ptr = a_ptr->cdr)
     {
-      expr_t *tmp = define_variable(&funenv, f_ptr->car->strval, a_ptr->car->eval(env, a_ptr->car));
-      _free_expr(tmp, 0); // we don't need the id
+      put(&funenv, strdup(f_ptr->car->strval), a_ptr->car->eval(env, a_ptr->car));
     }
 
   // make sure we've provided the right number of arguments
@@ -79,7 +105,7 @@ expr_t *eval_list(env_t *env, expr_t *e)
   // since we don't know how to execute other kinds of things
   expr_t *fn = e->car->eval(env, e->car);
   expr_t *result = eval_function_call(env, fn, e->cdr);
-  _free_expr(fn, result);
+  _free_expr(fn);
   return result;
 }
 
@@ -120,7 +146,7 @@ expr_t *eval_op_sub(env_t *env, expr_t *e)
 
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -147,7 +173,7 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
 
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1);
   return result;
 }
 
@@ -157,7 +183,7 @@ expr_t *eval_op_car(env_t *env, expr_t *e)
   expr_t *l = e->car->eval(env, e->car);
   if(!(IS_LIST(l))) { fprintf(stderr, "eval: error: car: attempted on non-list\n"); return 0; }
   expr_t *car = _clone_expr(l->car);
-  _free_expr(l, car);
+  // _free_expr(l);
   return car;
 }
 
@@ -167,7 +193,7 @@ expr_t *eval_op_cdr(env_t *env, expr_t *e)
   expr_t *l = e->car->eval(env, e->car);
   if(!(IS_LIST(l))) { fprintf(stderr, "eval: error: cdr: attempted on non-list\n"); return 0; }
   expr_t *cdr = _clone_expr(l->cdr);
-  _free_expr(l, cdr);
+  // _free_expr(l);
   return cdr;
 }
 
@@ -200,7 +226,7 @@ expr_t *eval_op_append(env_t *env, expr_t *e)
   for(ptr = l1; ptr->cdr != &NIL; ptr = ptr->cdr);
   ptr->cdr = l2;
   result = _clone_expr(l1);
-  _free_expr(l1, result);
+  // _free_expr(l1);
   return result;
 }
 
@@ -221,8 +247,7 @@ expr_t *eval_op_let(env_t *env, expr_t *e)
   init_env(&letenv, env);
 
   for(d_ptr = defs; d_ptr != &NIL; d_ptr = d_ptr->cdr) {
-    expr_t *tmp = define_variable(&letenv, d_ptr->car->car->strval, d_ptr->car->cdr->car->eval(env, d_ptr->car->cdr->car));
-    _free_expr(tmp, 0); // we don't need the id
+    put(&letenv, d_ptr->car->car->strval, d_ptr->car->cdr->car->eval(env, d_ptr->car->cdr->car));
   }
 
   result = body->eval(&letenv, body);
@@ -236,7 +261,7 @@ expr_t *eval_op_if(env_t *env, expr_t *e)
 {
   expr_t *cond = e->car->eval(env, e->car);
   if(cond->type != BOOL_T) {
-    _free_expr(cond, 0); 
+    // _free_expr(cond);
     fprintf(stderr, "eval: error: if: boolean value expected\n");
   } else if(cond == &T) {
     return e->cdr->car->eval(env, e->cdr->car);
@@ -251,7 +276,7 @@ expr_t *eval_op_not(env_t *env, expr_t *e)
 {
   expr_t *b = e->car->eval(env, e->car);
   if(b->type != BOOL_T) {
-    _free_expr(b, 0);
+    // _free_expr(b, 0);
     fprintf(stderr, "not: boolean value expected");
     return 0;
   }
@@ -263,14 +288,14 @@ expr_t *eval_op_and(env_t *env, expr_t *e)
   expr_t *b1 = e->car->eval(env, e->car);
   if(b1->type != BOOL_T) {
     // fprintf(stderr, "and: b1: error: "); _print(stderr, b1, 0, 0);
-    _free_expr(b1, 0);
+    // _free_expr(b1, 0);
     fprintf(stderr, "and: boolean value expected");
     return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(b2->type != BOOL_T) {
     // fprintf(stderr, "and: b2: error: "); _print(stderr, b2, 0, 0);
-    _free_expr(b2, 0);
+    // _free_expr(b2, 0);
     fprintf(stderr, "and: boolean value expected");
     return 0;
   }
@@ -282,13 +307,13 @@ expr_t *eval_op_or(env_t *env, expr_t *e)
 {
   expr_t *b1 = e->car->eval(env, e->car);
   if(b1->type != BOOL_T) {
-    _free_expr(b1, 0);
+    // _free_expr(b1, 0);
     fprintf(stderr, "or: boolean value expected");
     return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(b2->type != BOOL_T) {
-    _free_expr(b2, 0);
+    // _free_expr(b2, 0);
     fprintf(stderr, "or: boolean value expected");
     return 0;
   }
@@ -300,7 +325,7 @@ expr_t *eval_op_equal(env_t *env, expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
   expr_t *result = (compare(e1, e2) == 0) ? &T : &F;
-  _free_expr(e1, result); _free_expr(e2, result);
+  // _free_expr(e1, result); // _free_expr(e2, result);
   return result;
 }
 
@@ -308,7 +333,7 @@ expr_t *eval_op_lt(env_t *env, expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
   expr_t *result = (compare(e1, e2) < 0) ? &T : &F;
-  _free_expr(e1, result); _free_expr(e2, result);
+  // _free_expr(e1, result); // _free_expr(e2, result);
   return result;
 }
 
@@ -316,7 +341,7 @@ expr_t *eval_op_gt(env_t *env, expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
   expr_t *result = (compare(e1, e2) > 0) ? &T : &F;
-  _free_expr(e1, result); _free_expr(e2, result);
+  // _free_expr(e1, result); // _free_expr(e2, result);
   return result;
 }
 
@@ -324,7 +349,7 @@ expr_t *eval_op_le(env_t *env, expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
   expr_t *result = (compare(e1, e2) <= 0) ? &T : &F;
-  _free_expr(e1, result); _free_expr(e2, result);
+  // _free_expr(e1, result); // _free_expr(e2, result);
   return result;
 }
 
@@ -332,7 +357,7 @@ expr_t *eval_op_ge(env_t *env, expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
   expr_t *result = (compare(e1, e2) >= 0) ? &T : &F;
-  _free_expr(e1, result); _free_expr(e2, result);
+  // _free_expr(e1, result); // _free_expr(e2, result);
   return result;
 }
 
@@ -353,7 +378,7 @@ static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -375,7 +400,7 @@ static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -396,7 +421,7 @@ static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -417,7 +442,7 @@ static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -438,7 +463,7 @@ static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -459,7 +484,7 @@ static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -480,7 +505,7 @@ static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
 }
 
@@ -501,20 +526,14 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial)
   
   // TODO how can we get rid of this in-eval cleanup?
   //we must clean up after ourselves
-  _free_expr(e1, result);
+  // _free_expr(e1, result);
   return result;
-}
-
-static expr_t *define_variable(env_t *env, char *id, expr_t *e)
-{
-  // fprintf(stderr, "defining: %s->", id); _print(stderr, e, 0, 0);
-  return put(env, id, e);
 }
 
 punky_t *eval(punky_t *p)
 {
   expr_t *e = p->e->eval(&p->env, p->e); // _eval(&p->env, p->e);
-  _free_expr(p->e, e); // free up whatever we parsed
+  // _free_expr(p->e, e); // free up whatever we parsed
   p->e = e;
   return p;
 }

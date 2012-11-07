@@ -48,7 +48,7 @@ expr_t *_id_expr(char *value);
 expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, struct expr_t *));
 
 /* memory management */
-void _free_expr(expr_t *e);
+void _free_expr(expr_t *e, expr_t *not);
 expr_t *_clone_expr(expr_t *src);
 
 /* expr_t comparison */

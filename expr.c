@@ -99,13 +99,15 @@ int compare(expr_t *e1, expr_t *e2)
   }
 }
 
-void _free_expr(expr_t *e)
+void _free_expr(expr_t *e, expr_t *not)
 {
+  if(e == not) return;
+
   switch(e->type) {
 
   case LIST_T: {
-    _free_expr(e->car);
-    _free_expr(e->cdr);
+    _free_expr(e->car, not);
+    _free_expr(e->cdr, not);
   }break;
     
   case INTEGER_T: case FLOAT_T: { 

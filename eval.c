@@ -23,7 +23,8 @@ expr_t *eval_idem(env_t *env, expr_t *e)
 
 expr_t *eval_clone(env_t *env, expr_t *e)
 {
-  return _clone_expr(e);
+   return _clone_expr(e);
+  //  return e;
 }
 
 expr_t *eval_op_define(env_t *env, expr_t *e)

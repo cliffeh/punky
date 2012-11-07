@@ -101,7 +101,10 @@ int compare(expr_t *e1, expr_t *e2)
 
 void _free_expr(expr_t *e, expr_t *not)
 {
-  if(e == not) return;
+  if(e == not) {
+    fprintf(stderr, "free: you've attemted to free a thing that you didn't actually want to\n");
+    return;
+  }
 
   switch(e->type) {
 

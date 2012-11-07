@@ -35,6 +35,7 @@ typedef struct expr_t
 {
   enum PUNKY_TYPE type;
   struct expr_t * (*eval)(struct env_t *, struct expr_t *); // pointer to eval function
+  void (*print)(FILE *out, expr_t *e); // pointer to print
   union 
   {
     /* for atoms */

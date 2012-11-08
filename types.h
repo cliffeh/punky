@@ -3,25 +3,24 @@
 
 #define IS_LIST(l)   (l->type == LIST_T)
 #define IS_BOOL(l)   (l->type == BOOL_T)
-#define IS_INT(l)    (l->type == INTEGER_T)
+#define IS_INT(l)    (l->type == INT_T)
 #define IS_FLOAT(l)  (l->type == FLOAT_T)
 #define IS_STRING(l) (l->type == STRING_T)
-#define IS_IDENT(l)  (l->type == IDENTIFIER_T)
+#define IS_IDENT(l)  (l->type == IDENT_T)
 #define IS_OP(l)     (l->type == OP_T)
 
-enum PUNKY_TYPE {
-  LIST_T,
-  BOOL_T,
-  INTEGER_T,
-  FLOAT_T,
-  STRING_T,
-  IDENTIFIER_T,
-  OP_T,
+/* types */
+#define LIST_T   (1<<0)
+#define BOOL_T   (1<<1)
+#define INT_T    (1<<2)
+#define FLOAT_T  (1<<3)
+#define STRING_T (1<<4)
+#define IDENT_T  (1<<5)
+#define OP_T     (1<<6)
 
-  /* special types */
-  NIL_T,
-  EOF_T
-};
+/* special types */
+#define NIL_T   (0<<0)
+#define EOF_T   (1<<7)
 
 /* environment */
 #define ENV_BUCKETS 50
@@ -41,7 +40,7 @@ typedef struct env_t
 
 typedef struct expr_t
 {
-  enum PUNKY_TYPE type;
+  int type;
   struct expr_t * (*eval)(struct env_t *, struct expr_t *); // pointer to eval function
   void (*print)(FILE *out, struct expr_t *e); // pointer to print
   int ref; // memory management

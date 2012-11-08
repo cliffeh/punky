@@ -1,7 +1,7 @@
 #include "punky.h"
 #include "eval.h"
 
-static expr_t *_new_expr(enum PUNKY_TYPE type)
+static expr_t *_new_expr(int type)
 {
   expr_t *e = malloc(sizeof(expr_t));
   e->type = type;
@@ -20,7 +20,7 @@ expr_t *_list_expr(expr_t *car, expr_t *cdr)
 
 expr_t *_int_expr(int value)
 {
-  expr_t *e = _new_expr(INTEGER_T);
+  expr_t *e = _new_expr(INT_T);
   e->intval = value;
   e->eval = &eval_idem;
   return e;
@@ -44,7 +44,7 @@ expr_t *_str_expr(char *value)
 
 expr_t *_id_expr(char *value)
 {
-  expr_t *e = _new_expr(IDENTIFIER_T);
+  expr_t *e = _new_expr(IDENT_T);
   e->strval = value;
   e->eval = &eval_ident;
   return e;
@@ -63,10 +63,10 @@ expr_t *_clone_expr(expr_t *e)
   switch(e->type) {
   case LIST_T: return _list_expr(_clone_expr(e->car), _clone_expr(e->cdr));
   case BOOL_T: return e;
-  case INTEGER_T: return _int_expr(e->intval);
+  case INT_T: return _int_expr(e->intval);
   case FLOAT_T: return _float_expr(e->floatval);
   case STRING_T: return _str_expr(strdup(e->strval));
-  case IDENTIFIER_T: return _id_expr(strdup(e->strval));
+  case IDENT_T: return _id_expr(strdup(e->strval));
   case OP_T: return _op_expr(strdup(e->strval), e->eval);
 
   case EOF_T: return &_EOF;
@@ -87,7 +87,7 @@ int compare(expr_t *e1, expr_t *e2)
   case LIST_T: {
     return ((comp = compare(e1->car, e2->car)) == 0) ? compare(e1->cdr, e2->cdr) : comp;
   }
-  case INTEGER_T: {
+  case INT_T: {
     if(e1->intval == e2->intval) return 0;
     return (e1->intval > e2->intval) ? 1 : -1;
   }
@@ -141,11 +141,11 @@ void _free_expr(expr_t *e)
     _free_expr(e->cdr);
   }break;
     
-  case INTEGER_T: case FLOAT_T: { 
+  case INT_T: case FLOAT_T: { 
     // e will be freed at the end
   }break;
     
-  case STRING_T: case IDENTIFIER_T: {
+  case STRING_T: case IDENT_T: {
     free(e->strval);
   }break;
 

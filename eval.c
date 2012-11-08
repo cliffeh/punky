@@ -16,7 +16,7 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial);
 // TODO get rid of this
 void _print(FILE *out, expr_t *e, int indent, int depth);
 
-static expr_t *eval_args(env_t *env, expr_t *e, int min, int max, enum PUNKY_TYPE types)
+static expr_t *eval_args(env_t *env, expr_t *e, int min, int max, int types[])
 {
   expr_t *args = _list_expr(&NIL, &NIL), *_e, *_a = args;
 
@@ -165,7 +165,7 @@ static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
+  case INT_T: result = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
   case FLOAT_T: result = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to add to a non-numeric value");
@@ -191,7 +191,7 @@ static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
   // we'll use this to hold the result
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_add_int(env, e->cdr, partial + e1->intval); break;
+  case INT_T: result = eval_op_add_int(env, e->cdr, partial + e1->intval); break;
   case FLOAT_T: result = eval_op_add_float(env, e->cdr, (float)partial + e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to add a non-numeric value");
@@ -221,7 +221,7 @@ static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
+  case INT_T: result = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
   default: { 
     fprintf(stderr, "attempt to subtract a non-numeric value");
@@ -246,7 +246,7 @@ static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
+  case INT_T: result = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to subtract a non-numeric value");
@@ -271,7 +271,7 @@ expr_t *eval_op_sub(env_t *env, expr_t *e)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_sub_int(env, e->cdr, e1->intval); break;
+  case INT_T: result = eval_op_sub_int(env, e->cdr, e1->intval); break;
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)e1->floatval); break;
   default: {
     fprintf(stderr, "eval: error: attempt to subtract a non-numeric value");
@@ -283,7 +283,7 @@ expr_t *eval_op_sub(env_t *env, expr_t *e)
   // if we only had one operand, we want to return the negative of it
   if(e->cdr == &NIL) {
     switch(e1->type) {
-    case INTEGER_T: result->intval = -result->intval; break;
+    case INT_T: result->intval = -result->intval; break;
     case FLOAT_T: result->floatval = -result->intval; break;
     }
   }
@@ -304,7 +304,7 @@ static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
+  case INT_T: result = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
   case FLOAT_T: result = eval_op_mul_float(env, e->cdr, partial * e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to multiply a non-numeric value");
@@ -329,7 +329,7 @@ static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
+  case INT_T: result = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
   case FLOAT_T: result = eval_op_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
   default: { 
     fprintf(stderr, "attempt to multiply a non-numeric value");
@@ -359,7 +359,7 @@ static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
+  case INT_T: result = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
   case FLOAT_T: result = eval_op_div_float(env, e->cdr, partial / e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to divide a non-numeric value");
@@ -384,7 +384,7 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
+  case INT_T: result = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
   case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)partial / e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to divide a non-numeric value");
@@ -414,7 +414,7 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
-  case INTEGER_T: result = eval_op_div_int(env, e->cdr, e1->intval); break;
+  case INT_T: result = eval_op_div_int(env, e->cdr, e1->intval); break;
   case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)e1->floatval); break;
   default: {
     fprintf(stderr, "eval: error: div: attempt to divide a non-numeric value\n");

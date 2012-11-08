@@ -7,15 +7,15 @@ static void nl_and_spaces(FILE *out, int count)
   for(i = 0; i < count; i++) fputc(' ', out);
 }
 
-char *type_to_string(enum PUNKY_TYPE t)
+char *type_to_string(int t)
 {
   switch(t) {
   case LIST_T: return "LIST";
   case BOOL_T: return "BOOL";
-  case INTEGER_T: return "INTEGER";
+  case INT_T: return "INTEGER";
   case FLOAT_T: return "FLOAT";
   case STRING_T: return "STRING";
-  case IDENTIFIER_T: return "IDENT";
+  case IDENT_T: return "IDENT";
   case OP_T: return "OP";
     
     /* special types */
@@ -49,10 +49,10 @@ char *type_to_string(enum PUNKY_TYPE t)
   }break;
 
   case BOOL_T: fprintf(out, "#%c", (e == &T) ? 't' : 'f'); break;
-  case INTEGER_T: fprintf(out, "%i", e->intval); break;
+  case INT_T: fprintf(out, "%i", e->intval); break;
   case FLOAT_T: fprintf(out, "%f", e->floatval); break;
   case STRING_T: fprintf(out, "\"%s\"", e->strval); break;
-  case IDENTIFIER_T: fprintf(out, "%s", e->strval); break;
+  case IDENT_T: fprintf(out, "%s", e->strval); break;
 
   case OP_T: {
     /*

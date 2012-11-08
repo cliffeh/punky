@@ -61,6 +61,6 @@ int compare(expr_t *e1, expr_t *e2);
 expr_t *_error(char *msg);
 
 /* convenience function for converting enum values to strings */
-char *type_to_string(enum PUNKY_TYPE t);
+char *type_to_string(int t);
 
 #endif

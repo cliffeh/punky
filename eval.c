@@ -95,6 +95,7 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 
   // clean up and return
   free_env(&funenv);
+  if(!args->ref) free(args);
   return result;
 }
 
@@ -400,81 +401,152 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
 
 expr_t *eval_op_car(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) { fprintf(stderr, "eval: error: car: incorrect number of arguments\n"); return 0; }
+  if(!(ONE_ARGS(e))) { 
+    fprintf(stderr, "eval: error: car: incorrect number of arguments\n"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  // TODO null check!
   expr_t *l = e->car->eval(env, e->car);
-  if(!(IS_LIST(l))) { fprintf(stderr, "eval: error: car: attempted on non-list\n"); return 0; }
-  expr_t *car = _clone_expr(l->car);
-  // _free_expr(l);
+  if(!(IS_LIST(l))) { 
+    fprintf(stderr, "eval: error: car: attempted on non-list\n"); 
+    _free_expr(e->cdr);
+    _free_expr(l);
+    if(!e->ref) free(e);
+    return 0; 
+  }
+  
+  expr_t *car = l->car;
+  _free_expr(l->cdr);
+  if(!e->ref) free(e);
   return car;
 }
 
 expr_t *eval_op_cdr(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) { fprintf(stderr, "eval: error: cdr: incorrect number of arguments\n"); return 0; }
+  if(!(ONE_ARGS(e))) { 
+    fprintf(stderr, "eval: error: cdr: incorrect number of arguments\n"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  // TODO null check!
   expr_t *l = e->car->eval(env, e->car);
-  if(!(IS_LIST(l))) { fprintf(stderr, "eval: error: cdr: attempted on non-list\n"); return 0; }
-  expr_t *cdr = _clone_expr(l->cdr);
-  // _free_expr(l);
+  if(!(IS_LIST(l))) { 
+    fprintf(stderr, "eval: error: cdr: attempted on non-list\n"); 
+    _free_expr(e->cdr);
+    _free_expr(l);
+    if(!e->ref) free(e);
+    return 0; 
+  }
+
+  expr_t *cdr = l->cdr;
+  _free_expr(l->car);
+  if(!e->ref) free(e);
   return cdr;
 }
 
 expr_t *eval_op_cons(env_t *env, expr_t *e)
 {
-  if(!(TWO_ARGS(e))) { fprintf(stderr, "eval: error: cons: incorrect number of arguments"); return 0; }
-  return _list_expr(e->car->eval(env, e->car), e->cdr->car->eval(env, e->cdr->car));
+  if(!(TWO_ARGS(e))) { 
+    fprintf(stderr, "eval: error: cons: incorrect number of arguments"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  // TODO null check!
+  expr_t *car = e->car->eval(env, e->car);
+  expr_t *cdr = e->cdr->car->eval(env, e->cdr->car);
+
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
+  return _list_expr(car, cdr);
 }
 
 expr_t *eval_op_list(env_t *env, expr_t *e)
 {
   if(e == &NIL) return &NIL;
-  return _list_expr(e->car->eval(env, e->car), eval_op_list(env, e->cdr));
-  /*
-  expr_t *result = _list_expr(e->car->eval(env, e->car), &NIL), *e_ptr, *r_ptr;
-  for(e_ptr = e->cdr, r_ptr = result; 
-      e_ptr != &NIL; 
-      e_ptr = e_ptr->cdr, r_ptr = r_ptr->cdr)
-    {
-      r_ptr->cdr = _list_expr(e_ptr->car->eval(env, e_ptr->car), &NIL);
-    }
-  return result;
-  */
+
+  expr_t *car = e->car->eval(env, e->car);
+  if(!car) {
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
+  expr_t *cdr = eval_op_list(env, e->cdr);
+  if(!cdr) {
+    if(!e->ref) free(e);
+    return 0;
+  }
+  
+  return _list_expr(car, cdr);
 }
 
 expr_t *eval_op_append(env_t *env, expr_t *e)
 {
-  expr_t *l1 = e->car->eval(env, e->car), *l2 = e->cdr->car->eval(env, e->cdr->car), *ptr, *result;
+  if(!(TWO_ARGS(e))) { 
+    fprintf(stderr, "eval: error: append: incorrect number of arguments"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  // TODO null check!
+  expr_t *l1 = e->car->eval(env, e->car);
+  expr_t *l2 = e->cdr->car->eval(env, e->cdr->car);
+
   if(l1 == &NIL) return l2;
-  for(ptr = l1; ptr->cdr != &NIL; ptr = ptr->cdr);
+
+  expr_t *ptr;
+  for(ptr = l1; ptr->cdr != &NIL; ptr = ptr->cdr){}
+
   ptr->cdr = l2;
-  result = _clone_expr(l1);
-  // _free_expr(l1);
-  return result;
+  
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
+  return l1;
 }
 
 expr_t *eval_op_quote(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) { fprintf(stderr, "eval: error: quote: incorrect number of arguments"); return 0; }
-  return _clone_expr(e->car);
+  if(!(ONE_ARGS(e))) { 
+    fprintf(stderr, "eval: error: quote: incorrect number of arguments"); 
+    _free_expr(e);
+    return 0; 
+  }
+  
+  expr_t *result = e->car;
+  if(!e->ref) free(e);
+
+  return result;
 }
 
 expr_t *eval_op_let(env_t *env, expr_t *e)
 {
-  expr_t *defs = e->car, *body = e->cdr->car, *d_ptr, *result;
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: let: incorrect number of arguments"); 
+    _free_expr(e);
+    return 0; 
+  }
 
-  // fprintf(stderr, "defs: "); _print(stderr, defs, 0, 0);
-  // fprintf(stderr, "body: "); _print(stderr, body, 0, 0);
+  expr_t *defs = e->car, *body = e->cdr->car, *d_ptr, *result;
 
   env_t letenv;
   init_env(&letenv, env);
 
   for(d_ptr = defs; d_ptr != &NIL; d_ptr = d_ptr->cdr) {
-    put(&letenv, d_ptr->car->car->strval, d_ptr->car->cdr->car->eval(env, d_ptr->car->cdr->car));
+    expr_t *def = d_ptr->car;
+    put(&letenv, strdup(def->car->strval), def->cdr->car->eval(env, def->cdr->car));
+    // _free_expr(def);
   }
 
   result = body->eval(&letenv, body);
-  // fprintf(stderr, "result: "); _print(stderr, result, 0, 0);
 
   free_env(&letenv);
+  //  if(!e->car->cdr->ref) free(e->car->cdr);
+  //  if(!e->cdr->ref) free(e->cdr);
+  //  if(!e->ref) free(e);
   return result;
 }
 

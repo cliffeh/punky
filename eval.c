@@ -118,8 +118,59 @@ expr_t *eval_list(env_t *env, expr_t *e)
 expr_t *eval_ident(env_t *env, expr_t *e)
 {
   expr_t *result = get(env, e->strval);
-  if(!result) { fprintf(stderr, "eval: error: unbound variable '%s'\n", e->strval); return 0; }
+  if(!result) fprintf(stderr, "eval: error: unbound variable '%s'\n", e->strval);
   _free_expr(e);
+  return result;
+}
+
+static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
+{
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "eval: add: unexpected argument type\n");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
+  case FLOAT_T: result = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
+  default: {
+    fprintf(stderr, "attempt to add to a non-numeric value");
+    _free_expr(e->cdr);
+    result = 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
+  return result;
+}
+
+static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
+{
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) {
+    fprintf(stderr, "eval: add: unexpected argument type\n");
+    _free_expr(e);
+    return 0; 
+  }
+
+  // we'll use this to hold the result
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_add_int(env, e->cdr, partial + e1->intval); break;
+  case FLOAT_T: result = eval_op_add_float(env, e->cdr, (float)partial + e1->floatval); break;
+  default: {
+    fprintf(stderr, "attempt to add a non-numeric value");
+    _free_expr(e->cdr);
+    result = 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
   return result;
 }
 
@@ -128,10 +179,64 @@ expr_t *eval_op_add(env_t *env, expr_t *e)
   return eval_op_add_int(env, e, 0);
 }
 
+static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
+{
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to subtract a non-numeric value");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
+  case FLOAT_T: result = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
+  default: { 
+    fprintf(stderr, "attempt to subtract a non-numeric value");
+    _free_expr(e->cdr);
+    result = 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
+  return result;
+}
+
+static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
+{
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) {
+    fprintf(stderr, "attempt to subtract a non-numeric value"); 
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
+  case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
+  default: {
+    fprintf(stderr, "attempt to subtract a non-numeric value");
+    _free_expr(e->cdr);
+    return 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
+  return result;
+}
+
 expr_t *eval_op_sub(env_t *env, expr_t *e)
 {
   if(NO_ARGS(e)) return _int_expr(0);
-  if(!(IS_LIST(e))) { fprintf(stderr, "eval: error: attempt to subtract a non-numeric value"); return 0; }
+  if(!(IS_LIST(e))) {
+    fprintf(stderr, "eval: error: attempt to subtract a non-numeric value"); 
+    _free_expr(e);
+    return 0; 
+  }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
@@ -139,6 +244,7 @@ expr_t *eval_op_sub(env_t *env, expr_t *e)
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)e1->floatval); break;
   default: {
     fprintf(stderr, "eval: error: attempt to subtract a non-numeric value");
+    _free_expr(e->cdr);
     return 0;
   }
   }
@@ -151,9 +257,58 @@ expr_t *eval_op_sub(env_t *env, expr_t *e)
     }
   }
 
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
+  _free_expr(e1);
+  free(e);
+  return result;
+}
+
+static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
+{
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to multiply a non-numeric value"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
+  case FLOAT_T: result = eval_op_mul_float(env, e->cdr, partial * e1->floatval); break;
+  default: {
+    fprintf(stderr, "attempt to multiply a non-numeric value");
+    _free_expr(e->cdr);
+    return 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
+  return result;
+}
+
+static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial)
+{
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to multiply a non-numeric value"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
+  case FLOAT_T: result = eval_op_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
+  default: { 
+    fprintf(stderr, "attempt to multiply a non-numeric value");
+    _free_expr(e->cdr);
+    return 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
   return result;
 }
 
@@ -162,11 +317,69 @@ expr_t *eval_op_mul(env_t *env, expr_t *e)
   return eval_op_mul_int(env, e, 1);
 }
 
+static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial)
+{
+  if(e == &NIL) return _float_expr(partial);
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to divide a non-numeric value"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
+  case FLOAT_T: result = eval_op_div_float(env, e->cdr, partial / e1->floatval); break;
+  default: {
+    fprintf(stderr, "attempt to divide a non-numeric value");
+    _free_expr(e->cdr);
+    return 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
+  return result;
+}
+
+static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial)
+{
+  if(e == &NIL) return _int_expr(partial);
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to divide a non-numeric value"); 
+    _free_expr(e);
+    return 0; 
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car), *result;
+  switch(e1->type) {
+  case INTEGER_T: result = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
+  case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)partial / e1->floatval); break;
+  default: {
+    fprintf(stderr, "attempt to divide a non-numeric value");
+    _free_expr(e->cdr);
+    return 0;
+  }
+  }
+  
+  _free_expr(e1);
+  free(e);
+  return result;
+}
+
 expr_t *eval_op_div(env_t *env, expr_t *e)
 {
   // this is a bit inefficient, but makes things easy to read
-  if(NO_ARGS(e)) { fprintf(stderr, "eval: error: div: need at least two arguments for division"); return 0; }
-  if(ONE_ARGS(e)) { fprintf(stderr, "eval: error: div: need at least two arguments for division"); return 0; }
+  if(NO_ARGS(e)) { 
+    fprintf(stderr, "eval: error: div: need at least two arguments for division\n"); 
+    _free_expr(e);
+    return 0; 
+  }
+  if(ONE_ARGS(e)) { 
+    fprintf(stderr, "eval: error: div: need at least two arguments for division\n");
+    _free_expr(e);
+    return 0; 
+  }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
@@ -174,13 +387,13 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
   case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)e1->floatval); break;
   default: {
     fprintf(stderr, "eval: error: div: attempt to divide a non-numeric value\n");
+    _free_expr(e->cdr);
     return 0;
   }
   }
 
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1);
+  _free_expr(e1);
+  free(e);
   return result;
 }
 
@@ -365,195 +578,6 @@ expr_t *eval_op_ge(env_t *env, expr_t *e)
   expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
   expr_t *result = (compare(e1, e2) >= 0) ? &T : &F;
   // _free_expr(e1, result); // _free_expr(e2, result);
-  return result;
-}
-
-static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
-{
-  if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) { 
-    fprintf(stderr, "eval: add: unexpected argument type\n");
-    _free_expr(e);
-    return 0;
-  }
-
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
-  default: {
-    fprintf(stderr, "attempt to add to a non-numeric value");
-    _free_expr(e->cdr);
-    result = 0;
-  }
-  }
-  
-  _free_expr(e1);
-  free(e);
-  return result;
-}
-
-static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
-{
-  if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) {
-    fprintf(stderr, "eval: add: unexpected argument type\n");
-    _free_expr(e);
-    return 0; 
-  }
-
-  // we'll use this to hold the result
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_add_int(env, e->cdr, partial + e1->intval); break;
-  case FLOAT_T: result = eval_op_add_float(env, e->cdr, (float)partial + e1->floatval); break;
-  default: {
-    fprintf(stderr, "attempt to add a non-numeric value");
-    _free_expr(e->cdr);
-    result = 0;
-  }
-  }
-  
-  _free_expr(e1);
-  free(e);
-  return result;
-}
-
-static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
-{
-  if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to subtract a non-numeric value"); return 0;
-    _free_expr(e);
-    return 0;
-  }
-
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
-  default: { 
-    fprintf(stderr, "attempt to subtract a non-numeric value");
-    _free_expr(e->cdr);
-    result = 0;
-  }
-  }
-  
-  _free_expr(e1);
-  free(e);
-  return result;
-}
-
-static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
-{
-  if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to subtract a non-numeric value"); 
-    _free_expr(e);
-    return 0;
-  }
-
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
-  case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
-  default: {
-    fprintf(stderr, "attempt to subtract a non-numeric value");
-    _free_expr(e->cdr);
-    return 0;
-  }
-  }
-  
-  _free_expr(e1);
-  free(e);
-  return result;
-}
-
-static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
-{
-  if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to multiply a non-numeric value"); 
-    _free_expr(e);
-    return 0; 
-  }
-
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_mul_float(env, e->cdr, partial * e1->floatval); break;
-  default: {
-    fprintf(stderr, "attempt to multiply a non-numeric value");
-    return 0;
-  }
-  }
-  
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
-  return result;
-}
-
-static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial)
-{
-  if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to multiply a non-numeric value"); return 0; }
-
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
-  case FLOAT_T: result = eval_op_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
-  default: { 
-    fprintf(stderr, "attempt to multiply a non-numeric value");
-    return 0;
-  }
-  }
-  
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
-  return result;
-}
-
-static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial)
-{
-  if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to divide a non-numeric value"); return 0; }
-
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_div_float(env, e->cdr, partial / e1->floatval); break;
-  default: {
-    fprintf(stderr, "attempt to divide a non-numeric value");
-    return 0;
-  }
-  }
-  
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
-  return result;
-}
-
-static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial)
-{
-  if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to divide a non-numeric value"); return 0; }
-
-  expr_t *e1 = e->car->eval(env, e->car), *result;
-  switch(e1->type) {
-  case INTEGER_T: result = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
-  case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)partial / e1->floatval); break;
-  default: {
-    fprintf(stderr, "attempt to divide a non-numeric value");
-    return 0;
-  }
-  }
-  
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
   return result;
 }
 

@@ -483,6 +483,7 @@ expr_t *eval_op_list(env_t *env, expr_t *e)
     return 0;
   }
   
+  if(!e->ref) free(e);
   return _list_expr(car, cdr);
 }
 
@@ -576,105 +577,265 @@ expr_t *eval_op_let(env_t *env, expr_t *e)
 
 expr_t *eval_op_if(env_t *env, expr_t *e)
 {
+  // TODO test for either two or three args
   expr_t *cond = e->car->eval(env, e->car);
-  if(cond->type != BOOL_T) {
-    // _free_expr(cond);
-    fprintf(stderr, "eval: error: if: boolean value expected\n");
-  } else if(cond == &T) {
-    return e->cdr->car->eval(env, e->cdr->car);
-  } else if(e->cdr->cdr != &NIL) {
-    return e->cdr->cdr->car->eval(env, e->cdr->cdr->car);
-  } else {
-    return &NIL;
+  if(!cond) {
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
   }
+
+  expr_t *result;
+  if(cond->type != BOOL_T) {
+    fprintf(stderr, "eval: error: if: boolean value expected\n");
+    _free_expr(e->cdr);
+    result = 0;
+  } else if(cond == &T) {
+    result = e->cdr->car->eval(env, e->cdr->car);
+    _free_expr(e->cdr->cdr);
+    if(!e->cdr->ref) free(e->cdr);
+  } else if(e->cdr->cdr != &NIL) { // cond == &F, else
+    result = e->cdr->cdr->car->eval(env, e->cdr->cdr->car);
+    _free_expr(e->cdr->car);
+    if(!e->cdr->cdr->ref) free(e->cdr->cdr);
+    if(!e->cdr->ref) free(e->cdr);
+  } else { // cond == &F, no "else"
+    result = &NIL;
+    _free_expr(e->cdr);
+  }
+
+  if(!e->ref) free(e);
+  return result;
 }
 
 expr_t *eval_op_not(env_t *env, expr_t *e)
 {
-  expr_t *b = e->car->eval(env, e->car);
-  if(b->type != BOOL_T) {
-    // _free_expr(b, 0);
-    fprintf(stderr, "not: boolean value expected");
+  if(!(ONE_ARGS(e))) {
+    fprintf(stderr, "eval: error: not: incorrect number of arguments");
+    _free_expr(e);
     return 0;
   }
-  return (b == &T) ? &F : &T;
+  
+  expr_t *b = e->car->eval(env, e->car), *result;
+  if(b->type != BOOL_T) {
+    _free_expr(b);
+    fprintf(stderr, "not: boolean value expected");
+    result = 0;
+  } else {
+    result = (b == &T) ? &F : &T;
+  }
+  
+  if(!e->ref) free(e);
+  return result;
 }
 
 expr_t *eval_op_and(env_t *env, expr_t *e)
 {
-  expr_t *b1 = e->car->eval(env, e->car);
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: and: incorrect number of arguments");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *b1 = e->car->eval(env, e->car), *result;
   if(b1->type != BOOL_T) {
-    // fprintf(stderr, "and: b1: error: "); _print(stderr, b1, 0, 0);
-    // _free_expr(b1, 0);
+    _free_expr(b1);
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
     fprintf(stderr, "and: boolean value expected");
     return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(b2->type != BOOL_T) {
-    // fprintf(stderr, "and: b2: error: "); _print(stderr, b2, 0, 0);
-    // _free_expr(b2, 0);
+    _free_expr(b2);
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
     fprintf(stderr, "and: boolean value expected");
     return 0;
   }
 
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return ((b1 == &T) && (b2 == &T)) ? &T : &F;
 }
 
 expr_t *eval_op_or(env_t *env, expr_t *e)
 {
-  expr_t *b1 = e->car->eval(env, e->car);
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: or: incorrect number of arguments");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *b1 = e->car->eval(env, e->car), *result;
   if(b1->type != BOOL_T) {
-    // _free_expr(b1, 0);
+    _free_expr(b1);
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
     fprintf(stderr, "or: boolean value expected");
     return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(b2->type != BOOL_T) {
-    // _free_expr(b2, 0);
+    _free_expr(b2);
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
     fprintf(stderr, "or: boolean value expected");
     return 0;
   }
 
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return ((b1 == &T) || (b2 == &T)) ? &T : &F;
 }
 
 expr_t *eval_op_equal(env_t *env, expr_t *e)
 {
-  expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: equal: incorrect number of arguments");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!e1) {
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!e2) {
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
   expr_t *result = (compare(e1, e2) == 0) ? &T : &F;
-  // _free_expr(e1, result); // _free_expr(e2, result);
+
+  _free_expr(e1); _free_expr(e2);
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return result;
 }
 
 expr_t *eval_op_lt(env_t *env, expr_t *e)
 {
-  expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: lt: incorrect number of arguments");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!e1) {
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!e2) {
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
   expr_t *result = (compare(e1, e2) < 0) ? &T : &F;
-  // _free_expr(e1, result); // _free_expr(e2, result);
+
+  _free_expr(e1); _free_expr(e2);
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return result;
 }
 
 expr_t *eval_op_gt(env_t *env, expr_t *e)
 {
-  expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: gt: incorrect number of arguments");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!e1) {
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!e2) {
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
   expr_t *result = (compare(e1, e2) > 0) ? &T : &F;
-  // _free_expr(e1, result); // _free_expr(e2, result);
+
+  _free_expr(e1); _free_expr(e2);
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return result;
 }
 
 expr_t *eval_op_le(env_t *env, expr_t *e)
 {
-  expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: le: incorrect number of arguments");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!e1) {
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!e2) {
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
   expr_t *result = (compare(e1, e2) <= 0) ? &T : &F;
-  // _free_expr(e1, result); // _free_expr(e2, result);
+
+  _free_expr(e1); _free_expr(e2);
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return result;
 }
 
 expr_t *eval_op_ge(env_t *env, expr_t *e)
 {
-  expr_t *e1 = e->car->eval(env, e->car), *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!(TWO_ARGS(e))) {
+    fprintf(stderr, "eval: error: ge: incorrect number of arguments");
+    _free_expr(e);
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!e1) {
+    _free_expr(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(!e2) {
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
+    return 0;
+  }
+
   expr_t *result = (compare(e1, e2) >= 0) ? &T : &F;
-  // _free_expr(e1, result); // _free_expr(e2, result);
+
+  _free_expr(e1); _free_expr(e2);
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return result;
 }
 

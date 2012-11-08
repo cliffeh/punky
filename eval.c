@@ -71,18 +71,27 @@ expr_t *eval_op_lambda(env_t *env, expr_t *e)
 expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 {
   if(!(THREE_ARGS(fn))) { fprintf(stderr, "eval: error: invalid function call"); return 0; }
-  expr_t *formals = fn->cdr->car, *body = fn->cdr->cdr->car, *f_ptr, *a_ptr, *result;
+  expr_t *formals = fn->cdr->car, *body = fn->cdr->cdr->car, *f_ptr = formals, *a_ptr = args, *tmp, *result;
+
+  if(!fn->cdr->cdr->ref) free(fn->cdr->cdr);
+  if(!fn->cdr->ref) free(fn->cdr);
 
   env_t funenv;
   init_env(&funenv, env);
   
   // evaluate each arg and bind it to its formal parameter in the new env we've created
-  for(f_ptr = formals, a_ptr = args; 
-      ((f_ptr != &NIL) && (a_ptr != &NIL)); 
-      f_ptr = f_ptr->cdr, a_ptr = a_ptr->cdr)
-    {
-      put(&funenv, f_ptr->car, a_ptr->car->eval(env, a_ptr->car));
-    }
+  // for(f_ptr = formals, a_ptr = args; 
+  while((f_ptr != &NIL) && (a_ptr != &NIL)) {
+    put(&funenv, f_ptr->car, a_ptr->car->eval(env, a_ptr->car));
+
+    tmp = f_ptr->cdr;
+    if(!f_ptr->ref) free(f_ptr);
+    f_ptr = tmp;
+
+    tmp = a_ptr->cdr;
+    if(!a_ptr->ref) free(a_ptr);
+    a_ptr = tmp;
+  }
 
   // make sure we've provided the right number of arguments
   if((f_ptr != &NIL) || (a_ptr != &NIL)) {
@@ -95,7 +104,8 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 
   // clean up and return
   free_env(&funenv);
-  //  _free_expr(fn);
+  _free_expr(fn->car);
+  if(!fn->ref) free(fn);
   //  if(!args->ref) free(args);
   return result;
 }

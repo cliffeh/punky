@@ -58,7 +58,7 @@ expr_t *eval_op_define(env_t *env, expr_t *e)
 
   if(!e->cdr->ref) free(e->cdr); 
   if(!e->ref) free(e);
-  put(env, strdup(id->strval), value);
+  put(env, id, value);
   return id;
 }
 
@@ -81,7 +81,7 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
       ((f_ptr != &NIL) && (a_ptr != &NIL)); 
       f_ptr = f_ptr->cdr, a_ptr = a_ptr->cdr)
     {
-      put(&funenv, strdup(f_ptr->car->strval), a_ptr->car->eval(env, a_ptr->car));
+      put(&funenv, f_ptr->car, a_ptr->car->eval(env, a_ptr->car));
     }
 
   // make sure we've provided the right number of arguments
@@ -120,9 +120,9 @@ expr_t *eval_list(env_t *env, expr_t *e)
 
 expr_t *eval_ident(env_t *env, expr_t *e)
 {
-  expr_t *result = get(env, e->strval);
-  if(!result) fprintf(stderr, "eval: error: unbound variable '%s'\n", e->strval);
-  _free_expr(e);
+  expr_t *result = get(env, e);
+  if(!result) fprintf(stderr, "eval: error: unbound variable\n");
+  //  _free_expr(e);
   return result;
 }
 
@@ -558,7 +558,7 @@ expr_t *eval_op_let(env_t *env, expr_t *e)
       return 0;
     }
 
-    put(&letenv, def->car->strval, value);
+    put(&letenv, def->car, value);
     if(!def->car->ref) free(def->car);
     if(!def->cdr->ref) free(def->cdr);
     if(!def->ref) free(def);

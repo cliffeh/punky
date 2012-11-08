@@ -28,7 +28,7 @@ enum PUNKY_TYPE {
 
 typedef struct entry_t
 {
-  char *id;
+  struct expr_t *id;
   struct expr_t *e;
   struct entry_t *next; // linked list
 } entry_t;

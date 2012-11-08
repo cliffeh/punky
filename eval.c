@@ -51,12 +51,13 @@ expr_t *eval_op_define(env_t *env, expr_t *e)
     // we'll assume evaluating e->cdr->car consumed that part of e, so
     // we need only free the rest
     _free_expr(e->car);
-    free(e->cdr);
-    free(e);
+    if(!e->cdr->ref) free(e->cdr);
+    if(!e->ref) free(e);
     return 0;
   }
 
-  free(e->cdr); free(e);
+  if(!e->cdr->ref) free(e->cdr); 
+  if(!e->ref) free(e);
   put(env, strdup(id->strval), value);
   return id;
 }
@@ -103,7 +104,7 @@ expr_t *eval_list(env_t *env, expr_t *e)
   if(e->car->type == OP_T) {
     // we already know how to execute ops
     result = e->car->eval(env, e->cdr);
-    if(!e->car->ref) _free_expr(e->car);
+    _free_expr(e->car);
   } else {
     // since we don't know how to execute other kinds of things
     expr_t *fn = e->car->eval(env, e->car);
@@ -144,7 +145,7 @@ static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -170,7 +171,7 @@ static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -200,7 +201,7 @@ static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -225,7 +226,7 @@ static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -258,7 +259,7 @@ expr_t *eval_op_sub(env_t *env, expr_t *e)
   }
 
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -283,7 +284,7 @@ static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -308,7 +309,7 @@ static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -338,7 +339,7 @@ static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -363,7 +364,7 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial)
   }
   
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -393,7 +394,7 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
   }
 
   _free_expr(e1);
-  free(e);
+  if(!e->ref) free(e);
   return result;
 }
 

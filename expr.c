@@ -113,6 +113,8 @@ void _set_ref(expr_t *e, int ref)
 
 void _free_expr(expr_t *e)
 {
+  if(e->ref) return;
+
   switch(e->type) {
 
   case LIST_T: {

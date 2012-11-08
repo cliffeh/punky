@@ -72,7 +72,7 @@ expr_t *get(env_t *env, char *id)
   entry_t *entry = _find_entry(env, id, env->entries[i]);
   if(entry) { 
     // we found it! let's return it...
-    return _clone_expr(entry->e); // protect our entries by returning a clone
+    return entry->e; // _clone_expr(entry->e); // protect our entries by returning a clone
   } else if(env->parent) {
     return get(env->parent, id);
   }
@@ -86,6 +86,7 @@ void free_entry(entry_t *entry)
   entry_t *e = entry, *next;
   while(e) {
     free(e->id);
+    _set_ref(e->e, 0); //?
     _free_expr(e->e);
     next = e->next;
     free(e);

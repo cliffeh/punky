@@ -16,6 +16,10 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial);
 // TODO get rid of this
 void _print(FILE *out, expr_t *e, int indent, int depth);
 
+static expr_t *eval_args(env_t *env, expr_t *e, int min, int max, enum PUNKY_TYPE types)
+{
+}
+
 expr_t *eval_idem(env_t *env, expr_t *e)
 {
   return e;
@@ -848,6 +852,10 @@ expr_t *eval_op_ge(env_t *env, expr_t *e)
   if(!e->cdr->ref) free(e->cdr);
   if(!e->ref) free(e);
   return result;
+}
+
+expr_t *eval_op_substr(env_t *env, expr_t *e)
+{
 }
 
 punky_t *eval(punky_t *p)

@@ -56,5 +56,7 @@ expr_t *eval_op_gt(env_t *env, expr_t *e);
 expr_t *eval_op_le(env_t *env, expr_t *e);
 expr_t *eval_op_ge(env_t *env, expr_t *e);
 
+/* string operations */
+expr_t *eval_op_substr(env_t *env, expr_t *e);
 #endif
 

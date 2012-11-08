@@ -22,6 +22,9 @@
 #define NIL_T   (0<<0)
 #define EOF_T   (1<<7)
 
+#define NUM_T   (INT_T|FLOAT_T)
+#define ANY_T   (LIST_T|BOOL_T|INT_T|FLOAT_T|STRING_T|IDENT_T|OP_T)
+
 /* environment */
 #define ENV_BUCKETS 50
 

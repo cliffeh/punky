@@ -16,19 +16,40 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial);
 // TODO get rid of this
 void _print(FILE *out, expr_t *e, int indent, int depth);
 
-static expr_t *eval_args(env_t *env, expr_t *e, int min, int max, int types[])
+static expr_t *eval_args(env_t *env, expr_t *exprs, int min, int max, int types[])
 {
-  expr_t *args = _list_expr(&NIL, &NIL), *_e, *_a = args;
+  expr_t *args = _list_expr(&NIL, &NIL), *e, *a = args, *tmp;
 
   int i;
-  for(i = min, _e = e, _a = args; (i < max) && (IS_LIST(_e)); i++, _e = _e->cdr) {
-    _a->car = _e->car->eval(env, _e->car);
-    if(!_a->car) {
-      
-    }
-    _a->cdr = _list_expr(&NIL, &NIL);
-    _a = _a->cdr;
-    if(!_e->ref) free(_e);
+  for(i = 0, e = exprs, a = args; 
+      (i < max) && (IS_LIST(e)); 
+      i++, a = a->cdr = _list_expr(&NIL, &NIL)) 
+    {
+      a->car = e->car->eval(env, e->car);
+
+      if(!a->car) {
+	_free_expr(args);
+	_free_expr(e->cdr);
+	return 0;
+      }
+
+      if(!(a->car->type & types[i])) {
+	fprintf(stderr, "eval: error: unexpected argument type\n");
+	_free_expr(args);
+        _free_expr(e->cdr);
+        return 0;
+      }
+
+      tmp = e->cdr;
+      if(!e->ref) free(e);
+      e = tmp;
+  }
+
+  if(i < min) {
+    fprintf(stderr, "eval: error: incorrect number of arguments\n");
+    _free_expr(args);
+    _free_expr(e->cdr);
+    return 0;
   }
 
   return args;
@@ -50,17 +71,11 @@ expr_t *eval_op_define(env_t *env, expr_t *e)
 
   // an identifier
   expr_t *id = e->car;
-  /* 
-  if(!IS_IDENT(id)) {
-    fprintf(stderr, "eval: error: define: invalid identifier\n");
-    _free_expr(e);
-    return 0;
-    }*/
   
   // and the value
   expr_t *value = e->cdr->car->eval(env, e->cdr->car);
   if(!value) {
-    fprintf(stderr, "eval: error: define: failed to define variable");
+    // fprintf(stderr, "eval: error: define: failed to define variable");
     // we'll assume evaluating e->cdr->car consumed that part of e, so
     // we need only free the rest
     _free_expr(e->car);

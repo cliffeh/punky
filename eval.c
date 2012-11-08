@@ -414,11 +414,12 @@ expr_t *eval_op_car(env_t *env, expr_t *e)
     _free_expr(e->cdr);
     _free_expr(l);
     if(!e->ref) free(e);
-    return 0; 
+    return 0;
   }
   
   expr_t *car = l->car;
   _free_expr(l->cdr);
+  if(!l->ref) free(l);
   if(!e->ref) free(e);
   return car;
 }
@@ -443,6 +444,7 @@ expr_t *eval_op_cdr(env_t *env, expr_t *e)
 
   expr_t *cdr = l->cdr;
   _free_expr(l->car);
+  if(!l->ref) free(l);
   if(!e->ref) free(e);
   return cdr;
 }
@@ -530,23 +532,45 @@ expr_t *eval_op_let(env_t *env, expr_t *e)
     return 0; 
   }
 
-  expr_t *defs = e->car, *body = e->cdr->car, *d_ptr, *result;
+  expr_t *defs = e->car, *body = e->cdr->car, *d_ptr = defs, *tmp, *result;
 
   env_t letenv;
   init_env(&letenv, env);
 
-  for(d_ptr = defs; d_ptr != &NIL; d_ptr = d_ptr->cdr) {
+  // for(d_ptr = defs; d_ptr != &NIL; d_ptr = d_ptr->cdr) {
+  while(d_ptr != &NIL) {
     expr_t *def = d_ptr->car;
-    put(&letenv, strdup(def->car->strval), def->cdr->car->eval(env, def->cdr->car));
-    // _free_expr(def);
+    expr_t *id = def->car;
+    expr_t *value = def->cdr->car->eval(env, def->cdr->car);
+
+    if(!value) {
+      if(!def->car->ref) free(def->car);
+      if(!def->cdr->ref) free(def->cdr);
+      if(!def->ref) free(def);
+      if(!d_ptr->ref) free(d_ptr);
+      _free_expr(d_ptr->cdr);
+      _free_expr(body);
+      if(!defs->ref) free(defs);
+      if(!e->cdr->ref) free(e->cdr);
+      if(!e->ref) free(e);
+      return 0;
+    }
+
+    put(&letenv, def->car->strval, value);
+    if(!def->car->ref) free(def->car);
+    if(!def->cdr->ref) free(def->cdr);
+    if(!def->ref) free(def);
+
+    tmp = d_ptr->cdr;
+    if(!d_ptr->ref) free(d_ptr);
+    d_ptr = tmp;
   }
 
   result = body->eval(&letenv, body);
 
   free_env(&letenv);
-  //  if(!e->car->cdr->ref) free(e->car->cdr);
-  //  if(!e->cdr->ref) free(e->cdr);
-  //  if(!e->ref) free(e);
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
   return result;
 }
 

@@ -95,8 +95,8 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 
   // clean up and return
   free_env(&funenv);
-  _free_expr(fn);
-  if(!args->ref) free(args);
+  //  _free_expr(fn);
+  //  if(!args->ref) free(args);
   return result;
 }
 

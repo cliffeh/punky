@@ -21,12 +21,6 @@ expr_t *eval_idem(env_t *env, expr_t *e)
   return e;
 }
 
-expr_t *eval_clone(env_t *env, expr_t *e)
-{
-  //   return _clone_expr(e);
-   return e;
-}
-
 expr_t *eval_op_define(env_t *env, expr_t *e)
 {
   // we are expecting two arguments:
@@ -38,16 +32,17 @@ expr_t *eval_op_define(env_t *env, expr_t *e)
 
   // an identifier
   expr_t *id = e->car;
+  /* 
   if(!IS_IDENT(id)) {
     fprintf(stderr, "eval: error: define: invalid identifier\n");
     _free_expr(e);
     return 0;
-  }
+    }*/
   
   // and the value
   expr_t *value = e->cdr->car->eval(env, e->cdr->car);
   if(!value) {
-    fprintf(stderr, "eval: error: define: failed to define variable '%s'\n", id->strval);
+    fprintf(stderr, "eval: error: define: failed to define variable");
     // we'll assume evaluating e->cdr->car consumed that part of e, so
     // we need only free the rest
     _free_expr(e->car);
@@ -102,8 +97,13 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
     result = body->eval(&funenv, body);
   }
 
+  // make sure we don't lose our shit when we free up the temporary env
+  _inc_ref(result); // _set_ref(result, result->ref+1);
   // clean up and return
   free_env(&funenv);
+  // get rid of the ref count so we can free this up after the fact
+  _dec_ref(result); // _set_ref(result, result->ref-1);
+
   _free_expr(fn->car);
   if(!fn->ref) free(fn);
   //  if(!args->ref) free(args);

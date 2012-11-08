@@ -56,8 +56,10 @@ void put(env_t *env, expr_t *id, expr_t *e)
     }
 
     // we found it! we'll release the old expr_t and replace it with the new one
-    _set_ref(entry->e, entry->e->ref-1);
-    _set_ref(entry->id, entry->id->ref-1);
+    // _set_ref(entry->e, entry->e->ref-1);
+    // _set_ref(entry->id, entry->id->ref-1);
+    _dec_ref(entry->e);
+    _dec_ref(entry->id);
 
     // expecting a new value
     _free_expr(entry->e);
@@ -77,9 +79,9 @@ void put(env_t *env, expr_t *id, expr_t *e)
   // fprintf(stderr, "env: putting: %s->%i\n", id, e->intval);
   // TODO should we be cloning this?
   // entry->e = _clone_expr(e);
-  _set_ref(id, id->ref+1);
+  _inc_ref(id); // _set_ref(id, id->ref+1);
   entry->id = id;
-  _set_ref(e, e->ref+1);
+  _inc_ref(e); // _set_ref(e, e->ref+1);
   entry->e = e;
 }
 
@@ -112,9 +114,9 @@ void free_entry(entry_t *entry)
 {
   entry_t *e = entry, *next;
   while(e) {
-    _set_ref(e->id, e->id->ref-1);
+    _dec_ref(e->id); // _set_ref(e->id, e->id->ref-1);
     _free_expr(e->id);
-    _set_ref(e->e, e->e->ref-1); //?
+    _dec_ref(e->e); // _set_ref(e->e, e->e->ref-1); //?
     _free_expr(e->e);
     next = e->next;
     free(e);

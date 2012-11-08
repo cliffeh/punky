@@ -22,7 +22,7 @@ expr_t *_int_expr(int value)
 {
   expr_t *e = _new_expr(INTEGER_T);
   e->intval = value;
-  e->eval = &eval_clone;
+  e->eval = &eval_idem;
   return e;
 };
 
@@ -30,7 +30,7 @@ expr_t *_float_expr(float value)
 {
   expr_t *e = _new_expr(FLOAT_T);
   e->floatval = value;
-  e->eval = &eval_clone;
+  e->eval = &eval_idem;
   return e;
 }
 
@@ -38,7 +38,7 @@ expr_t *_str_expr(char *value)
 {
   expr_t *e = _new_expr(STRING_T);
   e->strval = value;
-  e->eval = &eval_clone;
+  e->eval = &eval_idem;
   return e;
 }
 
@@ -100,6 +100,7 @@ int compare(expr_t *e1, expr_t *e2)
   }
 }
 
+/*
 void _set_ref(expr_t *e, int ref)
 {
   switch(e->type) {
@@ -108,6 +109,24 @@ void _set_ref(expr_t *e, int ref)
     _set_ref(e->cdr, ref);
   }
   default: e->ref = ref;
+  }
+  }*/
+
+void _inc_ref(expr_t *e)
+{
+  e->ref++;
+  if(IS_LIST(e)) {
+    _inc_ref(e->car);
+    _inc_ref(e->cdr);
+  }
+}
+
+void _dec_ref(expr_t *e)
+{
+  e->ref--;
+  if(IS_LIST(e)) {
+    _dec_ref(e->car);
+    _dec_ref(e->cdr);
   }
 }
 

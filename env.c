@@ -52,7 +52,7 @@ void put(env_t *env, expr_t *id, expr_t *e)
   if(entry) { 
     if(entry->e == e) { // we already have it!
       if(entry->id != id) _free_expr(id);
-      return; 
+      return;
     }
 
     // we found it! we'll release the old expr_t and replace it with the new one
@@ -62,14 +62,10 @@ void put(env_t *env, expr_t *id, expr_t *e)
     // expecting a new value
     _free_expr(entry->e);
     _free_expr(entry->id);
-
-    _set_ref(id, id->ref+1);
     entry->id = id;
   } else {  
     // we didn't find it, so let's create a new entry
     entry = malloc(sizeof(entry_t));
-    _set_ref(id, id->ref+1);
-    entry->id = id;
 
     // make sure we keep track of any already-existing entries in this bucket
     entry->next = env->entries[i];
@@ -81,6 +77,8 @@ void put(env_t *env, expr_t *id, expr_t *e)
   // fprintf(stderr, "env: putting: %s->%i\n", id, e->intval);
   // TODO should we be cloning this?
   // entry->e = _clone_expr(e);
+  _set_ref(id, id->ref+1);
+  entry->id = id;
   _set_ref(e, e->ref+1);
   entry->e = e;
 }
@@ -105,7 +103,7 @@ expr_t *get(env_t *env, expr_t *id)
     return get(env->parent, id);
   }
 
-  _free_expr(id);
+  if(id != entry->id) _free_expr(id);
   // sorry, that var isn't defined here
   return 0;
 }

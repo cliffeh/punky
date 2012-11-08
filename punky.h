@@ -49,6 +49,7 @@ expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, struct expr_t *));
 
 /* memory management */
 void _free_expr(expr_t *e);
+void _set_ref(expr_t *e, int ref);
 expr_t *_clone_expr(expr_t *src);
 
 /* expr_t comparison */

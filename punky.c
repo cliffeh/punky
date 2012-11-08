@@ -33,7 +33,7 @@ punky_t *cleanup(punky_t *p)
   fclose(p->out);
   fclose(p->err);
 
-  if(p->e) _free_expr(p->e, 0);
+  if(p->e) _free_expr(p->e);
 
   free_env(&(p->env));
 

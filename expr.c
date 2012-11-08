@@ -5,6 +5,7 @@ static expr_t *_new_expr(enum PUNKY_TYPE type)
 {
   expr_t *e = malloc(sizeof(expr_t));
   e->type = type;
+  e->ref = 0;
   return e;
 }
 
@@ -96,6 +97,17 @@ int compare(expr_t *e1, expr_t *e2)
   }
   case STRING_T: return strcmp(e1->strval, e2->strval);
   default: return (e1 == e2) ? 0 : -1;
+  }
+}
+
+void _set_ref(expr_t *e, int ref)
+{
+  switch(e->type) {
+  case LIST_T: {
+    _set_ref(e->car, ref);
+    _set_ref(e->cdr, ref);
+  }
+  default: e->ref = ref;
   }
 }
 

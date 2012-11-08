@@ -34,7 +34,7 @@ static entry_t *_find_entry(env_t *env, char *id, entry_t *bucket)
   return 0;
 }
 
-expr_t *put(env_t *env, char *id, expr_t *e)
+void put(env_t *env, char *id, expr_t *e)
 {
   // we need to know which bucket we're in
   int i = hash(id);
@@ -48,7 +48,7 @@ expr_t *put(env_t *env, char *id, expr_t *e)
   } else {  
     // we didn't find it, so let's create a new entry
     entry = malloc(sizeof(entry_t));
-    entry->id = strdup(id);
+    entry->id = id;
 
     // make sure we keep track of any already-existing entries in this bucket
     entry->next = env->entries[i];
@@ -60,9 +60,8 @@ expr_t *put(env_t *env, char *id, expr_t *e)
   // fprintf(stderr, "env: putting: %s->%i\n", id, e->intval);
   // TODO should we be cloning this?
   // entry->e = _clone_expr(e);
+  _set_ref(e, 1);
   entry->e = e;
-
-  return _id_expr(strdup(id));
 }
 
 expr_t *get(env_t *env, char *id)

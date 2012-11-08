@@ -23,8 +23,8 @@ expr_t *eval_idem(env_t *env, expr_t *e)
 
 expr_t *eval_clone(env_t *env, expr_t *e)
 {
-   return _clone_expr(e);
-  //  return e;
+  //   return _clone_expr(e);
+   return e;
 }
 
 expr_t *eval_op_define(env_t *env, expr_t *e)
@@ -56,6 +56,7 @@ expr_t *eval_op_define(env_t *env, expr_t *e)
     return 0;
   }
 
+  free(e->cdr); free(e);
   put(env, strdup(id->strval), value);
   return id;
 }
@@ -98,14 +99,19 @@ expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
 
 expr_t *eval_list(env_t *env, expr_t *e)
 {
-  // we already know how to execute ops
-  if(e->car->type == OP_T) 
-    return e->car->eval(env, e->cdr);
-
-  // since we don't know how to execute other kinds of things
-  expr_t *fn = e->car->eval(env, e->car);
-  expr_t *result = eval_function_call(env, fn, e->cdr);
-  _free_expr(fn);
+  expr_t *result;
+  if(e->car->type == OP_T) {
+    // we already know how to execute ops
+    result = e->car->eval(env, e->cdr);
+    if(!e->car->ref) _free_expr(e->car);
+  } else {
+    // since we don't know how to execute other kinds of things
+    expr_t *fn = e->car->eval(env, e->car);
+    result = eval_function_call(env, fn, e->cdr);
+  }
+  
+  // cleanup
+  if(!e->ref) free(e);
   return result;
 }
 
@@ -113,6 +119,7 @@ expr_t *eval_ident(env_t *env, expr_t *e)
 {
   expr_t *result = get(env, e->strval);
   if(!result) { fprintf(stderr, "eval: error: unbound variable '%s'\n", e->strval); return 0; }
+  _free_expr(e);
   return result;
 }
 
@@ -364,7 +371,11 @@ expr_t *eval_op_ge(env_t *env, expr_t *e)
 static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to add a non-numeric value"); return 0; }
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "eval: add: unexpected argument type\n");
+    _free_expr(e);
+    return 0;
+  }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
@@ -372,20 +383,24 @@ static expr_t *eval_op_add_float(env_t *env, expr_t *e, float partial)
   case FLOAT_T: result = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to add to a non-numeric value");
-    return 0;
+    _free_expr(e->cdr);
+    result = 0;
   }
   }
   
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
+  _free_expr(e1);
+  free(e);
   return result;
 }
 
 static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to add a non-numeric value"); return 0; }
+  if(e->type != LIST_T) {
+    fprintf(stderr, "eval: add: unexpected argument type\n");
+    _free_expr(e);
+    return 0; 
+  }
 
   // we'll use this to hold the result
   expr_t *e1 = e->car->eval(env, e->car), *result;
@@ -394,20 +409,24 @@ static expr_t *eval_op_add_int(env_t *env, expr_t *e, int partial)
   case FLOAT_T: result = eval_op_add_float(env, e->cdr, (float)partial + e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to add a non-numeric value");
-    return 0;
+    _free_expr(e->cdr);
+    result = 0;
   }
   }
   
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
+  _free_expr(e1);
+  free(e);
   return result;
 }
 
 static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to subtract a non-numeric value"); return 0; }
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to subtract a non-numeric value"); return 0;
+    _free_expr(e);
+    return 0;
+  }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
@@ -415,20 +434,24 @@ static expr_t *eval_op_sub_float(env_t *env, expr_t *e, float partial)
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
   default: { 
     fprintf(stderr, "attempt to subtract a non-numeric value");
-    return 0;
+    _free_expr(e->cdr);
+    result = 0;
   }
   }
   
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
+  _free_expr(e1);
+  free(e);
   return result;
 }
 
 static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to subtract a non-numeric value"); }
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to subtract a non-numeric value"); 
+    _free_expr(e);
+    return 0;
+  }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {
@@ -436,20 +459,24 @@ static expr_t *eval_op_sub_int(env_t *env, expr_t *e, int partial)
   case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to subtract a non-numeric value");
+    _free_expr(e->cdr);
     return 0;
   }
   }
   
-  // TODO how can we get rid of this in-eval cleanup?
-  //we must clean up after ourselves
-  // _free_expr(e1, result);
+  _free_expr(e1);
+  free(e);
   return result;
 }
 
 static expr_t *eval_op_mul_float(env_t *env, expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
-  if(e->type != LIST_T) { fprintf(stderr, "attempt to multiply a non-numeric value"); return 0; }
+  if(e->type != LIST_T) { 
+    fprintf(stderr, "attempt to multiply a non-numeric value"); 
+    _free_expr(e);
+    return 0; 
+  }
 
   expr_t *e1 = e->car->eval(env, e->car), *result;
   switch(e1->type) {

@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   expr_t *e;
   while(read(&p)) {
     if(p.eval) eval(&p);
-    print(&p);
+    if(p.e) print(&p);
   }
   cleanup(&p);
   exit(0);

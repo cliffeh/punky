@@ -9,7 +9,6 @@
 #define IS_IDENT(l)  (l->type == IDENTIFIER_T)
 #define IS_OP(l)     (l->type == OP_T)
 
-
 enum PUNKY_TYPE {
   LIST_T,
   BOOL_T,
@@ -45,6 +44,7 @@ typedef struct expr_t
   enum PUNKY_TYPE type;
   struct expr_t * (*eval)(struct env_t *, struct expr_t *); // pointer to eval function
   void (*print)(FILE *out, struct expr_t *e); // pointer to print
+  int ref; // memory management
   union 
   {
     /* for atoms */

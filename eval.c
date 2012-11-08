@@ -18,6 +18,20 @@ void _print(FILE *out, expr_t *e, int indent, int depth);
 
 static expr_t *eval_args(env_t *env, expr_t *e, int min, int max, enum PUNKY_TYPE types)
 {
+  expr_t *args = _list_expr(&NIL, &NIL), *_e, *_a = args;
+
+  int i;
+  for(i = min, _e = e, _a = args; (i < max) && (IS_LIST(_e)); i++, _e = _e->cdr) {
+    _a->car = _e->car->eval(env, _e->car);
+    if(!_a->car) {
+      
+    }
+    _a->cdr = _list_expr(&NIL, &NIL);
+    _a = _a->cdr;
+    if(!_e->ref) free(_e);
+  }
+
+  return args;
 }
 
 expr_t *eval_idem(env_t *env, expr_t *e)

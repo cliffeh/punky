@@ -40,7 +40,7 @@ __a simple functional language interpreter__
 
   * <code>(let ((x 10) (y 20)) (+ x y))</code> => <code>30</code>
 
-* string operations: substr
+* string operations: substr, strlen
 
 * simple boolean operations; e.g.,
 

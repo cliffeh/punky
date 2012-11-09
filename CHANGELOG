@@ -1,4 +1,7 @@
 2012-11-8 Clifton Snyder <cliff.snyder@gmail.com>
+	* parser.y, eval.c: substr and strlen operations are now supported
+
+2012-11-8 Clifton Snyder <cliff.snyder@gmail.com>
 	* everything: new memory management (*way* fewer allocs); sort test is down from 28K+ allocs to about 1000
 
 2012-11-6 Clifton Snyder <cliff.snyder@gmail.com>

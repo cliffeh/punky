@@ -2,16 +2,11 @@
   when an error occurs
 * autotools!
 * robust-ify your "test suite"
-* make errors return a stack trace instead of a single overwritten message
 * code cleanup
 * do something about floating-point precision
-* implement string operations
+* implement (more) string operations
 * better pretty-printing
-* is there a way i can be more efficient about things such that i don't have to clone so many expr_ts?
-* can i do things such that i don't need a bunch of free()s inside eval functions?
 * allow for multiple -i (in case we want to pre-load a bunch of scripts)
-* be careful about functions that always assume NIL-terminated lists!
 * types to add: file, env
 * put "defun" back in as syntactic sugar?
-* there is a (small) memory leak somewhere (run: valgrind --leak-check=full ./punky -i test/sort.in)
 * clean up #includes

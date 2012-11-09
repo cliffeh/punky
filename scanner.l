@@ -46,6 +46,7 @@
 
 %{ /* string operations */ %}
 "substr" { return(SUBSTR); }
+"strlen" { return(STRLEN); }
 
 %{ /* equality operations */ %}
 "="  { return(EQUAL); }

@@ -884,6 +884,18 @@ expr_t *eval_op_substr(env_t *env, expr_t *e)
   return result;
 }
 
+expr_t *eval_op_strlen(env_t *env, expr_t *e)
+{
+  expr_t *args[1], *result;
+  int types[] = { STRING_T };
+
+  if(!eval_args(args, env, e, 1, 1, types)) return 0;
+  
+  result = _int_expr(strlen(args[0]->strval));
+  _free_expr(args[0]);
+  return result;
+}
+
 punky_t *eval(punky_t *p)
 {
   expr_t *e = p->e->eval(&p->env, p->e); // _eval(&p->env, p->e);

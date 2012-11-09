@@ -56,7 +56,7 @@ static int eval_args(expr_t *args[], env_t *env, expr_t *exprs, int min, int max
     return 0;
   } 
  
-  return 1;
+  return i;
 }
 
 expr_t *eval_idem(env_t *env, expr_t *e)

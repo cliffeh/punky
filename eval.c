@@ -52,7 +52,9 @@ static int eval_args(expr_t *args[], env_t *env, expr_t *exprs, int min, int max
 
   if(i < min) {
     fprintf(stderr, "eval: error: incorrect number of arguments\n");
-    _free_expr(e->cdr);
+    int j;
+    for(j = 0; j < i; j++) { _free_expr(args[j]); }
+    _free_expr(e);
     return 0;
   } 
  
@@ -859,6 +861,27 @@ expr_t *eval_op_ge(env_t *env, expr_t *e)
 
 expr_t *eval_op_substr(env_t *env, expr_t *e)
 {
+  expr_t *args[3], *result;
+  int types[] = { STRING_T, INT_T, INT_T }, i;
+
+  // args[0] = string, args[1] = pos, args[2] = length
+  if(!(i=eval_args(args, env, e, 2, 3, types))) return 0;
+  int pos = args[1]->intval;
+  int len = (i == 3) ? args[2]->intval : strlen(args[0]->strval+pos);
+  if(len > strlen(args[0]->strval+pos)) {
+    fprintf(stderr, "eval: error: substr: length argument greater than length of string\n");
+    result = 0;
+  } else {
+    char *r = (char *)malloc(sizeof(char)*(len+1));
+    strncpy(r, args[0]->strval+pos, len);
+    r[len] = 0;
+    result = _str_expr(r);
+  }
+
+  _free_expr(args[0]);
+  _free_expr(args[1]);
+  if(i==3) _free_expr(args[2]);
+  return result;
 }
 
 punky_t *eval(punky_t *p)

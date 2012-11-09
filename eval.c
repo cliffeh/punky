@@ -16,26 +16,30 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial);
 // TODO get rid of this
 void _print(FILE *out, expr_t *e, int indent, int depth);
 
-static expr_t *eval_args(env_t *env, expr_t *exprs, int min, int max, int types[])
+static void free_args(expr_t *args[], int count)
 {
-  expr_t *args = _list_expr(&NIL, &NIL), *e, *a = args, *tmp;
-
   int i;
-  for(i = 0, e = exprs, a = args; 
-      (i < max) && (IS_LIST(e)); 
-      i++, a = a->cdr = _list_expr(&NIL, &NIL)) 
-    {
-      a->car = e->car->eval(env, e->car);
+  for(i = 0; i < count; i++) {
+    _free_expr(args[i]);
+  }
+}
 
-      if(!a->car) {
-	_free_expr(args);
+static int eval_args(expr_t *args[], env_t *env, expr_t *exprs, int min, int max, int types[])
+{
+  expr_t *e, *tmp;
+  int i;
+  for(i = 0, e = exprs; (i < max) && (IS_LIST(e)); i++)
+    {
+      args[i] = e->car->eval(env, e->car);
+
+      if(!args[i]) {
 	_free_expr(e->cdr);
 	return 0;
       }
 
-      if(!(a->car->type & types[i])) {
+      if(!(args[i]->type & types[i])) {
 	fprintf(stderr, "eval: error: unexpected argument type\n");
-	_free_expr(args);
+	free_args(args, i);
         _free_expr(e->cdr);
         return 0;
       }
@@ -47,12 +51,11 @@ static expr_t *eval_args(env_t *env, expr_t *exprs, int min, int max, int types[
 
   if(i < min) {
     fprintf(stderr, "eval: error: incorrect number of arguments\n");
-    _free_expr(args);
     _free_expr(e->cdr);
     return 0;
-  }
-
-  return args;
+  } 
+ 
+  return 1;
 }
 
 expr_t *eval_idem(env_t *env, expr_t *e)
@@ -445,52 +448,28 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
 
 expr_t *eval_op_car(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) { 
-    fprintf(stderr, "eval: error: car: incorrect number of arguments\n"); 
-    _free_expr(e);
-    return 0; 
-  }
+  expr_t *args[1];
+  int types[] = { LIST_T };
 
-  // TODO null check!
-  expr_t *l = e->car->eval(env, e->car);
-  if(!(IS_LIST(l))) { 
-    fprintf(stderr, "eval: error: car: attempted on non-list\n"); 
-    _free_expr(e->cdr);
-    _free_expr(l);
-    if(!e->ref) free(e);
-    return 0;
-  }
-  
-  expr_t *car = l->car;
-  _free_expr(l->cdr);
-  if(!l->ref) free(l);
-  if(!e->ref) free(e);
-  return car;
+  if(!eval_args(args, env, e, 1, 1, types)) return 0;
+
+  expr_t *result = args[0]->car;
+  _free_expr(args[0]->cdr);
+  if(!args[0]->ref) free(args[0]);
+  return result;
 }
 
 expr_t *eval_op_cdr(env_t *env, expr_t *e)
 {
-  if(!(ONE_ARGS(e))) { 
-    fprintf(stderr, "eval: error: cdr: incorrect number of arguments\n"); 
-    _free_expr(e);
-    return 0; 
-  }
+  expr_t *args[1];
+  int types[] = { LIST_T };
 
-  // TODO null check!
-  expr_t *l = e->car->eval(env, e->car);
-  if(!(IS_LIST(l))) { 
-    fprintf(stderr, "eval: error: cdr: attempted on non-list\n"); 
-    _free_expr(e->cdr);
-    _free_expr(l);
-    if(!e->ref) free(e);
-    return 0; 
-  }
+  if(!eval_args(args, env, e, 1, 1, types)) return 0;
 
-  expr_t *cdr = l->cdr;
-  _free_expr(l->car);
-  if(!l->ref) free(l);
-  if(!e->ref) free(e);
-  return cdr;
+  expr_t *result = args[0]->cdr;
+  _free_expr(args[0]->car);
+  if(!args[0]->ref) free(args[0]);
+  return result;
 }
 
 expr_t *eval_op_cons(env_t *env, expr_t *e)

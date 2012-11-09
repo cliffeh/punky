@@ -39,6 +39,7 @@ static int eval_args(expr_t *args[], env_t *env, expr_t *exprs, int min, int max
 
       if(!(args[i]->type & types[i])) {
 	fprintf(stderr, "eval: error: unexpected argument type\n");
+	_print(stderr, args[i], 0, 0);
 	free_args(args, i);
         _free_expr(e->cdr);
         return 0;
@@ -474,19 +475,12 @@ expr_t *eval_op_cdr(env_t *env, expr_t *e)
 
 expr_t *eval_op_cons(env_t *env, expr_t *e)
 {
-  if(!(TWO_ARGS(e))) { 
-    fprintf(stderr, "eval: error: cons: incorrect number of arguments"); 
-    _free_expr(e);
-    return 0; 
-  }
+  expr_t *args[2];
+  int types[] = { ANY_T, ANY_T };
+  
+  if(!eval_args(args, env, e, 2, 2, types)) return 0;
 
-  // TODO null check!
-  expr_t *car = e->car->eval(env, e->car);
-  expr_t *cdr = e->cdr->car->eval(env, e->cdr->car);
-
-  if(!e->cdr->ref) free(e->cdr);
-  if(!e->ref) free(e);
-  return _list_expr(car, cdr);
+  return _list_expr(args[0], args[1]);
 }
 
 expr_t *eval_op_list(env_t *env, expr_t *e)
@@ -512,6 +506,7 @@ expr_t *eval_op_list(env_t *env, expr_t *e)
 
 expr_t *eval_op_append(env_t *env, expr_t *e)
 {
+  // TODO make append accept any number of args
   if(!(TWO_ARGS(e))) { 
     fprintf(stderr, "eval: error: append: incorrect number of arguments"); 
     _free_expr(e);

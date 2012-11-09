@@ -19,11 +19,11 @@
 #define OP_T     (1<<6)
 
 /* special types */
-#define NIL_T   (0<<0)
-#define EOF_T   (1<<7)
+#define NIL_T   (1<<7)
+#define EOF_T   (1<<8)
 
 #define NUM_T   (INT_T|FLOAT_T)
-#define ANY_T   (LIST_T|BOOL_T|INT_T|FLOAT_T|STRING_T|IDENT_T|OP_T)
+#define ANY_T   (LIST_T|BOOL_T|INT_T|FLOAT_T|STRING_T|IDENT_T|OP_T|NIL_T)
 
 /* environment */
 #define ENV_BUCKETS 50

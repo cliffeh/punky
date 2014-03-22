@@ -9,7 +9,7 @@ struct expr_t T = { .type=BOOL_T, .eval=&eval_idem };
 struct expr_t F = { .type=BOOL_T, .eval=&eval_idem };
 struct expr_t _EOF = { .type=EOF_T, .eval=&eval_idem };
 
-punky_t *init(punky_t *p)
+punky_t *punky_init(punky_t *p)
 {
   p->in  = stdin;
   p->out = stdout;
@@ -27,7 +27,7 @@ punky_t *init(punky_t *p)
   return p;
 }
 
-punky_t *cleanup(punky_t *p)
+punky_t *punky_cleanup(punky_t *p)
 {
   fclose(p->in);
   fclose(p->out);

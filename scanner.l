@@ -1,5 +1,6 @@
 %{
 #include "types.h"
+#include "punky.h"
 #include "symbols.h" // symbol table
 %}
 

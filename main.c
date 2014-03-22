@@ -48,14 +48,14 @@ static struct argp argp = { options, parse_opt, args_doc, doc };
 int main(int argc, char *argv[])
 {
   punky_t p;
-  init(&p);
+  punky_init(&p);
   argp_parse (&argp, argc, argv, 0, 0, &p);
 
   expr_t *e;
-  while(read(&p)) {
-    if(p.eval) eval(&p);
-    if(p.e) print(&p);
+  while(punky_read(&p)) {
+    if(p.eval) punky_eval(&p);
+    if(p.e) punky_print(&p);
   }
-  cleanup(&p);
+  punky_cleanup(&p);
   exit(0);
 }

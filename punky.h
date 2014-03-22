@@ -33,11 +33,11 @@ typedef struct punky_t
   int indent, pretty;
 } punky_t;
 
-punky_t *init(punky_t *p);
-punky_t *read(punky_t *p);
-punky_t *eval(punky_t *p);
-punky_t *print(punky_t *p);
-punky_t *cleanup(punky_t *p);
+punky_t *punky_init(punky_t *p);
+punky_t *punky_read(punky_t *p);
+punky_t *punky_eval(punky_t *p);
+punky_t *punky_print(punky_t *p);
+punky_t *punky_cleanup(punky_t *p);
 
 /* private functions for allocating expressions - use at your own risk! */
 expr_t *_list_expr(expr_t *car, expr_t *cdr);

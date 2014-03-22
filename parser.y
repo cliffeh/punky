@@ -107,7 +107,7 @@ op: PLUS { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 
 %%
 
-punky_t *read(punky_t *p)
+punky_t *punky_read(punky_t *p)
 {
   // clean up any leftover cruft
   if(p->e) _free_expr(p->e);

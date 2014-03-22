@@ -896,7 +896,7 @@ expr_t *eval_op_strlen(env_t *env, expr_t *e)
   return result;
 }
 
-punky_t *eval(punky_t *p)
+punky_t *punky_eval(punky_t *p)
 {
   expr_t *e = p->e->eval(&p->env, p->e); // _eval(&p->env, p->e);
   // _free_expr(p->e, e); // free up whatever we parsed

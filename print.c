@@ -97,7 +97,7 @@ char *type_to_string(int t)
   if(!depth) fprintf(out, "\n");
 }
 
-punky_t *print(punky_t *p)
+punky_t *punky_print(punky_t *p)
 {
   // TODO error-checking of p->e?
   _print(p->out, p->e, (p->pretty) ? p->indent : 0, 0);

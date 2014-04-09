@@ -18,6 +18,8 @@ punky
 
 # testing output
 .test
+.sort.test
+.lambda.test
 .valgrind
 
 # generated files

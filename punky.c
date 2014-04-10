@@ -9,6 +9,8 @@ struct expr_t T = { .type=BOOL_T, .eval=&eval_idem };
 struct expr_t F = { .type=BOOL_T, .eval=&eval_idem };
 struct expr_t _EOF = { .type=EOF_T, .eval=&eval_idem };
 
+int yylex_destroy();
+
 punky_t *punky_init(punky_t *p)
 {
   p->in  = stdin;

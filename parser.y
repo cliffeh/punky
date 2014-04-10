@@ -5,6 +5,8 @@
 #include "eval.h"
   extern char *yytext;
   extern FILE *yyin; // , *yyout;
+  int yylex();
+  int yyerror();
   %}
 
 // %define api.pure
@@ -106,6 +108,14 @@ op: PLUS { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 ;
 
 %%
+int yyerror(s)
+char *s;
+{
+  /* ignore unknown input */ 
+  fprintf(stderr,
+	  "error: read: unable to parse '%s'\n", yytext);
+  return 1;
+}
 
 punky_t *punky_read(punky_t *p)
 {
@@ -116,15 +126,7 @@ punky_t *punky_read(punky_t *p)
   return (p->e != &_EOF) ? p : 0;
 }
 
-yyerror(s)
-char *s;
-{
-  /* ignore unknown input */ 
-  fprintf(stderr,
-	  "error: read: unable to parse '%s'\n", yytext); 
-}
-
-yywrap()
+int yywrap()
 {
   return(1);
 }

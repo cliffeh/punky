@@ -52,3 +52,5 @@ clean: test-clean
 
 veryclean: clean
 	rm -f punky punky.exe punky.exe.stackdump
+
+realclean: veryclean

@@ -20,7 +20,7 @@ punky - a simple functional language interpreter\n\
 Mandatory or optional arguments to long options are also mandatory or optional\n\
 for any corresponding short options.\n\
 \n\
-Report bugs to cliff.snyder@gmail.com.\n";
+Report bugs to <cliff.snyder@gmail.com>.\n";
 
 // TODO use autotools for this!
 #define PACKAGE_STRING "1.0"

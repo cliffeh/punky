@@ -1,1 +1,2 @@
 (substr "abcdefg" 2 3)
+(strlen "abcdefg")

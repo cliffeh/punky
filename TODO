@@ -10,3 +10,4 @@
 * types to add: file, env
 * put "defun" back in as syntactic sugar?
 * clean up #includes
+* improve logging

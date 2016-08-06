@@ -38,13 +38,14 @@ valgrind: .valgrind
 
 .test: punky $(TESTIN) $(TESTOUT)
 	for f in $(TEST); do ./punky -i $$f.in -o .test && diff $$f.out .test; done
+	rm -f .test
 
 .valgrind: punky test/test.in
 	valgrind --leak-check=full --log-file=.valgrind ./punky -i test/test.in -o /dev/null
 	cat .valgrind
 
 test-clean:
-	rm -f .test .sort.test .lambda.test .valgrind
+	rm -f .test .valgrind
 
 clean: test-clean
 	rm -f *.o scanner.c parser.c symbols.h

@@ -42,6 +42,9 @@ __a simple functional language interpreter__
 
 * string operations: substr, strlen
 
+  * <code>(substr "abcdefg" 2 3) => "cde"</code>
+  * <code>(strlen "abcdefg") => 7</code>
+
 * simple boolean operations; e.g.,
 
   * <code>(not #t)</code> => <code>#f</code>

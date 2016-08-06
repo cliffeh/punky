@@ -4,6 +4,10 @@ LEX=flex
 CFLAGS=-g
 YFLAGS=--defines=symbols.h
 
+TESTOUT=$(wildcard test/*.out)
+TESTIN=$(wildcard test/*.in)
+TEST=$(patsubst %.in,%,$(TESTIN))
+
 punky: $(OBJ)
 
 scanner.c: scanner.l
@@ -32,13 +36,8 @@ test: .test
 
 valgrind: .valgrind
 
-.test: punky test/test.in test/test.out test/sort.in test/sort.out test/lambda.in test/lambda.out
-	./punky -i test/test.in -o .test
-	diff test/test.out .test
-	./punky -i test/sort.in -o .sort.test
-	diff test/sort.out .sort.test
-	./punky -i test/lambda.in -o .lambda.test
-	diff test/lambda.out .lambda.test
+.test: punky $(TESTIN) $(TESTOUT)
+	for f in $(TEST); do ./punky -i $$f.in -o .test && diff $$f.out .test; done
 
 .valgrind: punky test/test.in
 	valgrind --leak-check=full --log-file=.valgrind ./punky -i test/test.in -o /dev/null

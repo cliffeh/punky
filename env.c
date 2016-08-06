@@ -91,23 +91,25 @@ expr_t *get(env_t *env, expr_t *id)
     fprintf(stderr, "get: error: invalid id expression\n");
     _free_expr(id);
     return 0;
+  } else {
+
+    expr_t *r = 0;
+    // we need to know what bucket we're in
+    int i = hash(id->strval);
+    entry_t *entry = _find_entry(env, id->strval, env->entries[i]);
+
+    if(entry) {
+      if(id != entry->id) _free_expr(id);
+      // we found it! let's return it...
+      r = entry->e; // _clone_expr(entry->e); // protect our entries by returning a clone
+    } else if(env->parent) {
+      r = get(env->parent, id);
+    } else {
+      _free_expr(id);
+    }
+
+    return r;
   }
-
-  // we need to know what bucket we're in
-  int i = hash(id->strval);
-
-  entry_t *entry = _find_entry(env, id->strval, env->entries[i]);
-  if(entry) {
-    if(id != entry->id) _free_expr(id);
-    // we found it! let's return it...
-    return entry->e; // _clone_expr(entry->e); // protect our entries by returning a clone
-  } else if(env->parent) {
-    return get(env->parent, id);
-  }
-
-  if(id != entry->id) _free_expr(id);
-  // sorry, that var isn't defined here
-  return 0;
 }
 
 void free_entry(entry_t *entry) 

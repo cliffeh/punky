@@ -42,6 +42,7 @@ valgrind: .valgrind
 
 .valgrind: punky $(TESTIN)
 	for f in $(TESTIN); do echo "\ntesting $$f...\n"; valgrind --leak-check=full --log-file=.valgrind ./punky -i $$f -o /dev/null; cat .valgrind; done
+	rm -f .valgrind
 
 test-clean:
 	rm -f .test .valgrind

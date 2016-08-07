@@ -13,9 +13,6 @@ static expr_t *eval_op_mul_int(env_t *env, expr_t *e, int partial);
 static expr_t *eval_op_div_float(env_t *env, expr_t *e, float partial);
 static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial);
 
-// TODO get rid of this
-void _print(FILE *out, expr_t *e, int indent, int depth);
-
 expr_t *eval_idem(env_t *env, expr_t *e)
 {
   return e;

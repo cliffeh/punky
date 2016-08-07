@@ -127,7 +127,6 @@ int main(int argc, char *argv[])
   // argp_parse (&argp, argc, argv, 0, 0, &p);
   punky_parse_args(&p, argc, argv);
 
-  expr_t *e;
   while(punky_read(&p)) {
     if(p.eval) punky_eval(&p);
     if(p.e) punky_print(&p);

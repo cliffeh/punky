@@ -16,51 +16,6 @@ static expr_t *eval_op_div_int(env_t *env, expr_t *e, int partial);
 // TODO get rid of this
 void _print(FILE *out, expr_t *e, int indent, int depth);
 
-static void free_args(expr_t *args[], int count)
-{
-  int i;
-  for(i = 0; i < count; i++) {
-    _free_expr(args[i]);
-  }
-}
-
-static int eval_args(expr_t *args[], env_t *env, expr_t *exprs, int min, int max, int types[])
-{
-  expr_t *e, *tmp;
-  int i;
-  for(i = 0, e = exprs; (i < max) && (IS_LIST(e)); i++)
-    {
-      args[i] = e->car->eval(env, e->car);
-
-      if(!args[i]) {
-	_free_expr(e->cdr);
-	return 0;
-      }
-
-      if(!(args[i]->type & types[i])) {
-	fprintf(stderr, "eval: error: unexpected argument type\n");
-	_print(stderr, args[i], 0, 0);
-	free_args(args, i);
-        _free_expr(e->cdr);
-        return 0;
-      }
-
-      tmp = e->cdr;
-      if(!e->ref) free(e);
-      e = tmp;
-  }
-
-  if(i < min) {
-    fprintf(stderr, "eval: error: incorrect number of arguments\n");
-    int j;
-    for(j = 0; j < i; j++) { _free_expr(args[j]); }
-    _free_expr(e);
-    return 0;
-  } 
- 
-  return i;
-}
-
 expr_t *eval_idem(env_t *env, expr_t *e)
 {
   return e;
@@ -469,25 +424,37 @@ expr_t *eval_op_car(env_t *env, expr_t *e)
 
 expr_t *eval_op_cdr(env_t *env, expr_t *e)
 {
-  expr_t *args[1];
-  int types[] = { LIST_T };
+  expr_t *e1 = e->car->eval(env, e->car), *result;
 
-  if(!eval_args(args, env, e, 1, 1, types)) return 0;
+  if(!IS_LIST(e1)) {
+    fprintf(stderr, "eval: error: car: requires list argument\n");
+    return 0;
+  }
 
-  expr_t *result = args[0]->cdr;
-  _free_expr(args[0]->car);
-  if(!args[0]->ref) free(args[0]);
+  result = e1->cdr;
+
+  _free_expr(e1->car);
+  if(!e1->ref) free(e1);
+  if(!e->ref) free(e);
+
   return result;
 }
 
 expr_t *eval_op_cons(env_t *env, expr_t *e)
 {
-  expr_t *args[2];
-  int types[] = { ANY_T, ANY_T };
-  
-  if(!eval_args(args, env, e, 2, 2, types)) return 0;
+  if(!TWO_ARGS(e)) {
+    fprintf(stderr, "eval: error: cons: requires exactly 2 arguments\n");
+    return 0;
+  }
+  expr_t *e1 = e->car->eval(env, e->car);
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
 
-  return _list_expr(args[0], args[1]);
+  expr_t *result = _list_expr(e1, e2);
+
+  if(!e->cdr->ref) free(e->cdr);
+  if(!e->ref) free(e);
+
+  return result;
 }
 
 expr_t *eval_op_list(env_t *env, expr_t *e)
@@ -866,39 +833,67 @@ expr_t *eval_op_ge(env_t *env, expr_t *e)
 
 expr_t *eval_op_substr(env_t *env, expr_t *e)
 {
-  expr_t *args[3], *result;
-  int types[] = { STRING_T, INT_T, INT_T }, i;
-
-  // args[0] = string, args[1] = pos, args[2] = length
-  if(!(i=eval_args(args, env, e, 2, 3, types))) return 0;
-  int pos = args[1]->intval;
-  int len = (i == 3) ? args[2]->intval : strlen(args[0]->strval+pos);
-  if(len > strlen(args[0]->strval+pos)) {
-    fprintf(stderr, "eval: error: substr: length argument greater than length of string\n");
-    result = 0;
-  } else {
-    char *r = (char *)malloc(sizeof(char)*(len+1));
-    strncpy(r, args[0]->strval+pos, len);
-    r[len] = 0;
-    result = _str_expr(r);
+  if(NO_ARGS(e)) {
+    fprintf(stderr, "eval: error: substr: requires between 1 and 3 args\n");
+    return 0;
   }
 
-  _free_expr(args[0]);
-  _free_expr(args[1]);
-  if(i==3) _free_expr(args[2]);
-  return result;
+  expr_t *strexpr = e->car->eval(env, e->car), *cdr = e->cdr;
+  if(!e->ref) free(e);
+
+  if(!IS_STRING(strexpr)) {
+    fprintf(stderr, "eval: error: substr: first argument must be a string\n");
+    return 0;
+  }
+  
+  if(cdr == &NIL) {
+    return strexpr;
+  }
+
+  char *str = strexpr->strval;
+
+  expr_t *posexpr = cdr->car->eval(env, cdr->car);
+  if(!IS_INT(posexpr)) {
+    fprintf(stderr, "eval: error: substr: position argument must be an int\n");
+    return 0;
+  }
+
+  int pos = posexpr->intval, len = strlen(str) - pos;
+  if(pos >= strlen(str)) {
+    fprintf(stderr, "eval: error: substr: position must be <= string lengtrh\n");
+    return 0;
+  }
+
+  if(cdr->cdr != &NIL) {
+    expr_t *lenexpr = cdr->cdr->car->eval(env, cdr->cdr->car);
+    if(!IS_INT(lenexpr)) {
+      fprintf(stderr, "eval: error: substr: length argument must be an int\n");
+      return 0;
+    }
+    len = lenexpr->intval;
+  }
+
+  char *r = calloc(len+1, sizeof(char));
+  strncpy(r, str+pos, len);
+  
+  return _str_expr(r);
 }
 
 expr_t *eval_op_strlen(env_t *env, expr_t *e)
 {
-  expr_t *args[1], *result;
-  int types[] = { STRING_T };
+  if(!ONE_ARGS(e)) {
+    fprintf(stderr, "eval: error: strlen: takes exactly one argument\n");
+    return 0;
+  }
 
-  if(!eval_args(args, env, e, 1, 1, types)) return 0;
+  expr_t *e1 = e->car->eval(env, e->car);
   
-  result = _int_expr(strlen(args[0]->strval));
-  _free_expr(args[0]);
-  return result;
+  if(!IS_STRING(e1)) {
+    fprintf(stderr, "eval: error: strlen: argument is not a string\n");
+    return 0;
+  }
+
+  return _int_expr(strlen(e1->strval));
 }
 
 punky_t *punky_eval(punky_t *p)

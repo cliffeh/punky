@@ -451,14 +451,19 @@ expr_t *eval_op_div(env_t *env, expr_t *e)
 
 expr_t *eval_op_car(env_t *env, expr_t *e)
 {
-  expr_t *args[1];
-  int types[] = { LIST_T };
+  expr_t *e1 = e->car->eval(env, e->car), *result;
 
-  if(!eval_args(args, env, e, 1, 1, types)) return 0;
+  if(!IS_LIST(e1)) {
+    fprintf(stderr, "eval: error: car: requires list argument\n");
+    return 0;
+  }
 
-  expr_t *result = args[0]->car;
-  _free_expr(args[0]->cdr);
-  if(!args[0]->ref) free(args[0]);
+  result = e1->car;
+
+  _free_expr(e1->cdr);
+  if(!e1->ref) free(e1);
+  if(!e->ref) free(e);
+
   return result;
 }
 

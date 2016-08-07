@@ -11,3 +11,4 @@
 * put "defun" back in as syntactic sugar?
 * clean up #includes
 * improve logging
+* check for memory leaks in error conditions

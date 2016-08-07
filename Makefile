@@ -40,9 +40,8 @@ valgrind: .valgrind
 	for f in $(TEST); do ./punky -i $$f.in -o .test && diff $$f.out .test; done
 	rm -f .test
 
-.valgrind: punky test/test.in
-	valgrind --leak-check=full --log-file=.valgrind ./punky -i test/test.in -o /dev/null
-	cat .valgrind
+.valgrind: punky $(TESTIN)
+	for f in $(TESTIN); do echo "\ntesting $$f...\n"; valgrind --leak-check=full --log-file=.valgrind ./punky -i $$f -o /dev/null; cat .valgrind; done
 
 test-clean:
 	rm -f .test .valgrind

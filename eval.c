@@ -890,7 +890,9 @@ expr_t *eval_op_strlen(env_t *env, expr_t *e)
     return 0;
   }
 
-  return _int_expr(strlen(e1->strval));
+  expr_t *result = _int_expr(strlen(e1->strval));
+  _free_expr(e);
+  return result;
 }
 
 punky_t *punky_eval(punky_t *p)

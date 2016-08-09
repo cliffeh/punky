@@ -710,32 +710,15 @@ expr_t *eval_op_equal(env_t *env, expr_t *e)
 
 expr_t *eval_op_lt(env_t *env, expr_t *e)
 {
-  if(!(TWO_ARGS(e))) {
-    fprintf(stderr, "eval: error: lt: incorrect number of arguments");
-    _free_expr(e);
-    return 0;
+  if(e == &NIL) return &T;
+  for(expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
+    expr_t *e1 = ptr->car->eval(env, ptr->car),
+      *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
+    if(compare(e1, e2) != -1) {
+      return &F;
+    }
   }
-
-  expr_t *e1 = e->car->eval(env, e->car);
-  if(!e1) {
-    _free_expr(e->cdr);
-    if(!e->ref) free(e);
-    return 0;
-  }
-
-  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
-  if(!e2) {
-    if(!e->cdr->ref) free(e->cdr);
-    if(!e->ref) free(e);
-    return 0;
-  }
-
-  expr_t *result = (compare(e1, e2) < 0) ? &T : &F;
-
-  _free_expr(e1); _free_expr(e2);
-  if(!e->cdr->ref) free(e->cdr);
-  if(!e->ref) free(e);
-  return result;
+  return &T;
 }
 
 expr_t *eval_op_gt(env_t *env, expr_t *e)

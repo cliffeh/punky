@@ -548,25 +548,17 @@ expr_t *eval_op_and(env_t *env, const expr_t *e)
 
 expr_t *eval_op_or(env_t *env, const expr_t *e)
 {
-  if(!(TWO_ARGS(e))) {
-    fprintf(stderr, "eval: error: or: incorrect number of arguments");
-    return 0;
+  for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
+    expr_t *b = ptr->car->eval(env, ptr->car);
+    if(!IS_BOOL(b)) {
+      fprintf(stderr, "eval:error: and: expected boolean value\n");
+      _free_expr(b);
+      return 0;
+    } else if(b == &T) {
+      return &T;
+    } 
   }
-
-  expr_t *b1 = e->car->eval(env, e->car), *result;
-  if(!IS_BOOL(b1)) {
-    fprintf(stderr, "or: boolean value expected");
-    _free_expr(b1);
-    return 0;
-  }
-  expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
-  if(!IS_BOOL(b2)) {
-    fprintf(stderr, "or: boolean value expected");
-    _free_expr(b2);
-    return 0;
-  }
-
-  return ((b1 == &T) || (b2 == &T)) ? &T : &F;
+  return &F;
 }
 
 expr_t *eval_op_equal(env_t *env, const expr_t *e)

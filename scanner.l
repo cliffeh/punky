@@ -48,6 +48,7 @@
 %{ /* string operations */ %}
 "substr" { return(SUBSTR); }
 "strlen" { return(STRLEN); }
+"split"  { return(SPLIT);  }
 
 %{ /* equality operations */ %}
 "="  { return(EQUAL); }

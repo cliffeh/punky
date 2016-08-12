@@ -722,5 +722,38 @@ expr_t *eval_op_strlen(env_t *env, const expr_t *e)
 
 expr_t *eval_op_split(env_t *env, const expr_t *e)
 {
-  return 0;
+  if(!TWO_ARGS(e)) {
+    fprintf(stderr, "eval: error: split: takes exactly two argument\n");
+    return 0;
+  }
+
+  expr_t *strexpr = e->car->eval(env, e->car);
+  if(!IS_STRING(strexpr)) {
+    fprintf(stderr, "eval: error: split: first argument must be a string\n");
+    _free_expr(strexpr);
+    return 0;
+  }
+
+  expr_t *splitexpr = e->cdr->car->eval(env, e->cdr->car);
+  if(!IS_STRING(splitexpr)) {
+    fprintf(stderr, "eval: error: split: second argument must be a string\n");
+    _free_expr(strexpr);
+    _free_expr(splitexpr);
+    return 0;
+  }
+  
+  int len = strlen(strexpr->strval);
+  char *str = strexpr->strval, *split = splitexpr->strval;
+
+  expr_t *r = &NIL, *tail;
+  char *p = strtok(str, split);
+  if(p) tail = (r = _list_expr(_str_expr(strdup(p)), &NIL));
+  while(p = strtok(0, split)) {
+    tail->cdr = _list_expr(_str_expr(strdup(p)), &NIL);
+    tail = tail->cdr;
+  }
+
+  _free_expr(strexpr);
+  _free_expr(splitexpr);
+  return r;
 }

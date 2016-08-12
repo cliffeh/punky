@@ -39,7 +39,6 @@
 
 %{ /* program control/looping structures */ %}
 "if"     { return(IF); }
-"while"  { return(WHILE); }
 
 %{ /* misc operations */ %}
 "let"    { return(LET); }

@@ -34,7 +34,7 @@
  // list operations
 %token CAR CDR CONS LIST APPEND
  // program control/looping structures
-%token IF WHILE
+%token IF
  // misc operations
 %token LET QUOTE
  // string operations

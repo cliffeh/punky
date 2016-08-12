@@ -1,0 +1,14 @@
+#t                                    ; #t
+#f                                    ; #f
+(not #f)                              ; #t
+(not #t)                              ; #f
+(not (= 5 7))                         ; #t
+(and #f #f)                           ; #f
+(and #t #f)                           ; #f
+(and #f #t)                           ; #f
+(and #t #t)                           ; #t
+(and (< 6 7) (> 4 5))                 ; #f
+(or #f #f)                            ; #f
+(or #t #f)                            ; #t
+(or #f #t)                            ; #t
+(or #t #t)                            ; #t

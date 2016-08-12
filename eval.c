@@ -596,22 +596,9 @@ expr_t *eval_op_lt(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    if(compare(e1, e2) != -1) {
-      return &F;
-    }
-  }
-  return &T;
-}
-
-expr_t *eval_op_gt(env_t *env, const expr_t *e)
-{
-  if(e == &NIL) return &T;
-  for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
-    expr_t *e1 = ptr->car->eval(env, ptr->car),
-      *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    if(compare(e1, e2) != 1) {
-      return &F;
-    }
+    int result = compare(e1, e2);
+    _free_expr(e1); _free_expr(e2);
+    if(result != -1) return &F;
   }
   return &T;
 }
@@ -622,9 +609,22 @@ expr_t *eval_op_le(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    if(compare(e1, e2) > 0) {
-      return &F;
-    }
+    int result = compare(e1, e2);
+    _free_expr(e1); _free_expr(e2);
+    if(result > 0) return &F;
+  }
+  return &T;
+}
+
+expr_t *eval_op_gt(env_t *env, const expr_t *e)
+{
+  if(e == &NIL) return &T;
+  for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
+    expr_t *e1 = ptr->car->eval(env, ptr->car),
+      *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
+    int result = compare(e1, e2);
+    _free_expr(e1); _free_expr(e2);
+    if(result != 1) return &F;
   }
   return &T;
 }
@@ -635,58 +635,74 @@ expr_t *eval_op_ge(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    if(compare(e1, e2) < 0) {
-      return &F;
-    }
+    int result = compare(e1, e2);
+    _free_expr(e1); _free_expr(e2);
+    if(result < 0) return &F;
   }
   return &T;
 }
 
 expr_t *eval_op_substr(env_t *env, const expr_t *e)
 {
-  if(NO_ARGS(e)) {
-    fprintf(stderr, "eval: error: substr: requires between 1 and 3 args\n");
+  expr_t *strexpr, *posexpr, *lenexpr;
+  int pos, len;
+
+  if(e == &NIL) {
+    fprintf(stderr, "eval: error: substr: no string provided\n");
     return 0;
   }
 
-  expr_t *strexpr = e->car->eval(env, e->car), *cdr = e->cdr;
-
+  strexpr = e->car->eval(env, e->car);
   if(!IS_STRING(strexpr)) {
     fprintf(stderr, "eval: error: substr: first argument must be a string\n");
+    _free_expr(strexpr);
     return 0;
   }
-  
-  if(cdr == &NIL) {
-    return strexpr;
-  }
 
-  char *str = strexpr->strval;
+  if(e->cdr == &NIL) return strexpr;
 
-  expr_t *posexpr = cdr->car->eval(env, cdr->car);
+  posexpr = e->cdr->car->eval(env, e->cdr->car);
   if(!IS_INT(posexpr)) {
-    fprintf(stderr, "eval: error: substr: position argument must be an int\n");
+    fprintf(stderr, "eval: error: substr: position argument must be an integer\n");
+    _free_expr(strexpr);
+    _free_expr(posexpr);
+    return 0;
+  }
+  pos = posexpr->intval;
+  _free_expr(posexpr);
+
+  len = strlen(strexpr->strval);
+  if(pos > len) {
+    fprintf(stderr, "eval: error: substr: position argument larger than string length\n");
+    _free_expr(strexpr);
     return 0;
   }
 
-  int pos = posexpr->intval, len = strlen(str) - pos;
-  if(pos >= strlen(str)) {
-    fprintf(stderr, "eval: error: substr: position must be <= string lengtrh\n");
-    return 0;
-  }
-
-  if(cdr->cdr != &NIL) {
-    expr_t *lenexpr = cdr->cdr->car->eval(env, cdr->cdr->car);
+  if(e->cdr->cdr == &NIL) {
+    len = len - pos;
+  } else {
+    lenexpr = e->cdr->cdr->car->eval(env, e->cdr->cdr->car);
     if(!IS_INT(lenexpr)) {
-      fprintf(stderr, "eval: error: substr: length argument must be an int\n");
+      fprintf(stderr, "eval: error: substr: length argument must be an integer\n");
+      _free_expr(strexpr);
+      _free_expr(lenexpr);
       return 0;
     }
     len = lenexpr->intval;
+    _free_expr(lenexpr);
+
+    if((pos+len) > strlen(strexpr->strval)) {
+      fprintf(stderr, "eval: error: substr: position+length arguments greater than string length\n");
+      _free_expr(strexpr);
+      return 0;
+    }
   }
 
-  char *r = calloc(len+1, sizeof(char));
-  strncpy(r, str+pos, len);
-  
-  return _str_expr(r);
+  char *str = malloc(len+1);
+  strncpy(str, strexpr->strval+pos, len);
+
+  _free_expr(strexpr);
+  return _str_expr(str);
 }
 
 expr_t *eval_op_strlen(env_t *env, const expr_t *e)
@@ -704,6 +720,7 @@ expr_t *eval_op_strlen(env_t *env, const expr_t *e)
   }
 
   expr_t *result = _int_expr(strlen(e1->strval));
+  _free_expr(e1);
   return result;
 }
 

@@ -43,6 +43,8 @@
 %token TRU FALS NOT AND OR
  // equality
 %token EQUAL LT GT LE GE
+ // ports
+%token OPENIF CLOSEIF
  // atoms (do we need to define their types?)
 %token <e> INTLIT FLOATLIT
 %token <strval> IDENT STRLIT

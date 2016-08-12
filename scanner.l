@@ -56,6 +56,10 @@
 "<=" { return(LE); }
 ">=" { return(GE); }
 
+%{ /* port operations */ %}
+"open-input-file"  { return(OPENIF);  }
+"close-input-file" { return(CLOSEIF); }
+
 [_a-zA-Z][\?_\-a-zA-Z0-9]* {
   return(IDENT);
 }

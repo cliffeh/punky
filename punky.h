@@ -45,6 +45,7 @@ expr_t *_float_expr(float value);
 expr_t *_str_expr(char *value);
 expr_t *_id_expr(char *value);
 expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, const struct expr_t *));
+expr_t *_fun_expr(expr_t *formals, expr_t *body);
 
 /* memory management */
 void _free_expr(expr_t *e);

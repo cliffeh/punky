@@ -57,6 +57,15 @@ expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, const struct expr_
   return e;
 }
 
+expr_t *_fun_expr(expr_t *formals, expr_t *body)
+{
+  expr_t *e = _new_expr(FUN_T);
+  e->car = formals;
+  e->cdr = body;
+  e->eval = &eval_fun;
+  return e;
+}
+
 expr_t *_clone_expr(const expr_t *e)
 {
   switch(e->type) {
@@ -68,6 +77,7 @@ expr_t *_clone_expr(const expr_t *e)
   case STRING_T: return _str_expr(strdup(e->strval));
   case IDENT_T: return _id_expr(strdup(e->strval));
   case OP_T: return _op_expr(strdup(e->strval), e->eval);
+  case FUN_T: return _fun_expr(_clone_expr(e->car), _clone_expr(e->cdr));
 
   case EOF_T: return &_EOF;
   case NIL_T: return &NIL;
@@ -104,7 +114,7 @@ void _free_expr(expr_t *e)
 {
   switch(e->type) {
 
-  case LIST_T: {
+  case LIST_T: case FUN_T: {
     _free_expr(e->car);
     _free_expr(e->cdr);
   }break;

@@ -17,6 +17,7 @@ char *type_to_string(int t)
   case STRING_T: return "STRING";
   case IDENT_T: return "IDENT";
   case OP_T: return "OP";
+  case FUN_T: return "FUN";
     
     /* special types */
   case NIL_T: return "NIL";
@@ -56,38 +57,11 @@ char *type_to_string(int t)
   case IDENT_T: fprintf(out, "%s", e->strval); break;
 
   case OP_T: {
-    /*
-    switch(e->op) {
-    case ADD_OP: fprintf(out, "+"); break;
-    case SUB_OP: fprintf(out, "-"); break;
-    case MUL_OP: fprintf(out, "*"); break;
-    case DIV_OP: fprintf(out, "/"); break;
-    case CAR_OP: fprintf(out, "car"); break;
-    case CDR_OP: fprintf(out, "cdr"); break;
-    case CONS_OP: fprintf(out, "cons"); break;
-    case LIST_OP: fprintf(out, "list"); break;
-    case QUOTE_OP: fprintf(out, "quote"); break;
-    case DEFVAR_OP: fprintf(out, "defvar"); break;
-    case DEFUN_OP: fprintf(out, "defun"); break;
-    case LET_OP: fprintf(out, "let"); break;
-    case SUBSTR_OP: fprintf(out, "substr"); break;
-    case IF_OP: fprintf(out, "if"); break;
-    case WHILE_OP: fprintf(out, "while"); break;
-    case NOT_OP: fprintf(out, "not"); break;
-    case AND_OP: fprintf(out, "and"); break;
-    case OR_OP: fprintf(out, "or"); break;
-    case EQUAL_OP: fprintf(out, "="); break;
-    case LT_OP: fprintf(out, "<"); break;
-    case GT_OP: fprintf(out, ">"); break;
-    case LE_OP: fprintf(out, "<="); break;
-    case GE_OP: fprintf(out, ">="); break;
-
-    default: fprintf(out, "UNKNOWN_OP");
-    }
-    */
     fprintf(out, "%s", e->strval);
   }break;
 
+  case FUN_T: fprintf(out, "<function>"); break; // TODO make this prettier?
+    
   case NIL_T: fprintf(out, "()"); break;
   case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen
 

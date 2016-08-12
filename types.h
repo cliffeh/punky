@@ -8,6 +8,7 @@
 #define IS_STRING(l) (l->type == STRING_T)
 #define IS_IDENT(l)  (l->type == IDENT_T)
 #define IS_OP(l)     (l->type == OP_T)
+#define IS_FUN(l)    (l->type == FUN_T)
 
 /* types */
 #define LIST_T       (1<<0)
@@ -16,16 +17,17 @@
 #define STRING_T     (1<<3)
 #define IDENT_T      (1<<4)
 #define OP_T         (1<<5)
+#define FUN_T        (1<<6)
 
 /* special types */
-#define NIL_T        (1<<6)
-#define EOF_T        (1<<7)
-#define BOOL_TRUE_T  (1<<8)
-#define BOOL_FALSE_T (1<<9)
+#define NIL_T        (1<<7)
+#define EOF_T        (1<<8)
+#define BOOL_TRUE_T  (1<<9)
+#define BOOL_FALSE_T (1<<10)
 
 #define NUM_T        (INT_T|FLOAT_T)
 #define BOOL_T       (BOOL_TRUE_T|BOOL_FALSE_T)
-#define ANY_T        (LIST_T|BOOL_T|INT_T|FLOAT_T|STRING_T|IDENT_T|OP_T|NIL_T)
+#define ANY_T        (LIST_T|NUM_T|BOOL_T|STRING_T|IDENT_T|OP_T|FUN_T|NIL_T)
 
 /* environment */
 #define ENV_BUCKETS 50
@@ -56,7 +58,7 @@ typedef struct expr_t
     float floatval;
     char *strval;
 
-    /* for lists */
+    /* for lists and functions */
     struct
     {
       struct expr_t *car;

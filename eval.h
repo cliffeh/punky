@@ -21,7 +21,7 @@ expr_t *eval_op_define(env_t *env, const expr_t *e);
 
 /* anonymous functions and function calls */
 expr_t *eval_op_lambda(env_t *env, const expr_t *e);
-expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args);
+expr_t *eval_fun(env_t *env, const expr_t *e);
 
 /* lists and identifiers */
 expr_t *eval_list(env_t *env, const expr_t *e);

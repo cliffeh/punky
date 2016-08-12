@@ -12,6 +12,7 @@ static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial);
 static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial);
 static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial);
 static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial);
+static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, expr_t *args);
 
 expr_t *eval_idem(env_t *env, const expr_t *e)
 {
@@ -44,24 +45,23 @@ expr_t *eval_op_define(env_t *env, const expr_t *e)
 
 expr_t *eval_op_lambda(env_t *env, const expr_t *e)
 {
-  // TODO this is clunky as shit...
-  return _list_expr(_op_expr(strdup("lambda"), &eval_op_lambda), _clone_expr(e));
+  return _fun_expr(_clone_expr(e->car), _clone_expr(e->cdr));
 }
 
-expr_t *eval_function_call(env_t *env, expr_t *fn, expr_t *args)
+expr_t *eval_fun(env_t *env, const expr_t *e)
 {
-  if(!(THREE_ARGS(fn))) {
-    fprintf(stderr, "eval: error: invalid function call");
-    return 0;
-  }
+  fprintf(stderr, "eval_fun\n");
+  return 0;
+}
 
-  expr_t *formals = fn->cdr->car, *body = fn->cdr->cdr->car, *f_ptr = formals, *a_ptr = args, *tmp, *result;
+static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, expr_t *args)
+{
+  expr_t *f_ptr = formals, *a_ptr = args, *tmp, *result;
 
   env_t funenv;
   init_env(&funenv, env);
   
   // evaluate each arg and bind it to its formal parameter in the new env we've created
-  // for(f_ptr = formals, a_ptr = args; 
   while((f_ptr != &NIL) && (a_ptr != &NIL)) {
     expr_t *val = a_ptr->car->eval(env, a_ptr->car) ;
     put(&funenv, f_ptr->car, val);
@@ -96,10 +96,14 @@ expr_t *eval_list(env_t *env, const expr_t *e)
     // we already know how to execute ops
     result = e->car->eval(env, e->cdr);
   } else {
-    // since we don't know how to execute other kinds of things
-    expr_t *fn = e->car->eval(env, e->car);
-    result = eval_function_call(env, fn, e->cdr);
-    _free_expr(fn);
+    expr_t *fun = e->car->eval(env, e->car);
+    if(!IS_FUN(fun)) {
+      fprintf(stderr, "eval: error: list: neither an operation nor a function\n");
+      result = 0;
+    } else {
+      result = eval_function_call(env, fun->car, fun->cdr->car, e->cdr);
+    }
+    _free_expr(fun);
   }
 
   return result;

@@ -1,3 +1,6 @@
-(substr "abcdefg" 2 3)           ; "cde"
-(strlen "abcdefg")               ; 7
-(split "this is the string" " ") ; ("this" "is" "the" "string")
+(substr "abcdefg")                    ; "abcdefg"
+(substr "abcdefg" 2)                  ; "cdefg"
+(substr "abcdefg" 2 3)                ; "cde"
+(strlen "")                           ; 0
+(strlen "abcdefg")                    ; 7
+(split "this is the string" " ")      ; ("this" "is" "the" "string")

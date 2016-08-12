@@ -71,8 +71,3 @@ b                                     ; 5
 (<= 7 5)                              ; #f
 (>= 7 5)                              ; #t
 (append '(1 2 3) '(4 5 6))            ; (1 2 3 4 5 6)
-(substr "abcdefg")                    ; "abcdefg"
-(substr "abcdefg" 2)                  ; "cdefg"
-(substr "abcdefg" 2 3)                ; "cde"
-(strlen "")                           ; 0
-(strlen "abcdefg")                    ; 7

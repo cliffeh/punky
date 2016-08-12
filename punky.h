@@ -35,7 +35,6 @@ typedef struct punky_t
 
 punky_t *punky_init(punky_t *p);
 punky_t *punky_read(punky_t *p);
-punky_t *punky_eval(punky_t *p);
 punky_t *punky_print(punky_t *p);
 punky_t *punky_cleanup(punky_t *p);
 

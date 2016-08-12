@@ -724,11 +724,3 @@ expr_t *eval_op_split(env_t *env, const expr_t *e)
 {
   return 0;
 }
-
-punky_t *punky_eval(punky_t *p)
-{
-  expr_t *e = p->e->eval(&p->env, p->e);
-  if(p->e) _free_expr(p->e);
-  p->e = e;
-  return p;
-}

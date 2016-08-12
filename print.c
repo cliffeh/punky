@@ -48,7 +48,8 @@ char *type_to_string(int t)
     if(indent && depth) nl_and_spaces(out, indent*(depth-1)); 
   }break;
 
-  case BOOL_T: fprintf(out, "#%c", (e == &T) ? 't' : 'f'); break;
+  case BOOL_TRUE_T: fprintf(out, "#t"); break;
+  case BOOL_FALSE_T: fprintf(out, "#f"); break;
   case INT_T: fprintf(out, "%i", e->intval); break;
   case FLOAT_T: fprintf(out, "%f", e->floatval); break;
   case STRING_T: fprintf(out, "\"%s\"", e->strval); break;

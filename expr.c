@@ -5,7 +5,6 @@ static expr_t *_new_expr(int type)
 {
   expr_t *e = malloc(sizeof(expr_t));
   e->type = type;
-  e->ref = 0;
   return e;
 }
 
@@ -50,7 +49,7 @@ expr_t *_id_expr(char *value)
   return e;
 }
 
-expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, struct expr_t *))
+expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, const struct expr_t *))
 {
   expr_t *e = _new_expr(OP_T);
   e->strval = name;
@@ -58,11 +57,12 @@ expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, struct expr_t *))
   return e;
 }
 
-expr_t *_clone_expr(expr_t *e)
+expr_t *_clone_expr(const expr_t *e)
 {
   switch(e->type) {
   case LIST_T: return _list_expr(_clone_expr(e->car), _clone_expr(e->cdr));
-  case BOOL_T: return e;
+  case BOOL_TRUE_T: return &T;
+  case BOOL_FALSE_T: return &F;
   case INT_T: return _int_expr(e->intval);
   case FLOAT_T: return _float_expr(e->floatval);
   case STRING_T: return _str_expr(strdup(e->strval));
@@ -100,40 +100,8 @@ int compare(expr_t *e1, expr_t *e2)
   }
 }
 
-/*
-void _set_ref(expr_t *e, int ref)
-{
-  switch(e->type) {
-  case LIST_T: {
-    _set_ref(e->car, ref);
-    _set_ref(e->cdr, ref);
-  }
-  default: e->ref = ref;
-  }
-  }*/
-
-void _inc_ref(expr_t *e)
-{
-  e->ref++;
-  if(IS_LIST(e)) {
-    _inc_ref(e->car);
-    _inc_ref(e->cdr);
-  }
-}
-
-void _dec_ref(expr_t *e)
-{
-  e->ref--;
-  if(IS_LIST(e)) {
-    _dec_ref(e->car);
-    _dec_ref(e->cdr);
-  }
-}
-
 void _free_expr(expr_t *e)
 {
-  if(e->ref) return;
-
   switch(e->type) {
 
   case LIST_T: {
@@ -155,7 +123,7 @@ void _free_expr(expr_t *e)
     free(e->strval);
   }break;
     
-  case BOOL_T: case NIL_T: case EOF_T: {
+  case BOOL_TRUE_T: case BOOL_FALSE_T: case NIL_T: case EOF_T: {
     return;
   }break;
     

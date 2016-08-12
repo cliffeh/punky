@@ -119,10 +119,8 @@ char *s;
 
 punky_t *punky_read(punky_t *p)
 {
-  // clean up any leftover cruft
-  if(p->e) _free_expr(p->e);
-  yyparse(p); // TODO grab the return value?
-  // p->e = _parse();
+  // TODO grab the return value?
+  yyparse(p);
   return (p->e != &_EOF) ? p : 0;
 }
 
@@ -130,4 +128,3 @@ int yywrap()
 {
   return(1);
 }
-

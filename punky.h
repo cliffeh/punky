@@ -45,14 +45,11 @@ expr_t *_int_expr(int value);
 expr_t *_float_expr(float value);
 expr_t *_str_expr(char *value);
 expr_t *_id_expr(char *value);
-expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, struct expr_t *));
+expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, const struct expr_t *));
 
 /* memory management */
 void _free_expr(expr_t *e);
-// void _set_ref(expr_t *e, int ref);
-void _inc_ref(expr_t *e);
-void _dec_ref(expr_t *e);
-expr_t *_clone_expr(expr_t *src);
+expr_t *_clone_expr(const expr_t *e);
 
 /* expr_t comparison */
 int compare(expr_t *e1, expr_t *e2);

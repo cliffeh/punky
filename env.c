@@ -34,12 +34,10 @@ static entry_t *_find_entry(env_t *env, char *id, entry_t *bucket)
   return 0;
 }
 
-void put(env_t *env, expr_t *id, expr_t *e)
+void put(env_t *env, const expr_t *id, const expr_t *e)
 {
   if(!(IS_IDENT(id))) {
     fprintf(stderr, "put: error: invalid id expression\n");
-    _free_expr(id);
-    _free_expr(e);
     return;
   }
 
@@ -50,46 +48,28 @@ void put(env_t *env, expr_t *id, expr_t *e)
   entry_t *entry = _find_entry(env, id->strval, env->entries[i]);
 
   if(entry) { 
-    if(entry->e == e) { // we already have it!
-      if(entry->id != id) _free_expr(id);
-      return;
-    }
-
-    // we found it! we'll release the old expr_t and replace it with the new one
-    // _set_ref(entry->e, entry->e->ref-1);
-    // _set_ref(entry->id, entry->id->ref-1);
-    _dec_ref(entry->e);
-    _dec_ref(entry->id);
-
-    // expecting a new value
-    _free_expr(entry->e);
+    // we're replacing this entry, so let's free up old pointers
     _free_expr(entry->id);
-    entry->id = id;
-  } else {  
-    // we didn't find it, so let's create a new entry
+    _free_expr(entry->e);
+  } else {
+    // create the new entry
     entry = malloc(sizeof(entry_t));
 
     // make sure we keep track of any already-existing entries in this bucket
     entry->next = env->entries[i];
-    
+  
     // we'll append our new entry at the head of the list
     env->entries[i] = entry;
   }
   
-  // fprintf(stderr, "env: putting: %s->%i\n", id, e->intval);
-  // TODO should we be cloning this?
-  // entry->e = _clone_expr(e);
-  _inc_ref(id); // _set_ref(id, id->ref+1);
-  entry->id = id;
-  _inc_ref(e); // _set_ref(e, e->ref+1);
-  entry->e = e;
+  entry->id = _clone_expr(id);
+  entry->e = _clone_expr(e);
 }
 
-expr_t *get(env_t *env, expr_t *id)
+expr_t *get(env_t *env, const expr_t *id)
 {
   if(!(IS_IDENT(id))) {
     fprintf(stderr, "get: error: invalid id expression\n");
-    _free_expr(id);
     return 0;
   } else {
 
@@ -99,13 +79,10 @@ expr_t *get(env_t *env, expr_t *id)
     entry_t *entry = _find_entry(env, id->strval, env->entries[i]);
 
     if(entry) {
-      if(id != entry->id) _free_expr(id);
       // we found it! let's return it...
-      r = entry->e; // _clone_expr(entry->e); // protect our entries by returning a clone
+      r = _clone_expr(entry->e);
     } else if(env->parent) {
       r = get(env->parent, id);
-    } else {
-      _free_expr(id);
     }
 
     return r;
@@ -116,9 +93,7 @@ void free_entry(entry_t *entry)
 {
   entry_t *e = entry, *next;
   while(e) {
-    _dec_ref(e->id); // _set_ref(e->id, e->id->ref-1);
     _free_expr(e->id);
-    _dec_ref(e->e); // _set_ref(e->e, e->e->ref-1); //?
     _free_expr(e->e);
     next = e->next;
     free(e);

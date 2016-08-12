@@ -745,3 +745,11 @@ expr_t *eval_op_split(env_t *env, const expr_t *e)
   _free_expr(splitexpr);
   return r;
 }
+
+expr_t *eval_op_openif(env_t *env, const expr_t *e)
+{
+}
+
+expr_t *eval_op_closeif(env_t *env, const expr_t *e)
+{
+}

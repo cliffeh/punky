@@ -570,24 +570,15 @@ expr_t *eval_op_or(env_t *env, const expr_t *e)
 
 expr_t *eval_op_equal(env_t *env, const expr_t *e)
 {
-  if(!(TWO_ARGS(e))) {
-    fprintf(stderr, "eval: error: equal: incorrect number of arguments");
-    return 0;
+  if(e == &NIL) return &T;
+  for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
+    expr_t *e1 = ptr->car->eval(env, ptr->car),
+      *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
+    int result = compare(e1, e2);
+    _free_expr(e1); _free_expr(e2);
+    if(result != 0) return &F;
   }
-
-  expr_t *e1 = e->car->eval(env, e->car);
-  if(!e1) {
-    return 0;
-  }
-
-  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
-  if(!e2) {
-    return 0;
-  }
-
-  expr_t *result = (compare(e1, e2) == 0) ? &T : &F;
-
-  return result;
+  return &T;
 }
 
 expr_t *eval_op_lt(env_t *env, const expr_t *e)
@@ -698,7 +689,7 @@ expr_t *eval_op_substr(env_t *env, const expr_t *e)
     }
   }
 
-  char *str = malloc(len+1);
+  char *str = calloc(len+1, sizeof(char));
   strncpy(str, strexpr->strval+pos, len);
 
   _free_expr(strexpr);

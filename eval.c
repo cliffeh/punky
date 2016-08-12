@@ -518,6 +518,7 @@ expr_t *eval_op_not(env_t *env, const expr_t *e)
   expr_t *b = e->car->eval(env, e->car), *result;
   if(!IS_BOOL(b)) {
     fprintf(stderr, "not: boolean value expected");
+    _free_expr(b);
     result = 0;
   } else {
     result = (b == &T) ? &F : &T;
@@ -536,11 +537,13 @@ expr_t *eval_op_and(env_t *env, const expr_t *e)
   expr_t *b1 = e->car->eval(env, e->car), *result;
   if(!IS_BOOL(b1)) {
     fprintf(stderr, "and: boolean value expected");
+    _free_expr(b1);
     return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(!IS_BOOL(b2)) {
     fprintf(stderr, "and: boolean value expected");
+    _free_expr(b2);
     return 0;
   }
 
@@ -557,11 +560,13 @@ expr_t *eval_op_or(env_t *env, const expr_t *e)
   expr_t *b1 = e->car->eval(env, e->car), *result;
   if(!IS_BOOL(b1)) {
     fprintf(stderr, "or: boolean value expected");
+    _free_expr(b1);
     return 0;
   }
   expr_t *b2 = e->cdr->car->eval(env, e->cdr->car);
   if(!IS_BOOL(b2)) {
     fprintf(stderr, "or: boolean value expected");
+    _free_expr(b2);
     return 0;
   }
 

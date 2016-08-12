@@ -33,9 +33,11 @@ b                                     ; 5
 (define double (lambda (x) (* x 2)))  ; double
 (double 7)                            ; 14
 (double (double 4))                   ; 16
+(define a (+ a 4))                    ; a
+a                                     ; 6
 (let ((x 10) (y 20)) (+ y x))         ; 30
 (define c 7)                          ; c
-(let ((x a) (y b)) (+ x y c))         ; 14
+(let ((x a) (y b)) (+ x y c))         ; 18
 '(a b c d)                            ; (a b c d)
 (car '(a b c d))                      ; a
 (cdr '(a b c d))                      ; (b c d)

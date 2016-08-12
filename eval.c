@@ -720,6 +720,11 @@ expr_t *eval_op_strlen(env_t *env, const expr_t *e)
   return result;
 }
 
+expr_t *eval_op_split(env_t *env, const expr_t *e)
+{
+  return 0;
+}
+
 punky_t *punky_eval(punky_t *p)
 {
   expr_t *e = p->e->eval(&p->env, p->e);

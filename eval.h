@@ -62,6 +62,7 @@ expr_t *eval_op_ge(env_t *env, const expr_t *e);
 /* string operations */
 expr_t *eval_op_substr(env_t *env, const expr_t *e);
 expr_t *eval_op_strlen(env_t *env, const expr_t *e);
+expr_t *eval_op_split(env_t *env, const expr_t *e);
 
 #endif
 

@@ -66,6 +66,13 @@ expr_t *_fun_expr(expr_t *formals, expr_t *body)
   return e;
 }
 
+expr_t *_port_expr(FILE *fp)
+{
+  expr_t *e = _new_expr(PORT_T);
+  e->fp = fp;
+  return e;
+}
+
 expr_t *_clone_expr(const expr_t *e)
 {
   switch(e->type) {
@@ -78,6 +85,7 @@ expr_t *_clone_expr(const expr_t *e)
   case IDENT_T: return _id_expr(strdup(e->strval));
   case OP_T: return _op_expr(strdup(e->strval), e->eval);
   case FUN_T: return _fun_expr(_clone_expr(e->car), _clone_expr(e->cdr));
+  case PORT_T: return _port_expr(e->fp);
 
   case EOF_T: return &_EOF;
   case NIL_T: return &NIL;
@@ -106,6 +114,7 @@ int compare(expr_t *e1, expr_t *e2)
     return (e1->floatval > e2->floatval) ? 1 : -1;
   }
   case STRING_T: return strcmp(e1->strval, e2->strval);
+  case PORT_T: return e1->fp == e2->fp;
   default: return (e1 == e2) ? 0 : -1;
   }
 }
@@ -119,7 +128,7 @@ void _free_expr(expr_t *e)
     _free_expr(e->cdr);
   }break;
     
-  case INT_T: case FLOAT_T: { 
+  case INT_T: case FLOAT_T: case PORT_T: {
     // e will be freed at the end
   }break;
     

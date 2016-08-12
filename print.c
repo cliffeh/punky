@@ -18,6 +18,7 @@ char *type_to_string(int t)
   case IDENT_T: return "IDENT";
   case OP_T: return "OP";
   case FUN_T: return "FUN";
+  case PORT_T: return "PORT";
     
     /* special types */
   case NIL_T: return "NIL";
@@ -61,6 +62,8 @@ char *type_to_string(int t)
   }break;
 
   case FUN_T: fprintf(out, "<function>"); break; // TODO make this prettier?
+
+  case PORT_T: fprintf(out, "<port>"); break;
     
   case NIL_T: fprintf(out, "()"); break;
   case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen

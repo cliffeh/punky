@@ -1,3 +1,4 @@
+#include <errno.h>
 #include "punky.h"
 #include "types.h"
 #include "env.h"
@@ -748,8 +749,30 @@ expr_t *eval_op_split(env_t *env, const expr_t *e)
 
 expr_t *eval_op_openif(env_t *env, const expr_t *e)
 {
+  if(!ONE_ARGS(e)) {
+    fprintf(stderr, "eval: error: openif: requires exactly 1 string argument\n");
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!IS_STRING(e1)) {
+    fprintf(stderr, "eval: error: openif: requires exactly 1 string argument\n");
+    _free_expr(e1);
+    return 0;
+  }
+
+  FILE *fp = fopen(e1->strval, "r");
+  if(!fp) {
+    fprintf(stderr, "eval: error: openif: error while opening file: %s\n", strerror(errno));
+    _free_expr(e1);
+    return 0;
+  }
+
+  _free_expr(e1);
+  return _port_expr(fp);
 }
 
 expr_t *eval_op_closeif(env_t *env, const expr_t *e)
 {
+  return &T;
 }

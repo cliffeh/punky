@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   punky_parse_args(&p, argc, argv);
 
   while(punky_read(&p)) {
-    if(p.eval) {
+    if(p.eval && p.e) {
       expr_t *e = p.e->eval(&p.env, p.e);
       // free what we parsed
       _free_expr(p.e);

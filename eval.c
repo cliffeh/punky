@@ -98,13 +98,13 @@ expr_t *eval_list(env_t *env, const expr_t *e)
     result = e->car->eval(env, e->cdr);
   } else {
     expr_t *fun = e->car->eval(env, e->car);
-    if(!IS_FUN(fun)) {
+    if(!fun || !IS_FUN(fun)) {
       fprintf(stderr, "eval: error: list: neither an operation nor a function\n");
       result = 0;
     } else {
       result = eval_function_call(env, fun->car, fun->cdr->car, e->cdr);
     }
-    _free_expr(fun);
+    if(fun) _free_expr(fun);
   }
 
   return result;

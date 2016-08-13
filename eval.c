@@ -24,7 +24,7 @@ expr_t *eval_op_define(env_t *env, const expr_t *e)
 {
   expr_t *id = e->car;
   if(!IS_IDENT(id)) {
-    return _err_expr(id, "eval: error: define: first argument must be an identifier\n");
+    return _err_expr(id, "eval: define: first argument must be an identifier");
   }
   
   expr_t *value = e->cdr->car->eval(env, e->cdr->car);

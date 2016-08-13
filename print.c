@@ -22,7 +22,9 @@ char *type_to_string(int t)
     
     /* special types */
   case NIL_T: return "NIL";
+  case ERR_T: return "ERR";
   case EOF_T: return "<<EOF>>"; // this probably shouldn't happen
+    
   default: return "UNKNOWN";
   }
 }
@@ -66,6 +68,11 @@ char *type_to_string(int t)
   case PORT_T: fprintf(out, "<port>"); break;
     
   case NIL_T: fprintf(out, "()"); break;
+  case ERR_T: {
+    for(expr_t *cdr = e; e != &NIL; e = e->cdr) {
+      fprintf(out, "error: %s", cdr->car->strval);
+    }
+  }break;
   case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen
 
   default: fprintf(stderr, "print: error: unknown expression type: %s\n", type_to_string(e->type)); return;

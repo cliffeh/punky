@@ -132,7 +132,7 @@ void _free_expr(expr_t *e)
 {
   switch(e->type) {
 
-  case LIST_T: case FUN_T: {
+  case LIST_T: case FUN_T: case ERR_T: {
     _free_expr(e->car);
     _free_expr(e->cdr);
   }break;

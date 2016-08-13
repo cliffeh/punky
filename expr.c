@@ -21,7 +21,7 @@ expr_t *_int_expr(int value)
 {
   expr_t *e = _new_expr(INT_T);
   e->intval = value;
-  e->eval = &eval_idem;
+  e->eval = &eval_clone;
   return e;
 };
 
@@ -29,7 +29,7 @@ expr_t *_float_expr(float value)
 {
   expr_t *e = _new_expr(FLOAT_T);
   e->floatval = value;
-  e->eval = &eval_idem;
+  e->eval = &eval_clone;
   return e;
 }
 
@@ -37,7 +37,7 @@ expr_t *_str_expr(char *value)
 {
   expr_t *e = _new_expr(STRING_T);
   e->strval = value;
-  e->eval = &eval_idem;
+  e->eval = &eval_clone;
   return e;
 }
 

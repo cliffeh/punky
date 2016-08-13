@@ -10,8 +10,9 @@
 #define   _NO_ARGS(l) (l == &NIL)
 #define  _ONE_ARGS(l, a1, t1) (IS_LIST(l) && ((a1 = l->car->eval(env, l->car)) & t1) && NO_ARGS(t1))
 #define  _TWO_ARGS(l, a1, t1) (IS_LIST(l) && ((a1 = l->car->eval(env, l->car)) & t1) && NO_ARGS(t1))
-/* idempotent eval function */
-expr_t *eval_idem(env_t *env, const expr_t *e);
+
+/* clone eval function */
+expr_t *eval_clone(env_t *env, const expr_t *e);
 
 /* cloning eval function */
 expr_t *eval_clone(env_t *env, const expr_t *e);

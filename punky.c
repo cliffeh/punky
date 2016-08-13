@@ -4,10 +4,10 @@
 
 extern FILE *yyin; // our scanner's input file
 
-struct expr_t NIL = { .type=NIL_T, .eval=&eval_idem };
-struct expr_t T = { .type=BOOL_TRUE_T, .eval=&eval_idem };
-struct expr_t F = { .type=BOOL_FALSE_T, .eval=&eval_idem };
-struct expr_t _EOF = { .type=EOF_T, .eval=&eval_idem };
+struct expr_t NIL = { .type=NIL_T, .eval=&eval_clone };
+struct expr_t T = { .type=BOOL_TRUE_T, .eval=&eval_clone };
+struct expr_t F = { .type=BOOL_FALSE_T, .eval=&eval_clone };
+struct expr_t _EOF = { .type=EOF_T, .eval=&eval_clone };
 
 int yylex_destroy();
 

@@ -15,7 +15,7 @@ static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial);
 static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial);
 static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, expr_t *args);
 
-expr_t *eval_idem(env_t *env, const expr_t *e)
+expr_t *eval_clone(env_t *env, const expr_t *e)
 {
   return _clone_expr(e);
 }

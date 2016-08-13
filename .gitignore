@@ -16,11 +16,12 @@
 *.app
 punky
 
-# testing output
+# testing/profiling output
 .test
 .sort.test
 .lambda.test
 .valgrind
+gmon.out
 
 # generated files
 parser.c

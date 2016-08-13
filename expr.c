@@ -73,6 +73,15 @@ expr_t *_port_expr(FILE *fp)
   return e;
 }
 
+expr_t *_err_expr(expr_t *cdr, const char *msg)
+{
+  expr_t *e = _new_expr(ERR_T), *str = _str_expr(strdup(msg));
+  e->car = str;
+  // TODO do something intelligent with exprs that aren't errors?
+  e->cdr = (cdr && (cdr->type == ERR_T)) ? cdr : &NIL;
+  return e;
+}
+
 expr_t *_clone_expr(const expr_t *e)
 {
   switch(e->type) {

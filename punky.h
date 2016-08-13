@@ -48,15 +48,15 @@ expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, const struct expr_
 expr_t *_fun_expr(expr_t *formals, expr_t *body);
 expr_t *_port_expr(FILE *fp);
 
+/* error handling */
+expr_t *_err_expr(expr_t *cdr, const char *msg);
+
 /* memory management */
 void _free_expr(expr_t *e);
 expr_t *_clone_expr(const expr_t *e);
 
 /* expr_t comparison */
 int compare(expr_t *e1, expr_t *e2);
-
-/* error handling */
-expr_t *_error(char *msg);
 
 /* convenience function for converting enum values to strings */
 char *type_to_string(int t);

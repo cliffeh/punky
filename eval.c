@@ -22,15 +22,9 @@ expr_t *eval_clone(env_t *env, const expr_t *e)
 
 expr_t *eval_op_define(env_t *env, const expr_t *e)
 {
-  // we are expecting two arguments
-  if(!(TWO_ARGS(e))) { 
-    fprintf(stderr, "eval: error: define: expects exactly 2 arguments\n");
-    return 0; 
-  }
-
   expr_t *id = e->car;
   if(!IS_IDENT(id)) {
-    fprintf(stderr, "eval: error: define: first argument must be an identifier\n");
+    return _err_expr(id, "eval: error: define: first argument must be an identifier\n");
   }
   
   expr_t *value = e->cdr->car->eval(env, e->cdr->car);

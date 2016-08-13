@@ -57,8 +57,9 @@
 ">=" { return(GE); }
 
 %{ /* port operations */ %}
-"open-input-file"  { return(OPENIF);  }
-"close-input-file" { return(CLOSEIF); }
+"open-input-file"  { return(OPENIF);   }
+"close-input-file" { return(CLOSEIF);  }
+"readline"         { return(READLINE); }
 
 [_a-zA-Z][\?_\-a-zA-Z0-9]* {
   return(IDENT);

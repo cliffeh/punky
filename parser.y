@@ -44,7 +44,7 @@
  // equality
 %token EQUAL LT GT LE GE
  // ports
-%token OPENIF CLOSEIF
+%token OPENIF CLOSEIF READLINE
  // atoms (do we need to define their types?)
 %token <e> INTLIT FLOATLIT
 %token <strval> IDENT STRLIT
@@ -83,33 +83,34 @@ seq: /* empty */ { $$ = &NIL; }
 | sexpr seq { $$ = _list_expr($1, $2); }
 ;
 
-op: PLUS  { $$ = _op_expr(strdup(yytext), &eval_op_add); }
-| DASH    { $$ = _op_expr(strdup(yytext), &eval_op_sub); }
-| STAR    { $$ = _op_expr(strdup(yytext), &eval_op_mul); }
-| FSLASH  { $$ = _op_expr(strdup(yytext), &eval_op_div); }
-| DEFINE  { $$ = _op_expr(strdup(yytext), &eval_op_define); }
-| LAMBDA  { $$ = _op_expr(strdup(yytext), &eval_op_lambda); }
-| CAR     { $$ = _op_expr(strdup(yytext), &eval_op_car); }
-| CDR     { $$ = _op_expr(strdup(yytext), &eval_op_cdr); }
-| CONS    { $$ = _op_expr(strdup(yytext), &eval_op_cons); }
-| LIST    { $$ = _op_expr(strdup(yytext), &eval_op_list); }
-| APPEND  { $$ = _op_expr(strdup(yytext), &eval_op_append); }
-| QUOTE   { $$ = _op_expr(strdup(yytext), &eval_op_quote); }
-| LET     { $$ = _op_expr(strdup(yytext), &eval_op_let); }
-| IF      { $$ = _op_expr(strdup(yytext), &eval_op_if); }
-| NOT     { $$ = _op_expr(strdup(yytext), &eval_op_not); }
-| AND     { $$ = _op_expr(strdup(yytext), &eval_op_and); }
-| OR      { $$ = _op_expr(strdup(yytext), &eval_op_or); }
-| EQUAL   { $$ = _op_expr(strdup(yytext), &eval_op_equal); }
-| LT      { $$ = _op_expr(strdup(yytext), &eval_op_lt); }
-| GT      { $$ = _op_expr(strdup(yytext), &eval_op_gt); }
-| LE      { $$ = _op_expr(strdup(yytext), &eval_op_le); }
-| GE      { $$ = _op_expr(strdup(yytext), &eval_op_ge); }
-| SUBSTR  { $$ = _op_expr(strdup(yytext), &eval_op_substr); }
-| STRLEN  { $$ = _op_expr(strdup(yytext), &eval_op_strlen); }
-| SPLIT   { $$ = _op_expr(strdup(yytext), &eval_op_split); }
-| OPENIF  { $$ = _op_expr(strdup(yytext), &eval_op_openif); }
-| CLOSEIF { $$ = _op_expr(strdup(yytext), &eval_op_closeif); }
+op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
+| DASH     { $$ = _op_expr(strdup(yytext), &eval_op_sub); }
+| STAR     { $$ = _op_expr(strdup(yytext), &eval_op_mul); }
+| FSLASH   { $$ = _op_expr(strdup(yytext), &eval_op_div); }
+| DEFINE   { $$ = _op_expr(strdup(yytext), &eval_op_define); }
+| LAMBDA   { $$ = _op_expr(strdup(yytext), &eval_op_lambda); }
+| CAR      { $$ = _op_expr(strdup(yytext), &eval_op_car); }
+| CDR      { $$ = _op_expr(strdup(yytext), &eval_op_cdr); }
+| CONS     { $$ = _op_expr(strdup(yytext), &eval_op_cons); }
+| LIST     { $$ = _op_expr(strdup(yytext), &eval_op_list); }
+| APPEND   { $$ = _op_expr(strdup(yytext), &eval_op_append); }
+| QUOTE    { $$ = _op_expr(strdup(yytext), &eval_op_quote); }
+| LET      { $$ = _op_expr(strdup(yytext), &eval_op_let); }
+| IF       { $$ = _op_expr(strdup(yytext), &eval_op_if); }
+| NOT      { $$ = _op_expr(strdup(yytext), &eval_op_not); }
+| AND      { $$ = _op_expr(strdup(yytext), &eval_op_and); }
+| OR       { $$ = _op_expr(strdup(yytext), &eval_op_or); }
+| EQUAL    { $$ = _op_expr(strdup(yytext), &eval_op_equal); }
+| LT       { $$ = _op_expr(strdup(yytext), &eval_op_lt); }
+| GT       { $$ = _op_expr(strdup(yytext), &eval_op_gt); }
+| LE       { $$ = _op_expr(strdup(yytext), &eval_op_le); }
+| GE       { $$ = _op_expr(strdup(yytext), &eval_op_ge); }
+| SUBSTR   { $$ = _op_expr(strdup(yytext), &eval_op_substr); }
+| STRLEN   { $$ = _op_expr(strdup(yytext), &eval_op_strlen); }
+| SPLIT    { $$ = _op_expr(strdup(yytext), &eval_op_split); }
+| OPENIF   { $$ = _op_expr(strdup(yytext), &eval_op_openif); }
+| CLOSEIF  { $$ = _op_expr(strdup(yytext), &eval_op_closeif); }
+| READLINE { $$ = _op_expr(strdup(yytext), &eval_op_readline); }
 ;
 
 %%

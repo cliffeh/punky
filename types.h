@@ -34,6 +34,9 @@
 /* environment */
 #define ENV_BUCKETS 50
 
+/* IO buffer sizing */
+#define _PORT_IO_BUF_SIZE 4096
+
 typedef struct entry_t
 {
   struct expr_t *id;

@@ -1,0 +1,3 @@
+(define fp (open-input-file "test/file.in")) ; fp
+(readline fp)                                ; "(define fp (open-input-file "test/file.in")) ; fp"
+(close-input-file fp)                        ; no output

@@ -67,5 +67,6 @@ expr_t *eval_op_split(env_t *env, const expr_t *e);
 /* port operations */
 expr_t *eval_op_openif(env_t *env, const expr_t *e);
 expr_t *eval_op_closeif(env_t *env, const expr_t *e);
+expr_t *eval_op_readline(env_t *env, const expr_t *e);
 
 #endif

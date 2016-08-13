@@ -790,3 +790,33 @@ expr_t *eval_op_closeif(env_t *env, const expr_t *e)
   _free_expr(e1);
   return 0;
 }
+
+expr_t *eval_op_readline(env_t *env, const expr_t *e)
+{
+  if(!ONE_ARGS(e)) {
+    fprintf(stderr, "eval: error: readline: requires exactly 1 port argument\n");
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!IS_PORT(e1)) {
+    fprintf(stderr, "eval: error: readline: requires exactly 1 port argument\n");
+    _free_expr(e1);
+    return 0;
+  }
+
+  char *str = calloc(_PORT_IO_BUF_SIZE, sizeof(char));
+  expr_t *result;
+  // TODO grow the buffer and continue to read until a newline or EOF is reached
+  if(fgets(str, _PORT_IO_BUF_SIZE, e1->fp)) {
+    // trim the newline
+    if(str[strlen(str)-1] == '\n') str[strlen(str)-1] = 0;
+    // TODO trim the buffer if the size is > strlen
+    result = _str_expr(str);
+  } else {
+    result = &NIL;
+  }
+
+  _free_expr(e1);
+  return result;
+}

@@ -24,8 +24,9 @@
 /* special types */
 #define NIL_T        (1<<8)
 #define EOF_T        (1<<9)
-#define BOOL_TRUE_T  (1<<10)
-#define BOOL_FALSE_T (1<<11)
+#define ERR_T        (1<<10)
+#define BOOL_TRUE_T  (1<<11)
+#define BOOL_FALSE_T (1<<12)
 
 #define NUM_T        (INT_T|FLOAT_T)
 #define BOOL_T       (BOOL_TRUE_T|BOOL_FALSE_T)

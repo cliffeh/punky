@@ -51,6 +51,6 @@ clean: test-clean
 	rm -f *.o scanner.c parser.c symbols.h
 
 veryclean: clean
-	rm -f punky punky.exe punky.exe.stackdump gmon.out
+	rm -f punky punky.exe punky.exe.stackdump gmon.out perf.data
 
 realclean: veryclean

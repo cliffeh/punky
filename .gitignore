@@ -22,6 +22,7 @@ punky
 .lambda.test
 .valgrind
 gmon.out
+perf.data
 
 # generated files
 parser.c

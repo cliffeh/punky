@@ -774,5 +774,19 @@ expr_t *eval_op_openif(env_t *env, const expr_t *e)
 
 expr_t *eval_op_closeif(env_t *env, const expr_t *e)
 {
-  return &T;
+  if(!ONE_ARGS(e)) {
+    fprintf(stderr, "eval: error: closeif: requires exactly 1 port argument\n");
+    return 0;
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(!IS_PORT(e1)) {
+    fprintf(stderr, "eval: error: closeif: requires exactly 1 port argument\n");
+    _free_expr(e1);
+    return 0;
+  }
+
+  fclose(e1->fp);
+  _free_expr(e1);
+  return 0;
 }

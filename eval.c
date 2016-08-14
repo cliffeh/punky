@@ -27,26 +27,21 @@ expr_t *eval_op_define(env_t *env, const expr_t *e)
     return _err_expr(id, "eval: define: first argument must be an identifier");
   }
   
-  expr_t *value = e->cdr->car->eval(env, e->cdr->car);
-  if(value) {
+  expr_t *value = e->cdr->car->eval(env, e->cdr->car), *r;
+  if(!IS_ERR(value)) {
     put(env, id, value);
+    _free_expr(value);
+    r = _clone_expr(id);
   } else {
-    id = 0;
+    r = _err_expr(value, "eval: define: second argument evaluated to an error\n");
   }
 
-  _free_expr(value);
-  return _clone_expr(id);
+  return r;
 }
 
 expr_t *eval_op_lambda(env_t *env, const expr_t *e)
 {
   return _fun_expr(_clone_expr(e->car), _clone_expr(e->cdr));
-}
-
-expr_t *eval_fun(env_t *env, const expr_t *e)
-{
-  fprintf(stderr, "eval_fun\n");
-  return 0;
 }
 
 static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, expr_t *args)

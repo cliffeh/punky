@@ -10,6 +10,7 @@
 #define IS_OP(l)     (l->type == OP_T)
 #define IS_FUN(l)    (l->type == FUN_T)
 #define IS_PORT(l)   (l->type == PORT_T)
+#define IS_ERR(l)    (l->type == ERR_T)
 
 /* types */
 #define LIST_T       (1<<0)

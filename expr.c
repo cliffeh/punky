@@ -62,7 +62,7 @@ expr_t *_fun_expr(expr_t *formals, expr_t *body)
   expr_t *e = _new_expr(FUN_T);
   e->car = formals;
   e->cdr = body;
-  e->eval = &eval_fun;
+  e->eval = &eval_clone;
   return e;
 }
 

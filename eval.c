@@ -407,8 +407,7 @@ expr_t *eval_op_quote(env_t *env, const expr_t *e)
 expr_t *eval_op_let(env_t *env, const expr_t *e)
 {
   if(!(TWO_ARGS(e))) {
-    fprintf(stderr, "eval: error: let: incorrect number of arguments"); 
-    return 0; 
+    return _err_expr(0, "eval: let: incorrect number of arguments", 0);
   }
 
   expr_t *defs = e->car, *body = e->cdr->car, *d_ptr = defs, *tmp, *r;
@@ -422,8 +421,9 @@ expr_t *eval_op_let(env_t *env, const expr_t *e)
     expr_t *id = def->car;
     expr_t *value = def->cdr->car->eval(env, def->cdr->car);
 
-    if(!value) {
-      return 0;
+    if(IS_ERR(value)) {
+      free_env(&letenv);
+      return _err_expr(value, "eval: let: malformed let expression", 0);
     }
 
     put(&letenv, def->car, value);

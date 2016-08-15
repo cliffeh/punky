@@ -447,8 +447,7 @@ expr_t *eval_op_if(env_t *env, const expr_t *e)
 
   if(cond) {
     if(!IS_BOOL(cond)) {
-      fprintf(stderr, "eval: error: if: boolean value expected\n");
-      r = 0;
+      r = _err_expr(0, "eval: if: boolean value expected", 0);
     } else if(cond == &T) {
       r = e->cdr->car->eval(env, e->cdr->car);
     } else if(e->cdr->cdr != &NIL) { // cond == &F, else
@@ -465,15 +464,13 @@ expr_t *eval_op_if(env_t *env, const expr_t *e)
 expr_t *eval_op_not(env_t *env, const expr_t *e)
 {
   if(!(ONE_ARGS(e))) {
-    fprintf(stderr, "eval: error: not: incorrect number of arguments");
-    return 0;
+    return _err_expr(0, "eval: not: requires exactly 1 argument", 0);
   }
   
   expr_t *b = e->car->eval(env, e->car), *r;
   if(!IS_BOOL(b)) {
-    fprintf(stderr, "not: boolean value expected");
+    r = _err_expr(0, "eval: not: boolean value expected", 0);
     _free_expr(b);
-    r = 0;
   } else {
     r = (b == &T) ? &F : &T;
   }
@@ -486,9 +483,8 @@ expr_t *eval_op_and(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
     expr_t *b = ptr->car->eval(env, ptr->car);
     if(!IS_BOOL(b)) {
-      fprintf(stderr, "eval:error: and: expected boolean value\n");
       _free_expr(b);
-      return 0;
+      return _err_expr(0, "eval: and: boolean value expected", 0);
     } else if(b != &T) {
       return &F;
     } 
@@ -501,8 +497,8 @@ expr_t *eval_op_or(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
     expr_t *b = ptr->car->eval(env, ptr->car);
     if(!IS_BOOL(b)) {
-      fprintf(stderr, "eval:error: and: expected boolean value\n");
       _free_expr(b);
+      return _err_expr(0, "eval: or: boolean value expected", 0);
       return 0;
     } else if(b == &T) {
       return &T;

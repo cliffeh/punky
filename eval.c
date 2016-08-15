@@ -368,17 +368,12 @@ expr_t *eval_op_list(env_t *env, const expr_t *e)
 {
   if(e == &NIL) return &NIL;
 
-  expr_t *car = e->car->eval(env, e->car);
-  if(!car) {
-    return 0;
-  }
-
-  expr_t *cdr = eval_op_list(env, e->cdr);
-  if(!cdr) {
-    return 0;
-  }
+  expr_t *e1 = e->car->eval(env, e->car);
+  if(IS_ERR(e1)) { return e1; }
+  expr_t *e2 = eval_op_list(env, e->cdr);
+  if(IS_ERR(e2)) { _free_expr(e1); return e2; }
   
-  return _list_expr(car, cdr);
+  return _list_expr(e1, e2);
 }
 
 expr_t *eval_op_append(env_t *env, const expr_t *e)

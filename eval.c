@@ -353,7 +353,7 @@ expr_t *eval_op_cdr(env_t *env, const expr_t *e)
 expr_t *eval_op_cons(env_t *env, const expr_t *e)
 {
   if(!TWO_ARGS(e)) {
-    return _err_expr(0, "eval: error: cons: requires exactly 2 arguments", 0);
+    return _err_expr(0, "eval: cons: requires exactly 2 arguments", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car);
@@ -648,23 +648,20 @@ expr_t *eval_op_strlen(env_t *env, const expr_t *e)
 expr_t *eval_op_split(env_t *env, const expr_t *e)
 {
   if(!TWO_ARGS(e)) {
-    fprintf(stderr, "eval: error: split: takes exactly two argument\n");
-    return 0;
+    return _err_expr(0, "eval: split: takes exactly two argument", 0);
   }
 
   expr_t *strexpr = e->car->eval(env, e->car);
   if(!IS_STRING(strexpr)) {
-    fprintf(stderr, "eval: error: split: first argument must be a string\n");
     _free_expr(strexpr);
-    return 0;
+    return _err_expr(0, "eval: split: first argument must be a string", 0);
   }
 
   expr_t *splitexpr = e->cdr->car->eval(env, e->cdr->car);
   if(!IS_STRING(splitexpr)) {
-    fprintf(stderr, "eval: error: split: second argument must be a string\n");
     _free_expr(strexpr);
     _free_expr(splitexpr);
-    return 0;
+    return _err_expr(0, "eval: split: second argument must be a string", 0);
   }
   
   char *str = strexpr->strval, *split = splitexpr->strval;
@@ -685,22 +682,19 @@ expr_t *eval_op_split(env_t *env, const expr_t *e)
 expr_t *eval_op_openif(env_t *env, const expr_t *e)
 {
   if(!ONE_ARGS(e)) {
-    fprintf(stderr, "eval: error: openif: requires exactly 1 string argument\n");
-    return 0;
+    return _err_expr(0, "eval: openif: requires exactly 1 string argument", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car);
   if(!IS_STRING(e1)) {
-    fprintf(stderr, "eval: error: openif: requires exactly 1 string argument\n");
     _free_expr(e1);
-    return 0;
+    return _err_expr(0, "eval: openif: requires exactly 1 string argument", 0);
   }
 
   FILE *fp = fopen(e1->strval, "r");
   if(!fp) {
-    fprintf(stderr, "eval: error: openif: error while opening file: %s\n", strerror(errno));
     _free_expr(e1);
-    return 0;
+    return _err_expr(0, "eval: openif: error while opening file: %s", strerror(errno));
   }
 
   _free_expr(e1);
@@ -724,15 +718,13 @@ expr_t *eval_op_closeif(env_t *env, const expr_t *e)
 expr_t *eval_op_readline(env_t *env, const expr_t *e)
 {
   if(!ONE_ARGS(e)) {
-    fprintf(stderr, "eval: error: readline: requires exactly 1 port argument\n");
-    return 0;
+    return _err_expr(0, "eval: readline: requires exactly 1 port argument", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car);
   if(!IS_PORT(e1)) {
-    fprintf(stderr, "eval: error: readline: requires exactly 1 port argument\n");
     _free_expr(e1);
-    return 0;
+    return _err_expr(0, "eval: readline: requires exactly 1 port argument", 0);
   }
 
   char *str = calloc(_PORT_IO_BUF_SIZE, sizeof(char));

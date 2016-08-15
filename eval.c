@@ -401,14 +401,7 @@ expr_t *eval_op_append(env_t *env, const expr_t *e)
 
 expr_t *eval_op_quote(env_t *env, const expr_t *e)
 {
-  if(!(ONE_ARGS(e))) { 
-    fprintf(stderr, "eval: error: quote: incorrect number of arguments"); 
-    return 0; 
-  }
-  
-  expr_t *r = _clone_expr(e->car);
-
-  return r;
+  return _clone_expr(e->car);
 }
 
 expr_t *eval_op_let(env_t *env, const expr_t *e)

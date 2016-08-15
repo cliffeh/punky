@@ -108,8 +108,7 @@ expr_t *_clone_expr(const expr_t *e)
   case NIL_T: return &NIL;
 
   default: {
-    fprintf(stderr, "error: attempt to clone an unknown expression type\n");
-    return 0;
+    return _err_expr(0, "internal: attempt to clone an unknown expression type", 0);
   }
   }
 }

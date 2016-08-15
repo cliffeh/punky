@@ -1,5 +1,3 @@
-* be more careful about error-handling and cleaning up after yourself
-  when an error occurs
 * autotools!
 * robust-ify your "test suite"
 * code cleanup

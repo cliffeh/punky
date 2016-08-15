@@ -327,11 +327,10 @@ expr_t *eval_op_car(env_t *env, const expr_t *e)
   expr_t *e1 = e->car->eval(env, e->car), *r;
 
   if(!IS_LIST(e1)) {
-    fprintf(stderr, "eval: error: car: requires list argument\n");
-    return 0;
+    r = _err_expr(0, "eval: car: requires list argument", 0);
+  } else {
+    r = _clone_expr(e1->car);
   }
-
-  r = _clone_expr(e1->car);
 
   _free_expr(e1);
   return r;
@@ -342,11 +341,10 @@ expr_t *eval_op_cdr(env_t *env, const expr_t *e)
   expr_t *e1 = e->car->eval(env, e->car), *r;
 
   if(!IS_LIST(e1)) {
-    fprintf(stderr, "eval: error: car: requires list argument\n");
-    return 0;
+    r = _err_expr(0, "eval: cdr: requires list argument", 0);
+  } else {
+    r = _clone_expr(e1->cdr);
   }
-
-  r = _clone_expr(e1->cdr);
 
   _free_expr(e1);
   return r;
@@ -355,15 +353,15 @@ expr_t *eval_op_cdr(env_t *env, const expr_t *e)
 expr_t *eval_op_cons(env_t *env, const expr_t *e)
 {
   if(!TWO_ARGS(e)) {
-    fprintf(stderr, "eval: error: cons: requires exactly 2 arguments\n");
-    return 0;
+    return _err_expr(0, "eval: error: cons: requires exactly 2 arguments", 0);
   }
+
   expr_t *e1 = e->car->eval(env, e->car);
+  if(IS_ERR(e1)) { return e1; }
   expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  if(IS_ERR(e2)) { _free_expr(e1); return e2; }
 
-  expr_t *r = _list_expr(e1, e2);
-
-  return r;
+  return _list_expr(e1, e2);
 }
 
 expr_t *eval_op_list(env_t *env, const expr_t *e)

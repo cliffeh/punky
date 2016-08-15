@@ -21,17 +21,18 @@
 #define OP_T         (1<<5)
 #define FUN_T        (1<<6)
 #define PORT_T       (1<<7)
+#define ENV_T        (1<<8)
 
 /* special types */
-#define NIL_T        (1<<8)
-#define EOF_T        (1<<9)
-#define ERR_T        (1<<10)
-#define BOOL_TRUE_T  (1<<11)
-#define BOOL_FALSE_T (1<<12)
+#define NIL_T        (1<<9)
+#define EOF_T        (1<<10)
+#define ERR_T        (1<<11)
+#define BOOL_TRUE_T  (1<<12)
+#define BOOL_FALSE_T (1<<13)
 
 #define NUM_T        (INT_T|FLOAT_T)
 #define BOOL_T       (BOOL_TRUE_T|BOOL_FALSE_T)
-#define ANY_T        (LIST_T|NUM_T|BOOL_T|STRING_T|IDENT_T|OP_T|FUN_T|PORT_T|NIL_T)
+#define ANY_T        (LIST_T|NUM_T|BOOL_T|STRING_T|IDENT_T|OP_T|FUN_T|PORT_T|ENV_T|NIL_T)
 
 /* environment */
 #define ENV_BUCKETS 50

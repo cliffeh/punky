@@ -630,15 +630,14 @@ expr_t *eval_op_substr(env_t *env, const expr_t *e)
 expr_t *eval_op_strlen(env_t *env, const expr_t *e)
 {
   if(!ONE_ARGS(e)) {
-    fprintf(stderr, "eval: error: strlen: takes exactly one argument\n");
-    return 0;
+    return _err_expr(0, "eval: strlen: takes exactly one argument", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car);
   
   if(!IS_STRING(e1)) {
-    fprintf(stderr, "eval: error: strlen: argument is not a string\n");
-    return 0;
+    _free_expr(e1);
+    return _err_expr(0, "eval: strlen: argument is not a string", 0);
   }
 
   expr_t *r = _int_expr(strlen(e1->strval));

@@ -71,7 +71,7 @@ char *type_to_string(int t)
   case ERR_T: {
     for(expr_t *cdr = e; e != &NIL; e = e->cdr) {
       if(cdr && cdr->car && cdr->car->strval)
-	fprintf(out, "error: %s\n", cdr->car->strval);
+	fprintf(out, "\nerror: %s", cdr->car->strval);
     }
   }break;
   case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen

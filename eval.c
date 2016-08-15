@@ -104,22 +104,20 @@ static expr_t *eval_op_add_float(env_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
-    fprintf(stderr, "eval: add: unexpected argument type\n");
-    return 0;
+    return _err_expr(0, "eval: add: unexpected argument type", 0);
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
+  case INT_T: r = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
+  case FLOAT_T: r = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
   default: {
-    fprintf(stderr, "attempt to add to a non-numeric value");
-    result = 0;
+    r = _err_expr(0, "eval: addfloat: attempt to add to a non-numeric value", 0);
   }
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 static expr_t *eval_op_add_int(env_t *env, const expr_t *e, int partial)

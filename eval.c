@@ -499,7 +499,6 @@ expr_t *eval_op_or(env_t *env, const expr_t *e)
     if(!IS_BOOL(b)) {
       _free_expr(b);
       return _err_expr(0, "eval: or: boolean value expected", 0);
-      return 0;
     } else if(b == &T) {
       return &T;
     } 

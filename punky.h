@@ -49,7 +49,7 @@ expr_t *_fun_expr(expr_t *formals, expr_t *body);
 expr_t *_port_expr(FILE *fp);
 
 /* error handling */
-expr_t *_err_expr(expr_t *cdr, const char *msg);
+expr_t *_err_expr(expr_t *cdr, const char *msg, const char *opt);
 
 /* memory management */
 void _free_expr(expr_t *e);

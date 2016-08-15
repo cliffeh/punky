@@ -70,7 +70,8 @@ char *type_to_string(int t)
   case NIL_T: fprintf(out, "()"); break;
   case ERR_T: {
     for(expr_t *cdr = e; e != &NIL; e = e->cdr) {
-      fprintf(out, "error: %s", cdr->car->strval);
+      if(cdr && cdr->car && cdr->car->strval)
+	fprintf(out, "error: %s\n", cdr->car->strval);
     }
   }break;
   case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen

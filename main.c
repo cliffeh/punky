@@ -128,17 +128,15 @@ int main(int argc, char *argv[])
   punky_parse_args(&p, argc, argv);
 
   while(punky_read(&p)) {
-    if(p.eval && p.e) {
+    if(p.eval && !IS_ERR(p.e)) {
       expr_t *e = p.e->eval(&p.env, p.e);
       // free what we parsed
       _free_expr(p.e);
       p.e = e;
     }
-    if(p.e) {
-      punky_print(&p);
-      // free it once we've printed it
-      _free_expr(p.e);
-    }
+    punky_print(&p);
+    // free it once we've printed it
+    _free_expr(p.e);
   }
   punky_cleanup(&p);
   exit(0);

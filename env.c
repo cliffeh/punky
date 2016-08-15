@@ -71,7 +71,7 @@ expr_t *get(env_t *env, const expr_t *id)
   expr_t *r = 0;
   
   if(!(IS_IDENT(id))) {
-    r = _err_expr(0, "get: error: invalid id expression");
+    return _err_expr(0, "get: error: invalid id expression", 0);
   } else {
     // we need to know what bucket we're in
     int i = hash(id->strval);
@@ -85,7 +85,7 @@ expr_t *get(env_t *env, const expr_t *id)
     }
   }
 
-  if(!r) r = _err_expr(0, "get: unbound variable");
+  if(!r) r = _err_expr(0, "get: unbound variable", id->strval);
   return r;
 }
 

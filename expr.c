@@ -73,10 +73,18 @@ expr_t *_port_expr(FILE *fp)
   return e;
 }
 
-expr_t *_err_expr(expr_t *cdr, const char *msg)
+expr_t *_err_expr(expr_t *cdr, const char *msg, const char *opt)
 {
-  expr_t *e = _new_expr(ERR_T), *str = _str_expr(strdup(msg));
-  e->car = str;
+  expr_t *e = _new_expr(ERR_T);
+  char *str;
+  if(opt) {
+    str = calloc(strlen(msg) + strlen(opt) + 5, sizeof(char)); // colon, space, quotes, null term
+    sprintf(str, "%s: '%s'", msg, opt);
+  } else {
+    str = strdup(msg);
+  }
+
+  e->car = _str_expr(str);
   // TODO do something intelligent with exprs that aren't errors?
   e->cdr = (cdr && (cdr->type == ERR_T)) ? cdr : &NIL;
   return e;

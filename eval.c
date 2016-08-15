@@ -24,7 +24,7 @@ expr_t *eval_op_define(env_t *env, const expr_t *e)
 {
   expr_t *id = e->car;
   if(!IS_IDENT(id)) {
-    return _err_expr(id, "eval: define: first argument must be an identifier");
+    return _err_expr(id, "eval: define: first argument must be an identifier", 0);
   }
   
   expr_t *value = e->cdr->car->eval(env, e->cdr->car), *r;
@@ -33,7 +33,7 @@ expr_t *eval_op_define(env_t *env, const expr_t *e)
     _free_expr(value);
     r = _clone_expr(id);
   } else {
-    r = _err_expr(value, "eval: define: second argument evaluated to an error\n");
+    r = _err_expr(value, "eval: define: second argument evaluated to an error", 0);
   }
 
   return r;
@@ -66,7 +66,7 @@ static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, exp
 
   // make sure we've provided the right number of arguments
   if((f_ptr != &NIL) || (a_ptr != &NIL)) {
-    r = _err_expr(0, "eval: function: incorrect number of arguments to function");
+    r = _err_expr(0, "eval: function: incorrect number of arguments to function", 0);
   } else {
     r = body->eval(&funenv, body);
   }
@@ -85,7 +85,7 @@ expr_t *eval_list(env_t *env, const expr_t *e)
   } else {
     expr_t *fun = e->car->eval(env, e->car);
     if(!IS_FUN(fun)) {
-      r = _err_expr(fun, "eval: list: neither an operation nor a function");
+      r = _err_expr(fun, "eval: list: neither an operation nor a function", 0);
     } else {
       r = eval_function_call(env, fun->car, fun->cdr->car, e->cdr);
       _free_expr(fun);
@@ -757,21 +757,16 @@ expr_t *eval_op_openif(env_t *env, const expr_t *e)
 
 expr_t *eval_op_closeif(env_t *env, const expr_t *e)
 {
-  if(!ONE_ARGS(e)) {
-    fprintf(stderr, "eval: error: closeif: requires exactly 1 port argument\n");
-    return 0;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
+  if(!IS_PORT(e1) || e->cdr != &NIL) {
+    r = _err_expr(e1, "eval: closeif: requires exactly 1 port argument", 0);
+  } else {
+    fclose(e1->fp);
+    r = &NIL;
   }
 
-  expr_t *e1 = e->car->eval(env, e->car);
-  if(!IS_PORT(e1)) {
-    fprintf(stderr, "eval: error: closeif: requires exactly 1 port argument\n");
-    _free_expr(e1);
-    return 0;
-  }
-
-  fclose(e1->fp);
   _free_expr(e1);
-  return 0;
+  return r;
 }
 
 expr_t *eval_op_readline(env_t *env, const expr_t *e)

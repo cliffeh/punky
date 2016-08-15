@@ -1,2 +1,3 @@
 fp
 "(define fp (open-input-file "test/file.in")) ; fp"
+()

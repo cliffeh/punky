@@ -117,17 +117,16 @@ op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 int yyerror(s)
 char *s;
 {
-  /* ignore unknown input */ 
-  fprintf(stderr,
-	  "error: read: unable to parse '%s'\n", yytext);
   return 1;
 }
 
 punky_t *punky_read(punky_t *p)
 {
-  // TODO grab the return value?
-  yyparse(p);
-  return (p->e != &_EOF) ? p : 0;
+  switch(yyparse(p)) {
+  case 0: return (p->e != &_EOF) ? p : 0;
+  case 1: p->e = _err_expr(0, "read: unable to parse", yytext); return p;
+  case 2: p->e = _err_expr(0, "read: memory exhaustion", 0); return p;
+  }
 }
 
 int yywrap()

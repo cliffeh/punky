@@ -112,7 +112,7 @@ static expr_t *eval_op_add_float(env_t *env, const expr_t *e, float partial)
   case INT_T: r = eval_op_add_float(env, e->cdr, partial + (float)e1->intval); break;
   case FLOAT_T: r = eval_op_add_float(env, e->cdr, partial + e1->floatval); break;
   default: {
-    r = _err_expr(0, "eval: addfloat: attempt to add to a non-numeric value", 0);
+    r = _err_expr(0, "eval: addfloat: attempt to add a non-numeric value", 0);
   }
   }
 
@@ -133,7 +133,7 @@ static expr_t *eval_op_add_int(env_t *env, const expr_t *e, int partial)
   case INT_T: r = eval_op_add_int(env, e->cdr, partial + e1->intval); break;
   case FLOAT_T: r = eval_op_add_float(env, e->cdr, (float)partial + e1->floatval); break;
   default: {
-    r = _err_expr(0, "eval: addint: attempt to add to a non-numeric value", 0);
+    r = _err_expr(0, "eval: addint: attempt to add a non-numeric value", 0);
   }
   }
 
@@ -158,7 +158,7 @@ static expr_t *eval_op_sub_float(env_t *env, const expr_t *e, float partial)
   case INT_T: r = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
   case FLOAT_T: r = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
   default: { 
-    r = _err_expr(0, "eval: subfloat: attempt to add to a non-numeric value", 0);
+    r = _err_expr(0, "eval: subfloat: attempt to substract a non-numeric value", 0);
   }
   }
 
@@ -178,7 +178,7 @@ static expr_t *eval_op_sub_int(env_t *env, const expr_t *e, int partial)
   case INT_T: r = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
   case FLOAT_T: r = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
   default: {
-    r = _err_expr(0, "eval: subint: attempt to add to a non-numeric value", 0);
+    r = _err_expr(0, "eval: subint: attempt to subtract a non-numeric value", 0);
   }
   }
 
@@ -198,7 +198,7 @@ expr_t *eval_op_sub(env_t *env, const expr_t *e)
   case INT_T: r = eval_op_sub_int(env, e->cdr, e1->intval); break;
   case FLOAT_T: r = eval_op_sub_float(env, e->cdr, (float)e1->floatval); break;
   default: {
-    r = _err_expr(0, "eval: sub: attempt to add to a non-numeric value", 0);
+    r = _err_expr(0, "eval: sub: attempt to subtract a non-numeric value", 0);
   }
   }
   
@@ -226,8 +226,7 @@ static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial)
   case INT_T: r = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
   case FLOAT_T: r = eval_op_mul_float(env, e->cdr, partial * e1->floatval); break;
   default: {
-    fprintf(stderr, "attempt to multiply a non-numeric value");
-    return 0;
+    r = _err_expr(0, "eval: mulfloat: attempt to multiply a non-numeric value", 0);
   }
   }
 
@@ -239,8 +238,7 @@ static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to multiply a non-numeric value"); 
-    return 0; 
+    return _err_expr(0, "eval: mulint: unexpected argument type", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car), *r;
@@ -248,8 +246,7 @@ static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial)
   case INT_T: r = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
   case FLOAT_T: r = eval_op_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
   default: { 
-    fprintf(stderr, "attempt to multiply a non-numeric value");
-    return 0;
+    r = _err_expr(0, "eval: mulint: attempt to multiply a non-numeric value", 0);
   }
   }
 

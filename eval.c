@@ -576,34 +576,30 @@ expr_t *eval_op_substr(env_t *env, const expr_t *e)
   int pos, len;
 
   if(e == &NIL) {
-    fprintf(stderr, "eval: error: substr: no string provided\n");
-    return 0;
+    return _err_expr(0, "eval: substr: no string provided", 0);
   }
 
   strexpr = e->car->eval(env, e->car);
   if(!IS_STRING(strexpr)) {
-    fprintf(stderr, "eval: error: substr: first argument must be a string\n");
     _free_expr(strexpr);
-    return 0;
+    return _err_expr(0, "eval: substr: first argument must be a string", 0);
   }
 
   if(e->cdr == &NIL) return strexpr;
 
   posexpr = e->cdr->car->eval(env, e->cdr->car);
   if(!IS_INT(posexpr)) {
-    fprintf(stderr, "eval: error: substr: position argument must be an integer\n");
     _free_expr(strexpr);
     _free_expr(posexpr);
-    return 0;
+    return _err_expr(0, "eval: substr: position argument must be an integer", 0);
   }
   pos = posexpr->intval;
   _free_expr(posexpr);
 
   len = strlen(strexpr->strval);
   if(pos > len) {
-    fprintf(stderr, "eval: error: substr: position argument larger than string length\n");
     _free_expr(strexpr);
-    return 0;
+    return _err_expr(0, "eval: substr: position argument larger than string length", 0);
   }
 
   if(e->cdr->cdr == &NIL) {
@@ -611,18 +607,16 @@ expr_t *eval_op_substr(env_t *env, const expr_t *e)
   } else {
     lenexpr = e->cdr->cdr->car->eval(env, e->cdr->cdr->car);
     if(!IS_INT(lenexpr)) {
-      fprintf(stderr, "eval: error: substr: length argument must be an integer\n");
       _free_expr(strexpr);
       _free_expr(lenexpr);
-      return 0;
+      return _err_expr(0, "eval: substr: length argument must be an integer", 0);
     }
     len = lenexpr->intval;
     _free_expr(lenexpr);
 
     if((pos+len) > strlen(strexpr->strval)) {
-      fprintf(stderr, "eval: error: substr: position+length arguments greater than string length\n");
       _free_expr(strexpr);
-      return 0;
+      return _err_expr(0, "eval: substr: position+length arguments greater than string length", 0);
     }
   }
 

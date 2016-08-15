@@ -70,4 +70,7 @@ expr_t *eval_op_openif(env_t *env, const expr_t *e);
 expr_t *eval_op_closeif(env_t *env, const expr_t *e);
 expr_t *eval_op_readline(env_t *env, const expr_t *e);
 
+/* env operations */
+expr_t *eval_op_env(env_t *env, const expr_t *e);
+
 #endif

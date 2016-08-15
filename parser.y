@@ -45,6 +45,8 @@
 %token EQUAL LT GT LE GE
  // ports
 %token OPENIF CLOSEIF READLINE
+ // environments
+%token ENV
  // atoms (do we need to define their types?)
 %token <e> INTLIT FLOATLIT
 %token <strval> IDENT STRLIT
@@ -111,6 +113,7 @@ op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | OPENIF   { $$ = _op_expr(strdup(yytext), &eval_op_openif); }
 | CLOSEIF  { $$ = _op_expr(strdup(yytext), &eval_op_closeif); }
 | READLINE { $$ = _op_expr(strdup(yytext), &eval_op_readline); }
+| ENV      { $$ = _op_expr(strdup(yytext), &eval_op_env); }
 ;
 
 %%

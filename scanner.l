@@ -61,6 +61,9 @@
 "close-input-file" { return(CLOSEIF);  }
 "readline"         { return(READLINE); }
 
+%{ /* env operations */ %}
+"env" { return(ENV); }
+
 [_a-zA-Z][\?_\-a-zA-Z0-9]* {
   return(IDENT);
 }

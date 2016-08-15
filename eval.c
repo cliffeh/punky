@@ -742,3 +742,7 @@ expr_t *eval_op_readline(env_t *env, const expr_t *e)
   _free_expr(e1);
   return r;
 }
+
+expr_t *eval_op_env(env_t *env, const expr_t *e)
+{
+}

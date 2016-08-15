@@ -263,8 +263,7 @@ static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to divide a non-numeric value"); 
-    return 0; 
+    return _err_expr(0, "eval: divfloat: unexpected argument type", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car), *r;
@@ -272,8 +271,7 @@ static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial)
   case INT_T: r = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
   case FLOAT_T: r = eval_op_div_float(env, e->cdr, partial / e1->floatval); break;
   default: {
-    fprintf(stderr, "attempt to divide a non-numeric value");
-    return 0;
+    r = _err_expr(0, "eval: divfloat: attempt to divide a non-numeric value", 0);
   }
   }
 
@@ -285,8 +283,7 @@ static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to divide a non-numeric value"); 
-    return 0; 
+    return _err_expr(0, "eval: divint: unexpected argument type", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car), *r;
@@ -294,8 +291,7 @@ static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial)
   case INT_T: r = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
   case FLOAT_T: r = eval_op_div_float(env, e->cdr, (float)partial / e1->floatval); break;
   default: {
-    fprintf(stderr, "attempt to divide a non-numeric value");
-    return 0;
+    r = _err_expr(0, "eval: divint: attempt to divide a non-numeric value", 0);
   }
   }
 
@@ -307,12 +303,10 @@ expr_t *eval_op_div(env_t *env, const expr_t *e)
 {
   // this is a bit inefficient, but makes things easy to read
   if(NO_ARGS(e)) { 
-    fprintf(stderr, "eval: error: div: need at least two arguments for division\n"); 
-    return 0; 
+    return _err_expr(0, "eval: div: need at least two arguments for division", 0); 
   }
   if(ONE_ARGS(e)) { 
-    fprintf(stderr, "eval: error: div: need at least two arguments for division\n");
-    return 0; 
+    return _err_expr(0, "eval: div: need at least two arguments for division", 0); 
   }
 
   expr_t *e1 = e->car->eval(env, e->car), *r;
@@ -320,8 +314,7 @@ expr_t *eval_op_div(env_t *env, const expr_t *e)
   case INT_T: r = eval_op_div_int(env, e->cdr, e1->intval); break;
   case FLOAT_T: r = eval_op_div_float(env, e->cdr, (float)e1->floatval); break;
   default: {
-    fprintf(stderr, "eval: error: div: attempt to divide a non-numeric value\n");
-    return 0;
+    r = _err_expr(0, "eval: div: attempt to divide a non-numeric value", 0);
   }
   }
 

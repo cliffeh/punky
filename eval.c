@@ -218,14 +218,13 @@ static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to multiply a non-numeric value"); 
-    return 0; 
+    return _err_expr(0, "eval: mulfloat: unexpected argument type", 0);
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_mul_float(env, e->cdr, partial * e1->floatval); break;
+  case INT_T: r = eval_op_mul_float(env, e->cdr, partial * (float)e1->intval); break;
+  case FLOAT_T: r = eval_op_mul_float(env, e->cdr, partial * e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to multiply a non-numeric value");
     return 0;
@@ -233,7 +232,7 @@ static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial)
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial)
@@ -244,10 +243,10 @@ static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial)
     return 0; 
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
-  case FLOAT_T: result = eval_op_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
+  case INT_T: r = eval_op_mul_int(env, e->cdr, partial * e1->intval); break;
+  case FLOAT_T: r = eval_op_mul_float(env, e->cdr, (float)partial * e1->floatval); break;
   default: { 
     fprintf(stderr, "attempt to multiply a non-numeric value");
     return 0;
@@ -255,7 +254,7 @@ static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial)
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_mul(env_t *env, const expr_t *e)
@@ -271,10 +270,10 @@ static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial)
     return 0; 
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_div_float(env, e->cdr, partial / e1->floatval); break;
+  case INT_T: r = eval_op_div_float(env, e->cdr, partial / (float)e1->intval); break;
+  case FLOAT_T: r = eval_op_div_float(env, e->cdr, partial / e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to divide a non-numeric value");
     return 0;
@@ -282,7 +281,7 @@ static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial)
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial)
@@ -293,10 +292,10 @@ static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial)
     return 0; 
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
-  case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)partial / e1->floatval); break;
+  case INT_T: r = eval_op_div_int(env, e->cdr, partial / e1->intval); break;
+  case FLOAT_T: r = eval_op_div_float(env, e->cdr, (float)partial / e1->floatval); break;
   default: {
     fprintf(stderr, "attempt to divide a non-numeric value");
     return 0;
@@ -304,7 +303,7 @@ static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial)
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_div(env_t *env, const expr_t *e)
@@ -319,10 +318,10 @@ expr_t *eval_op_div(env_t *env, const expr_t *e)
     return 0; 
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_div_int(env, e->cdr, e1->intval); break;
-  case FLOAT_T: result = eval_op_div_float(env, e->cdr, (float)e1->floatval); break;
+  case INT_T: r = eval_op_div_int(env, e->cdr, e1->intval); break;
+  case FLOAT_T: r = eval_op_div_float(env, e->cdr, (float)e1->floatval); break;
   default: {
     fprintf(stderr, "eval: error: div: attempt to divide a non-numeric value\n");
     return 0;
@@ -330,37 +329,37 @@ expr_t *eval_op_div(env_t *env, const expr_t *e)
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_car(env_t *env, const expr_t *e)
 {
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
 
   if(!IS_LIST(e1)) {
     fprintf(stderr, "eval: error: car: requires list argument\n");
     return 0;
   }
 
-  result = _clone_expr(e1->car);
+  r = _clone_expr(e1->car);
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_cdr(env_t *env, const expr_t *e)
 {
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
 
   if(!IS_LIST(e1)) {
     fprintf(stderr, "eval: error: car: requires list argument\n");
     return 0;
   }
 
-  result = _clone_expr(e1->cdr);
+  r = _clone_expr(e1->cdr);
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_cons(env_t *env, const expr_t *e)
@@ -372,9 +371,9 @@ expr_t *eval_op_cons(env_t *env, const expr_t *e)
   expr_t *e1 = e->car->eval(env, e->car);
   expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
 
-  expr_t *result = _list_expr(e1, e2);
+  expr_t *r = _list_expr(e1, e2);
 
-  return result;
+  return r;
 }
 
 expr_t *eval_op_list(env_t *env, const expr_t *e)
@@ -423,9 +422,9 @@ expr_t *eval_op_quote(env_t *env, const expr_t *e)
     return 0; 
   }
   
-  expr_t *result = _clone_expr(e->car);
+  expr_t *r = _clone_expr(e->car);
 
-  return result;
+  return r;
 }
 
 expr_t *eval_op_let(env_t *env, const expr_t *e)
@@ -435,7 +434,7 @@ expr_t *eval_op_let(env_t *env, const expr_t *e)
     return 0; 
   }
 
-  expr_t *defs = e->car, *body = e->cdr->car, *d_ptr = defs, *tmp, *result;
+  expr_t *defs = e->car, *body = e->cdr->car, *d_ptr = defs, *tmp, *r;
 
   env_t letenv;
   init_env(&letenv, env);
@@ -457,33 +456,33 @@ expr_t *eval_op_let(env_t *env, const expr_t *e)
     d_ptr = tmp;
   }
 
-  result = body->eval(&letenv, body);
+  r = body->eval(&letenv, body);
 
   free_env(&letenv);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_if(env_t *env, const expr_t *e)
 {
   // TODO test for either two or three args
   expr_t *cond = e->car->eval(env, e->car);
-  expr_t *result;
+  expr_t *r;
 
   if(cond) {
     if(!IS_BOOL(cond)) {
       fprintf(stderr, "eval: error: if: boolean value expected\n");
-      result = 0;
+      r = 0;
     } else if(cond == &T) {
-      result = e->cdr->car->eval(env, e->cdr->car);
+      r = e->cdr->car->eval(env, e->cdr->car);
     } else if(e->cdr->cdr != &NIL) { // cond == &F, else
-      result = e->cdr->cdr->car->eval(env, e->cdr->cdr->car);
+      r = e->cdr->cdr->car->eval(env, e->cdr->cdr->car);
     } else { // cond == &F, no "else"
-      result = &NIL;
+      r = &NIL;
     }
     _free_expr(cond);
   }
 
-  return result;
+  return r;
 }
 
 expr_t *eval_op_not(env_t *env, const expr_t *e)
@@ -493,16 +492,16 @@ expr_t *eval_op_not(env_t *env, const expr_t *e)
     return 0;
   }
   
-  expr_t *b = e->car->eval(env, e->car), *result;
+  expr_t *b = e->car->eval(env, e->car), *r;
   if(!IS_BOOL(b)) {
     fprintf(stderr, "not: boolean value expected");
     _free_expr(b);
-    result = 0;
+    r = 0;
   } else {
-    result = (b == &T) ? &F : &T;
+    r = (b == &T) ? &F : &T;
   }
   
-  return result;
+  return r;
 }
 
 expr_t *eval_op_and(env_t *env, const expr_t *e)
@@ -541,9 +540,9 @@ expr_t *eval_op_equal(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    int result = compare(e1, e2);
+    int r = compare(e1, e2);
     _free_expr(e1); _free_expr(e2);
-    if(result != 0) return &F;
+    if(r != 0) return &F;
   }
   return &T;
 }
@@ -554,9 +553,9 @@ expr_t *eval_op_lt(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    int result = compare(e1, e2);
+    int r = compare(e1, e2);
     _free_expr(e1); _free_expr(e2);
-    if(result != -1) return &F;
+    if(r != -1) return &F;
   }
   return &T;
 }
@@ -567,9 +566,9 @@ expr_t *eval_op_le(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    int result = compare(e1, e2);
+    int r = compare(e1, e2);
     _free_expr(e1); _free_expr(e2);
-    if(result > 0) return &F;
+    if(r > 0) return &F;
   }
   return &T;
 }
@@ -580,9 +579,9 @@ expr_t *eval_op_gt(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    int result = compare(e1, e2);
+    int r = compare(e1, e2);
     _free_expr(e1); _free_expr(e2);
-    if(result != 1) return &F;
+    if(r != 1) return &F;
   }
   return &T;
 }
@@ -593,9 +592,9 @@ expr_t *eval_op_ge(env_t *env, const expr_t *e)
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
     expr_t *e1 = ptr->car->eval(env, ptr->car),
       *e2 = ptr->cdr->car->eval(env, ptr->cdr->car);
-    int result = compare(e1, e2);
+    int r = compare(e1, e2);
     _free_expr(e1); _free_expr(e2);
-    if(result < 0) return &F;
+    if(r < 0) return &F;
   }
   return &T;
 }
@@ -677,9 +676,9 @@ expr_t *eval_op_strlen(env_t *env, const expr_t *e)
     return 0;
   }
 
-  expr_t *result = _int_expr(strlen(e1->strval));
+  expr_t *r = _int_expr(strlen(e1->strval));
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_split(env_t *env, const expr_t *e)
@@ -774,17 +773,17 @@ expr_t *eval_op_readline(env_t *env, const expr_t *e)
   }
 
   char *str = calloc(_PORT_IO_BUF_SIZE, sizeof(char));
-  expr_t *result;
+  expr_t *r;
   // TODO grow the buffer and continue to read until a newline or EOF is reached
   if(fgets(str, _PORT_IO_BUF_SIZE, e1->fp)) {
     // trim the newline
     if(str[strlen(str)-1] == '\n') str[strlen(str)-1] = 0;
     // TODO trim the buffer if the size is > strlen
-    result = _str_expr(str);
+    r = _str_expr(str);
   } else {
-    result = &NIL;
+    r = &NIL;
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }

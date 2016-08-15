@@ -46,7 +46,7 @@ expr_t *eval_op_lambda(env_t *env, const expr_t *e)
 
 static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, expr_t *args)
 {
-  expr_t *f_ptr = formals, *a_ptr = args, *tmp, *result;
+  expr_t *f_ptr = formals, *a_ptr = args, *tmp, *r;
 
   env_t funenv;
   init_env(&funenv, env);
@@ -66,17 +66,14 @@ static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, exp
 
   // make sure we've provided the right number of arguments
   if((f_ptr != &NIL) || (a_ptr != &NIL)) {
-    fprintf(stderr, "eval: error: incorrect number of arguments to function\n");
-    // TODO cleanup?
-    return 0;
+    r = _err_expr(0, "eval: function: incorrect number of arguments to function");
   } else {
-    result = body->eval(&funenv, body);
+    r = body->eval(&funenv, body);
   }
 
   // clean up and return
   free_env(&funenv);
-
-  return result;
+  return r;
 }
 
 expr_t *eval_list(env_t *env, const expr_t *e)

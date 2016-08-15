@@ -378,24 +378,25 @@ expr_t *eval_op_list(env_t *env, const expr_t *e)
 
 expr_t *eval_op_append(env_t *env, const expr_t *e)
 {
-  // TODO make append accept any number of args
-  if(!(TWO_ARGS(e))) { 
-    fprintf(stderr, "eval: error: append: incorrect number of arguments"); 
-    return 0; 
+  if(e == &NIL) return &NIL;
+
+  expr_t *r = e->car->eval(env, e->car);
+
+  if(r == &NIL) return eval_op_append(env, e->cdr);
+  if(e->cdr == &NIL) return r;
+
+  if(!IS_LIST(r)) {
+    _free_expr(r);
+    return _err_expr(0, "eval: append: first argument of append must be a list", 0);
   }
 
-  // TODO null check!
-  expr_t *l1 = e->car->eval(env, e->car);
-  expr_t *l2 = e->cdr->car->eval(env, e->cdr->car);
+  expr_t *e2 = eval_op_append(env, e->cdr), *ptr;
 
-  if(l1 == &NIL) return l2;
+  // find the tail and append
+  for(ptr = r; ptr->cdr != &NIL; ptr = ptr->cdr);
+  ptr->cdr = e2;
 
-  expr_t *ptr;
-  for(ptr = l1; ptr->cdr != &NIL; ptr = ptr->cdr){}
-
-  ptr->cdr = l2;
-  
-  return l1;
+  return r;
 }
 
 expr_t *eval_op_quote(env_t *env, const expr_t *e)

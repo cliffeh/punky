@@ -68,12 +68,11 @@ void put(env_t *env, const expr_t *id, const expr_t *e)
 
 expr_t *get(env_t *env, const expr_t *id)
 {
+  expr_t *r = 0;
+  
   if(!(IS_IDENT(id))) {
-    fprintf(stderr, "get: error: invalid id expression\n");
-    return 0;
+    r = _err_expr(0, "get: error: invalid id expression");
   } else {
-
-    expr_t *r = 0;
     // we need to know what bucket we're in
     int i = hash(id->strval);
     entry_t *entry = _find_entry(env, id->strval, env->entries[i]);
@@ -84,9 +83,10 @@ expr_t *get(env_t *env, const expr_t *id)
     } else if(env->parent) {
       r = get(env->parent, id);
     }
-
-    return r;
   }
+
+  if(!r) r = _err_expr(0, "get: unbound variable");
+  return r;
 }
 
 void free_entry(entry_t *entry) 

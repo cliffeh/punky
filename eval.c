@@ -78,29 +78,26 @@ static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, exp
 
 expr_t *eval_list(env_t *env, const expr_t *e)
 {
-  expr_t *result;
+  expr_t *r;
   if(IS_OP(e->car)) {
     // we already know how to execute ops
-    result = e->car->eval(env, e->cdr);
+    r = e->car->eval(env, e->cdr);
   } else {
     expr_t *fun = e->car->eval(env, e->car);
-    if(!fun || !IS_FUN(fun)) {
-      fprintf(stderr, "eval: error: list: neither an operation nor a function\n");
-      result = 0;
+    if(!IS_FUN(fun)) {
+      r = _err_expr(fun, "eval: list: neither an operation nor a function");
     } else {
-      result = eval_function_call(env, fun->car, fun->cdr->car, e->cdr);
+      r = eval_function_call(env, fun->car, fun->cdr->car, e->cdr);
+      _free_expr(fun);
     }
-    if(fun) _free_expr(fun);
   }
 
-  return result;
+  return r;
 }
 
 expr_t *eval_ident(env_t *env, const expr_t *e)
 {
-  expr_t *result = get(env, e);
-  if(!result) fprintf(stderr, "eval: error: unbound variable\n");
-  return result;
+  return get(env, e);
 }
 
 static expr_t *eval_op_add_float(env_t *env, const expr_t *e, float partial)

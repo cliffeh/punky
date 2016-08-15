@@ -104,7 +104,7 @@ static expr_t *eval_op_add_float(env_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
-    return _err_expr(0, "eval: add: unexpected argument type", 0);
+    return _err_expr(0, "eval: addfloat: unexpected argument type", 0);
   }
 
   expr_t *e1 = e->car->eval(env, e->car), *r;
@@ -124,7 +124,7 @@ static expr_t *eval_op_add_int(env_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) {
-    return _err_expr(0, "eval: add: unexpected argument type", 0);
+    return _err_expr(0, "eval: addint: unexpected argument type", 0);
   }
 
   // we'll use this to hold the result
@@ -150,74 +150,68 @@ static expr_t *eval_op_sub_float(env_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
-    fprintf(stderr, "attempt to subtract a non-numeric value");
-    return 0;
+    return _err_expr(0, "eval: subfloat: unexpected argument type", 0);
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
-  case FLOAT_T: result = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
+  case INT_T: r = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
+  case FLOAT_T: r = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
   default: { 
-    fprintf(stderr, "attempt to subtract a non-numeric value");
-    result = 0;
+    r = _err_expr(0, "eval: subfloat: attempt to add to a non-numeric value", 0);
   }
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 static expr_t *eval_op_sub_int(env_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) {
-    fprintf(stderr, "attempt to subtract a non-numeric value"); 
-    return 0;
+    return _err_expr(0, "eval: subint: unexpected argument type", 0);
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
-  case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
+  case INT_T: r = eval_op_sub_int(env, e->cdr, partial - e1->intval); break;
+  case FLOAT_T: r = eval_op_sub_float(env, e->cdr, (float)partial - e1->floatval); break;
   default: {
-    fprintf(stderr, "attempt to subtract a non-numeric value");
-    return 0;
+    r = _err_expr(0, "eval: subint: attempt to add to a non-numeric value", 0);
   }
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 expr_t *eval_op_sub(env_t *env, const expr_t *e)
 {
   if(NO_ARGS(e)) return _int_expr(0);
   if(!(IS_LIST(e))) {
-    fprintf(stderr, "eval: error: attempt to subtract a non-numeric value"); 
-    return 0; 
+    return _err_expr(0, "eval: sub: unexpected argument type", 0);
   }
 
-  expr_t *e1 = e->car->eval(env, e->car), *result;
+  expr_t *e1 = e->car->eval(env, e->car), *r;
   switch(e1->type) {
-  case INT_T: result = eval_op_sub_int(env, e->cdr, e1->intval); break;
-  case FLOAT_T: result = eval_op_sub_float(env, e->cdr, (float)e1->floatval); break;
+  case INT_T: r = eval_op_sub_int(env, e->cdr, e1->intval); break;
+  case FLOAT_T: r = eval_op_sub_float(env, e->cdr, (float)e1->floatval); break;
   default: {
-    fprintf(stderr, "eval: error: attempt to subtract a non-numeric value");
-    return 0;
+    r = _err_expr(0, "eval: sub: attempt to add to a non-numeric value", 0);
   }
   }
   
   // if we only had one operand, we want to return the negative of it
   if(e->cdr == &NIL) {
     switch(e1->type) {
-    case INT_T: result->intval = -result->intval; break;
-    case FLOAT_T: result->floatval = -result->intval; break;
+    case INT_T: r->intval = -r->intval; break;
+    case FLOAT_T: r->floatval = -r->intval; break;
     }
   }
 
   _free_expr(e1);
-  return result;
+  return r;
 }
 
 static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial)

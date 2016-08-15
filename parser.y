@@ -127,6 +127,9 @@ punky_t *punky_read(punky_t *p)
   case 1: p->e = _err_expr(0, "read: unable to parse", yytext); return p;
   case 2: p->e = _err_expr(0, "read: memory exhaustion", 0); return p;
   }
+
+  // this shouldn't happen, but if it does...
+  return 0;
 }
 
 int yywrap()

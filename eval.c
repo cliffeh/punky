@@ -418,7 +418,6 @@ expr_t *eval_op_let(env_t *env, const expr_t *e)
   // for(d_ptr = defs; d_ptr != &NIL; d_ptr = d_ptr->cdr) {
   while(d_ptr != &NIL) {
     expr_t *def = d_ptr->car;
-    expr_t *id = def->car;
     expr_t *value = def->cdr->car->eval(env, def->cdr->car);
 
     if(IS_ERR(value)) {
@@ -675,13 +674,12 @@ expr_t *eval_op_split(env_t *env, const expr_t *e)
     return 0;
   }
   
-  int len = strlen(strexpr->strval);
   char *str = strexpr->strval, *split = splitexpr->strval;
 
   expr_t *r = &NIL, *tail;
   char *p = strtok(str, split);
   if(p) tail = (r = _list_expr(_str_expr(strdup(p)), &NIL));
-  while(p = strtok(0, split)) {
+  while((p = strtok(0, split))) {
     tail->cdr = _list_expr(_str_expr(strdup(p)), &NIL);
     tail = tail->cdr;
   }

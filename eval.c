@@ -748,3 +748,9 @@ expr_t *eval_op_env(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return _clone_expr(env->car);
 }
+
+expr_t *eval_op_keys(expr_t *env, const expr_t *e)
+{
+  expr_t *r = keys(env);
+  return r;
+}

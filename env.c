@@ -39,9 +39,9 @@ expr_t *get(expr_t *env, const char *id)
 
 expr_t *keys(const expr_t *env)
 {
-  expr_t *r;
-  for(r = env->car; r != &NIL; r = r->cdr) {
-    r = _list_expr(_clone_expr(r->car->car), r);
+  expr_t *e, *r = &NIL;
+  for(e = env->car; e != &NIL; e = e->cdr) {
+    r = _list_expr(_clone_expr(e->car->car), r);
   }
   return r;
 }

@@ -72,5 +72,6 @@ expr_t *eval_op_readline(expr_t *env, const expr_t *e);
 
 /* env operations */
 expr_t *eval_op_env(expr_t *env, const expr_t *e);
+expr_t *eval_op_keys(expr_t *env, const expr_t *e);
 
 #endif

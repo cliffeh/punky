@@ -11,6 +11,7 @@
 #define IS_FUN(l)    (l->type == FUN_T)
 #define IS_PORT(l)   (l->type == PORT_T)
 #define IS_ERR(l)    (l->type == ERR_T)
+#define IS_ENV(l)    (l->type == ENV_T)
 
 /* types */
 #define LIST_T       (1<<0)

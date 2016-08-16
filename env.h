@@ -5,6 +5,7 @@
 expr_t *new_env(expr_t *parent);
 void put(expr_t *env, const char *id, const expr_t *e);
 expr_t *get(expr_t *env, const char *id);
+expr_t *keys(const expr_t *env);
 void free_env(expr_t *env);
 
 #endif

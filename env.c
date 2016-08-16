@@ -37,6 +37,11 @@ expr_t *get(expr_t *env, const char *id)
   return &NIL;
 }
 
+expr_t *keys(const expr_t *env)
+{
+  
+}
+
 void free_env(expr_t *env) 
 {
   _free_expr(env);

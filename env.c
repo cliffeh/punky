@@ -34,7 +34,7 @@ expr_t *get(expr_t *env, const char *id)
   expr_t *entry = find_entry(env, id);
   if(entry != &NIL) return _clone_expr(entry->car->cdr);
   if(env->cdr != &NIL) return get(env->cdr, id);
-  return &NIL;
+  return _err_expr(0, "get: unbound variable", id);
 }
 
 expr_t *keys(const expr_t *env)

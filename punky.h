@@ -22,7 +22,7 @@ typedef struct punky_t
   /* input, output, and error streams */
   FILE *in, *out, *err;
   /* environment */
-  env_t env;
+  expr_t *env;
   /* an expr_t that can be used to hang parse results off of */
   expr_t *e;
   /* debug flag */
@@ -44,9 +44,10 @@ expr_t *_int_expr(int value);
 expr_t *_float_expr(float value);
 expr_t *_str_expr(char *value);
 expr_t *_id_expr(char *value);
-expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, const struct expr_t *));
+expr_t *_op_expr(char *name, expr_t * (*eval)(struct expr_t *, const struct expr_t *));
 expr_t *_fun_expr(expr_t *formals, expr_t *body);
 expr_t *_port_expr(FILE *fp);
+expr_t *_env_expr(expr_t *values, expr_t *parent);
 
 /* error handling */
 expr_t *_err_expr(expr_t *cdr, const char *msg, const char *opt);

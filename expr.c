@@ -3,7 +3,7 @@
 
 static expr_t *_new_expr(int type)
 {
-  expr_t *e = malloc(sizeof(expr_t));
+  expr_t *e = calloc(1, sizeof(expr_t));
   e->type = type;
   return e;
 }
@@ -49,7 +49,7 @@ expr_t *_id_expr(char *value)
   return e;
 }
 
-expr_t *_op_expr(char *name, expr_t * (*eval)(struct env_t *, const struct expr_t *))
+expr_t *_op_expr(char *name, expr_t * (*eval)(struct expr_t *, const struct expr_t *))
 {
   expr_t *e = _new_expr(OP_T);
   e->strval = name;
@@ -90,6 +90,14 @@ expr_t *_err_expr(expr_t *cdr, const char *msg, const char *opt)
   return e;
 }
 
+expr_t *_env_expr(expr_t *values, expr_t *parent)
+{
+  expr_t *e = _new_expr(ENV_T);
+  e->car = values;
+  e->cdr = parent;
+  return e;
+}
+
 expr_t *_clone_expr(const expr_t *e)
 {
   switch(e->type) {
@@ -103,6 +111,7 @@ expr_t *_clone_expr(const expr_t *e)
   case OP_T: return _op_expr(strdup(e->strval), e->eval);
   case FUN_T: return _fun_expr(_clone_expr(e->car), _clone_expr(e->cdr));
   case PORT_T: return _port_expr(e->fp);
+  case ENV_T: return _env_expr(_clone_expr(e->car), &NIL); // TODO clone parent?
 
   case EOF_T: return &_EOF;
   case NIL_T: return &NIL;
@@ -160,6 +169,11 @@ void _free_expr(expr_t *e)
     
   case BOOL_TRUE_T: case BOOL_FALSE_T: case NIL_T: case EOF_T: {
     return;
+  }break;
+
+  case ENV_T: {
+    _free_expr(e->car);
+    // leave the parent alone, let it be explicitly reaped
   }break;
     
   default: {

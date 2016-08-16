@@ -76,6 +76,10 @@ char *type_to_string(int t)
   }break;
   case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen
 
+  case ENV_T: {
+    _print(out, e->car, 0, 0);
+  }
+    
   default: fprintf(stderr, "print: error: unknown expression type: %s\n", type_to_string(e->type)); return;
   }
 

@@ -34,29 +34,13 @@
 #define BOOL_T       (BOOL_TRUE_T|BOOL_FALSE_T)
 #define ANY_T        (LIST_T|NUM_T|BOOL_T|STRING_T|IDENT_T|OP_T|FUN_T|PORT_T|ENV_T|NIL_T)
 
-/* environment */
-#define ENV_BUCKETS 50
-
 /* IO buffer sizing */
 #define _PORT_IO_BUF_SIZE 4096
-
-typedef struct entry_t
-{
-  struct expr_t *id;
-  struct expr_t *e;
-  struct entry_t *next; // linked list
-} entry_t;
-
-typedef struct env_t
-{
-  struct env_t *parent;
-  entry_t *entries[ENV_BUCKETS];
-} env_t;
 
 typedef struct expr_t
 {
   int type;
-  struct expr_t * (*eval)(struct env_t *, const struct expr_t *);
+  struct expr_t * (*eval)(struct expr_t *, const struct expr_t *);
   void (*print)(FILE *out, struct expr_t *e);
 
   union 

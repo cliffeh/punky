@@ -1,110 +1,43 @@
 #include "punky.h"
 
-static int hash(char *id)
+expr_t *new_env(expr_t *parent)
 {
-  int value = 0, i = 0;
-  char *p = id;
-
-  // TODO get better hash.
-  // we'll hash on the first 3 characters of the id
-  for(i = 0; *(p+i) && (i<3); i++) {
-    value += *(p+i);
-  }
-  return (value % ENV_BUCKETS);
+  return _env_expr(&NIL, parent);
 }
 
-void init_env(env_t *env, env_t *parent)
+static expr_t *find_entry(const expr_t *env, const char *id)
 {
-  int i;
-  for(i = 0; i < ENV_BUCKETS; i++) {
-    env->entries[i] = 0;
+  // TODO something with O(log n) lookup time instead of a simple linked list
+  expr_t *r;
+  for(r = env->car; r != &NIL; r = r->cdr) {
+    if(strcmp(id, r->car->car->strval) == 0) return r;
   }
-  env->parent = parent;
-}
-
-static entry_t *_find_entry(env_t *env, char *id, entry_t *bucket)
-{
-  entry_t *entry;
-  for(entry = bucket; entry; entry = entry->next) {
-    if(strcmp(id, entry->id->strval) == 0) {
-      return entry;
-    }
-  }
-  // sorry, didn't find it
-  return 0;
-}
-
-void put(env_t *env, const expr_t *id, const expr_t *e)
-{
-  if(!(IS_IDENT(id))) {
-    fprintf(stderr, "put: error: invalid id expression\n");
-    return;
-  }
-
-  // we need to know which bucket we're in
-  int i = hash(id->strval);
-
-  // see if an entry with this id already exists
-  entry_t *entry = _find_entry(env, id->strval, env->entries[i]);
-
-  if(entry) { 
-    // we're replacing this entry, so let's free up old pointers
-    _free_expr(entry->id);
-    _free_expr(entry->e);
-  } else {
-    // create the new entry
-    entry = malloc(sizeof(entry_t));
-
-    // make sure we keep track of any already-existing entries in this bucket
-    entry->next = env->entries[i];
-  
-    // we'll append our new entry at the head of the list
-    env->entries[i] = entry;
-  }
-  
-  entry->id = _clone_expr(id);
-  entry->e = _clone_expr(e);
-}
-
-expr_t *get(env_t *env, const expr_t *id)
-{
-  expr_t *r = 0;
-  
-  if(!(IS_IDENT(id))) {
-    return _err_expr(0, "get: error: invalid id expression", 0);
-  } else {
-    // we need to know what bucket we're in
-    int i = hash(id->strval);
-    entry_t *entry = _find_entry(env, id->strval, env->entries[i]);
-
-    if(entry) {
-      // we found it! let's return it...
-      r = _clone_expr(entry->e);
-    } else if(env->parent) {
-      r = get(env->parent, id);
-    }
-  }
-
-  if(!r) r = _err_expr(0, "get: unbound variable", id->strval);
   return r;
 }
 
-void free_entry(entry_t *entry) 
+void put(expr_t *env, const char *id, const expr_t *e)
 {
-  entry_t *e = entry, *next;
-  while(e) {
-    _free_expr(e->id);
-    _free_expr(e->e);
-    next = e->next;
-    free(e);
-    e = next;
+  expr_t *new_record = _list_expr(_id_expr(strdup(id)), _clone_expr(e));
+
+  expr_t *entry = find_entry(env, id);
+  if(entry == &NIL) { // new entry
+    entry = _list_expr(new_record, env->car);
+    env->car = entry;
+  } else { // replacement entry
+    _free_expr(entry->car);
+    entry->car = new_record;
   }
 }
 
-void free_env(env_t *env) 
+expr_t *get(expr_t *env, const char *id)
 {
-  int i;
-  for(i = 0; i < ENV_BUCKETS; i++) {
-    free_entry(env->entries[i]);
-  }
+  expr_t *entry = find_entry(env, id);
+  if(entry != &NIL) return _clone_expr(entry->car->cdr);
+  if(env->cdr != &NIL) return get(env->cdr, id);
+  return &NIL;
+}
+
+void free_env(expr_t *env) 
+{
+  _free_expr(env);
 }

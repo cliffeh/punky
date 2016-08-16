@@ -5,22 +5,22 @@
 #include "eval.h"
 
 /* static convenience functions */
-static expr_t *eval_op_add_float(env_t *env, const expr_t *e, float partial);
-static expr_t *eval_op_add_int(env_t *env, const expr_t *e, int partial);
-static expr_t *eval_op_sub_float(env_t *env, const expr_t *e, float partial);
-static expr_t *eval_op_sub_int(env_t *env, const expr_t *e, int partial);
-static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial);
-static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial);
-static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial);
-static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial);
-static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, expr_t *args);
+static expr_t *eval_op_add_float(expr_t *env, const expr_t *e, float partial);
+static expr_t *eval_op_add_int(expr_t *env, const expr_t *e, int partial);
+static expr_t *eval_op_sub_float(expr_t *env, const expr_t *e, float partial);
+static expr_t *eval_op_sub_int(expr_t *env, const expr_t *e, int partial);
+static expr_t *eval_op_mul_float(expr_t *env, const expr_t *e, float partial);
+static expr_t *eval_op_mul_int(expr_t *env, const expr_t *e, int partial);
+static expr_t *eval_op_div_float(expr_t *env, const expr_t *e, float partial);
+static expr_t *eval_op_div_int(expr_t *env, const expr_t *e, int partial);
+static expr_t *eval_function_call(expr_t *env, expr_t *formals, expr_t *body, expr_t *args);
 
-expr_t *eval_clone(env_t *env, const expr_t *e)
+expr_t *eval_clone(expr_t *env, const expr_t *e)
 {
   return _clone_expr(e);
 }
 
-expr_t *eval_op_define(env_t *env, const expr_t *e)
+expr_t *eval_op_define(expr_t *env, const expr_t *e)
 {
   expr_t *id = e->car;
   if(!IS_IDENT(id)) {
@@ -29,9 +29,9 @@ expr_t *eval_op_define(env_t *env, const expr_t *e)
   
   expr_t *value = e->cdr->car->eval(env, e->cdr->car), *r;
   if(!IS_ERR(value)) {
-    put(env, id, value);
+    put(env, id->strval, value);
     _free_expr(value);
-    r = _clone_expr(id);
+    r = _id_expr(strdup(id->strval));
   } else {
     r = _err_expr(value, "eval: define: second argument evaluated to an error", 0);
   }
@@ -39,22 +39,22 @@ expr_t *eval_op_define(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_lambda(env_t *env, const expr_t *e)
+expr_t *eval_op_lambda(expr_t *env, const expr_t *e)
 {
   return _fun_expr(_clone_expr(e->car), _clone_expr(e->cdr));
 }
 
-static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, expr_t *args)
+static expr_t *eval_function_call(expr_t *env, expr_t *formals, expr_t *body, expr_t *args)
 {
   expr_t *f_ptr = formals, *a_ptr = args, *tmp, *r;
 
-  env_t funenv;
-  init_env(&funenv, env);
+  expr_t *funenv = new_env(env);
   
   // evaluate each arg and bind it to its formal parameter in the new env we've created
   while((f_ptr != &NIL) && (a_ptr != &NIL)) {
     expr_t *val = a_ptr->car->eval(env, a_ptr->car) ;
-    put(&funenv, f_ptr->car, val);
+    // TODO validate IS_IDENT
+    put(funenv, f_ptr->car->strval, val);
     _free_expr(val);
 
     tmp = f_ptr->cdr;
@@ -68,15 +68,15 @@ static expr_t *eval_function_call(env_t *env, expr_t *formals, expr_t *body, exp
   if((f_ptr != &NIL) || (a_ptr != &NIL)) {
     r = _err_expr(0, "eval: function: incorrect number of arguments to function", 0);
   } else {
-    r = body->eval(&funenv, body);
+    r = body->eval(funenv, body);
   }
 
   // clean up and return
-  free_env(&funenv);
+  free_env(funenv);
   return r;
 }
 
-expr_t *eval_list(env_t *env, const expr_t *e)
+expr_t *eval_list(expr_t *env, const expr_t *e)
 {
   expr_t *r;
   if(IS_OP(e->car)) {
@@ -95,12 +95,13 @@ expr_t *eval_list(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_ident(env_t *env, const expr_t *e)
+expr_t *eval_ident(expr_t *env, const expr_t *e)
 {
-  return get(env, e);
+  // TODO validate IS_IDENT?
+  return get(env, e->strval);
 }
 
-static expr_t *eval_op_add_float(env_t *env, const expr_t *e, float partial)
+static expr_t *eval_op_add_float(expr_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
@@ -120,7 +121,7 @@ static expr_t *eval_op_add_float(env_t *env, const expr_t *e, float partial)
   return r;
 }
 
-static expr_t *eval_op_add_int(env_t *env, const expr_t *e, int partial)
+static expr_t *eval_op_add_int(expr_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) {
@@ -141,12 +142,12 @@ static expr_t *eval_op_add_int(env_t *env, const expr_t *e, int partial)
   return r;
 }
 
-expr_t *eval_op_add(env_t *env, const expr_t *e)
+expr_t *eval_op_add(expr_t *env, const expr_t *e)
 {
   return eval_op_add_int(env, e, 0);
 }
 
-static expr_t *eval_op_sub_float(env_t *env, const expr_t *e, float partial)
+static expr_t *eval_op_sub_float(expr_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
@@ -166,7 +167,7 @@ static expr_t *eval_op_sub_float(env_t *env, const expr_t *e, float partial)
   return r;
 }
 
-static expr_t *eval_op_sub_int(env_t *env, const expr_t *e, int partial)
+static expr_t *eval_op_sub_int(expr_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) {
@@ -186,7 +187,7 @@ static expr_t *eval_op_sub_int(env_t *env, const expr_t *e, int partial)
   return r;
 }
 
-expr_t *eval_op_sub(env_t *env, const expr_t *e)
+expr_t *eval_op_sub(expr_t *env, const expr_t *e)
 {
   if(NO_ARGS(e)) return _int_expr(0);
   if(!(IS_LIST(e))) {
@@ -214,7 +215,7 @@ expr_t *eval_op_sub(env_t *env, const expr_t *e)
   return r;
 }
 
-static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial)
+static expr_t *eval_op_mul_float(expr_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
@@ -234,7 +235,7 @@ static expr_t *eval_op_mul_float(env_t *env, const expr_t *e, float partial)
   return r;
 }
 
-static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial)
+static expr_t *eval_op_mul_int(expr_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) { 
@@ -254,12 +255,12 @@ static expr_t *eval_op_mul_int(env_t *env, const expr_t *e, int partial)
   return r;
 }
 
-expr_t *eval_op_mul(env_t *env, const expr_t *e)
+expr_t *eval_op_mul(expr_t *env, const expr_t *e)
 {
   return eval_op_mul_int(env, e, 1);
 }
 
-static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial)
+static expr_t *eval_op_div_float(expr_t *env, const expr_t *e, float partial)
 {
   if(e == &NIL) return _float_expr(partial);
   if(e->type != LIST_T) { 
@@ -279,7 +280,7 @@ static expr_t *eval_op_div_float(env_t *env, const expr_t *e, float partial)
   return r;
 }
 
-static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial)
+static expr_t *eval_op_div_int(expr_t *env, const expr_t *e, int partial)
 {
   if(e == &NIL) return _int_expr(partial);
   if(e->type != LIST_T) { 
@@ -299,7 +300,7 @@ static expr_t *eval_op_div_int(env_t *env, const expr_t *e, int partial)
   return r;
 }
 
-expr_t *eval_op_div(env_t *env, const expr_t *e)
+expr_t *eval_op_div(expr_t *env, const expr_t *e)
 {
   // this is a bit inefficient, but makes things easy to read
   if(NO_ARGS(e)) { 
@@ -322,7 +323,7 @@ expr_t *eval_op_div(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_car(env_t *env, const expr_t *e)
+expr_t *eval_op_car(expr_t *env, const expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *r;
 
@@ -336,7 +337,7 @@ expr_t *eval_op_car(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_cdr(env_t *env, const expr_t *e)
+expr_t *eval_op_cdr(expr_t *env, const expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *r;
 
@@ -350,7 +351,7 @@ expr_t *eval_op_cdr(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_cons(env_t *env, const expr_t *e)
+expr_t *eval_op_cons(expr_t *env, const expr_t *e)
 {
   if(!TWO_ARGS(e)) {
     return _err_expr(0, "eval: cons: requires exactly 2 arguments", 0);
@@ -364,7 +365,7 @@ expr_t *eval_op_cons(env_t *env, const expr_t *e)
   return _list_expr(e1, e2);
 }
 
-expr_t *eval_op_list(env_t *env, const expr_t *e)
+expr_t *eval_op_list(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &NIL;
 
@@ -376,7 +377,7 @@ expr_t *eval_op_list(env_t *env, const expr_t *e)
   return _list_expr(e1, e2);
 }
 
-expr_t *eval_op_append(env_t *env, const expr_t *e)
+expr_t *eval_op_append(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &NIL;
 
@@ -399,12 +400,12 @@ expr_t *eval_op_append(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_quote(env_t *env, const expr_t *e)
+expr_t *eval_op_quote(expr_t *env, const expr_t *e)
 {
   return _clone_expr(e->car);
 }
 
-expr_t *eval_op_let(env_t *env, const expr_t *e)
+expr_t *eval_op_let(expr_t *env, const expr_t *e)
 {
   if(!(TWO_ARGS(e))) {
     return _err_expr(0, "eval: let: incorrect number of arguments", 0);
@@ -412,8 +413,7 @@ expr_t *eval_op_let(env_t *env, const expr_t *e)
 
   expr_t *defs = e->car, *body = e->cdr->car, *d_ptr = defs, *tmp, *r;
 
-  env_t letenv;
-  init_env(&letenv, env);
+  expr_t *letenv = new_env(env);
 
   // for(d_ptr = defs; d_ptr != &NIL; d_ptr = d_ptr->cdr) {
   while(d_ptr != &NIL) {
@@ -421,24 +421,25 @@ expr_t *eval_op_let(env_t *env, const expr_t *e)
     expr_t *value = def->cdr->car->eval(env, def->cdr->car);
 
     if(IS_ERR(value)) {
-      free_env(&letenv);
+      free_env(letenv);
       return _err_expr(value, "eval: let: malformed let expression", 0);
     }
 
-    put(&letenv, def->car, value);
+    // TODO validate IS_IDENT
+    put(letenv, def->car->strval, value);
     _free_expr(value);
 
     tmp = d_ptr->cdr;
     d_ptr = tmp;
   }
 
-  r = body->eval(&letenv, body);
+  r = body->eval(letenv, body);
 
-  free_env(&letenv);
+  free_env(letenv);
   return r;
 }
 
-expr_t *eval_op_if(env_t *env, const expr_t *e)
+expr_t *eval_op_if(expr_t *env, const expr_t *e)
 {
   // TODO test for either two or three args
   expr_t *cond = e->car->eval(env, e->car);
@@ -460,7 +461,7 @@ expr_t *eval_op_if(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_not(env_t *env, const expr_t *e)
+expr_t *eval_op_not(expr_t *env, const expr_t *e)
 {
   if(!(ONE_ARGS(e))) {
     return _err_expr(0, "eval: not: requires exactly 1 argument", 0);
@@ -477,7 +478,7 @@ expr_t *eval_op_not(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_and(env_t *env, const expr_t *e)
+expr_t *eval_op_and(expr_t *env, const expr_t *e)
 {
   for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
     expr_t *b = ptr->car->eval(env, ptr->car);
@@ -491,7 +492,7 @@ expr_t *eval_op_and(env_t *env, const expr_t *e)
   return &T;
 }
 
-expr_t *eval_op_or(env_t *env, const expr_t *e)
+expr_t *eval_op_or(expr_t *env, const expr_t *e)
 {
   for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
     expr_t *b = ptr->car->eval(env, ptr->car);
@@ -505,7 +506,7 @@ expr_t *eval_op_or(env_t *env, const expr_t *e)
   return &F;
 }
 
-expr_t *eval_op_equal(env_t *env, const expr_t *e)
+expr_t *eval_op_equal(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &T;
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
@@ -518,7 +519,7 @@ expr_t *eval_op_equal(env_t *env, const expr_t *e)
   return &T;
 }
 
-expr_t *eval_op_lt(env_t *env, const expr_t *e)
+expr_t *eval_op_lt(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &T;
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
@@ -531,7 +532,7 @@ expr_t *eval_op_lt(env_t *env, const expr_t *e)
   return &T;
 }
 
-expr_t *eval_op_le(env_t *env, const expr_t *e)
+expr_t *eval_op_le(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &T;
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
@@ -544,7 +545,7 @@ expr_t *eval_op_le(env_t *env, const expr_t *e)
   return &T;
 }
 
-expr_t *eval_op_gt(env_t *env, const expr_t *e)
+expr_t *eval_op_gt(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &T;
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
@@ -557,7 +558,7 @@ expr_t *eval_op_gt(env_t *env, const expr_t *e)
   return &T;
 }
 
-expr_t *eval_op_ge(env_t *env, const expr_t *e)
+expr_t *eval_op_ge(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &T;
   for(const expr_t *ptr = e; ptr->cdr != &NIL; ptr = ptr->cdr) {
@@ -570,7 +571,7 @@ expr_t *eval_op_ge(env_t *env, const expr_t *e)
   return &T;
 }
 
-expr_t *eval_op_substr(env_t *env, const expr_t *e)
+expr_t *eval_op_substr(expr_t *env, const expr_t *e)
 {
   expr_t *strexpr, *posexpr, *lenexpr;
   int pos, len;
@@ -627,7 +628,7 @@ expr_t *eval_op_substr(env_t *env, const expr_t *e)
   return _str_expr(str);
 }
 
-expr_t *eval_op_strlen(env_t *env, const expr_t *e)
+expr_t *eval_op_strlen(expr_t *env, const expr_t *e)
 {
   if(!ONE_ARGS(e)) {
     return _err_expr(0, "eval: strlen: takes exactly one argument", 0);
@@ -645,7 +646,7 @@ expr_t *eval_op_strlen(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_split(env_t *env, const expr_t *e)
+expr_t *eval_op_split(expr_t *env, const expr_t *e)
 {
   if(!TWO_ARGS(e)) {
     return _err_expr(0, "eval: split: takes exactly two argument", 0);
@@ -679,7 +680,7 @@ expr_t *eval_op_split(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_openif(env_t *env, const expr_t *e)
+expr_t *eval_op_openif(expr_t *env, const expr_t *e)
 {
   if(!ONE_ARGS(e)) {
     return _err_expr(0, "eval: openif: requires exactly 1 string argument", 0);
@@ -701,7 +702,7 @@ expr_t *eval_op_openif(env_t *env, const expr_t *e)
   return _port_expr(fp);
 }
 
-expr_t *eval_op_closeif(env_t *env, const expr_t *e)
+expr_t *eval_op_closeif(expr_t *env, const expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *r;
   if(!IS_PORT(e1) || e->cdr != &NIL) {
@@ -715,7 +716,7 @@ expr_t *eval_op_closeif(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_readline(env_t *env, const expr_t *e)
+expr_t *eval_op_readline(expr_t *env, const expr_t *e)
 {
   if(!ONE_ARGS(e)) {
     return _err_expr(0, "eval: readline: requires exactly 1 port argument", 0);
@@ -743,6 +744,7 @@ expr_t *eval_op_readline(env_t *env, const expr_t *e)
   return r;
 }
 
-expr_t *eval_op_env(env_t *env, const expr_t *e)
+expr_t *eval_op_env(expr_t *env, const expr_t *e)
 {
+  if(e == &NIL) return env;
 }

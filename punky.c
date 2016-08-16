@@ -18,7 +18,7 @@ punky_t *punky_init(punky_t *p)
   p->err = stderr;
 
   p->e = &NIL;
-  init_env(&(p->env), 0);
+  p->env = new_env(&NIL);
 
   p->debug = 0;
   p->eval = 1;
@@ -37,7 +37,7 @@ punky_t *punky_cleanup(punky_t *p)
 
   if(p->e) _free_expr(p->e);
 
-  free_env(&(p->env));
+  free_env(p->env);
 
   yylex_destroy(); // not sure we need to do this
   return p;

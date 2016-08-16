@@ -2,9 +2,9 @@
 #define _PUNKY_ENV_H 1
 #include "types.h"
 
-void init_env(env_t *env, env_t *parent);
-void put(env_t *env, const expr_t *id, const expr_t *e);
-expr_t *get(env_t *env, const expr_t *id);
-void free_env(env_t *env);
+expr_t *new_env(expr_t *parent);
+void put(expr_t *env, const char *id, const expr_t *e);
+expr_t *get(expr_t *env, const char *id);
+void free_env(expr_t *env);
 
 #endif

@@ -26,6 +26,7 @@
 
 %{ /* variable/function definition */ %}
 "define" { return(DEFINE); }
+"def"    { return(DEFINE); } // shorthand
 
 %{ /* anonymous functions */ %}
 "lambda" { return(LAMBDA); }

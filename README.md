@@ -40,7 +40,7 @@ __a simple functional language interpreter__
 
   * <code>(let ((x 10) (y 20)) (+ x y))</code> => <code>30</code>
 
-* string operations: substr, strlen
+* string operations: substr, strlen, split, concat
 
   * <code>(substr "abcdefg" 2 3) => "cde"</code>
   * <code>(strlen "abcdefg") => 7</code>
@@ -61,6 +61,8 @@ __a simple functional language interpreter__
   * <code>((lambda (x) (* x 2)) 7)</code>
 
 * comparison operators (=, <, >, <=, >=)
+
+* misc functions: time, sleep
 
 WHAT DOESN'T WORK
 

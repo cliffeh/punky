@@ -67,6 +67,10 @@
 "env"  { return(ENV); }
 "keys" { return(KEYS); }
 
+%{ /* misc operations */ %}
+"time"  { return(TIME); }
+"sleep" { return(SLEEP); }
+
 [_a-zA-Z][\?_\-a-zA-Z0-9]* {
   return(IDENT);
 }

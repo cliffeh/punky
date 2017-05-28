@@ -1,4 +1,6 @@
+#include <unistd.h>
 #include <errno.h>
+#include <time.h>
 #include "punky.h"
 #include "types.h"
 #include "env.h"
@@ -779,4 +781,36 @@ expr_t *eval_op_keys(expr_t *env, const expr_t *e)
 {
   expr_t *r = keys(env);
   return r;
+}
+
+expr_t *eval_op_time(expr_t *env, const expr_t *e)
+{
+  time_t t0 = time(0);
+
+  for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
+    expr_t *e1 = ptr->car->eval(env, ptr->car);
+    _free_expr(e1);
+  }
+
+  time_t t1 = time(0);
+  double timediff = difftime(t1, t0);
+  char *buf = calloc(_DEFAULT_STR_SIZE, sizeof(char));
+  sprintf(buf, "time: all operations completed in %f seconds", timediff);
+
+  return _str_expr(buf);
+}
+
+expr_t *eval_op_sleep(expr_t *env, const expr_t *e)
+{
+  for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
+    expr_t *t = ptr->car->eval(env, ptr->car);
+    if(!IS_INT(t)) {
+      _free_expr(t);
+      return _err_expr(0, "eval: sleep: all arguments must be integers", 0);
+    }
+    sleep(t->intval);
+    _free_expr(t);
+  }
+
+  return &NIL;
 }

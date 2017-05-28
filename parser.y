@@ -47,6 +47,8 @@
 %token OPENIF CLOSEIF READLINE
  // environments
 %token ENV KEYS
+ // misc
+%token TIME SLEEP
  // atoms (do we need to define their types?)
 %token <e> INTLIT FLOATLIT
 %token <strval> IDENT STRLIT
@@ -116,6 +118,8 @@ op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | READLINE { $$ = _op_expr(strdup(yytext), &eval_op_readline); }
 | ENV      { $$ = _op_expr(strdup(yytext), &eval_op_env); }
 | KEYS     { $$ = _op_expr(strdup(yytext), &eval_op_keys); }
+| TIME     { $$ = _op_expr(strdup(yytext), &eval_op_time); }
+| SLEEP    { $$ = _op_expr(strdup(yytext), &eval_op_sleep); }
 ;
 
 %%

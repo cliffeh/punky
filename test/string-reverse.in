@@ -1,6 +1,6 @@
 (define string-reverse 
   (lambda (s)
-    (if (= (strlen s) 1)
+    (if (= (strlen s) 0)
 	s
       (concat ; concatenate the last character with the reverse of the rest of the string
        (substr s (- (strlen s) 1)) ; the last character

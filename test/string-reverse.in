@@ -1,0 +1,14 @@
+(define string-reverse 
+  (lambda (s)
+    (if (= (strlen s) 1)
+	s
+      (concat ; concatenate the last character with the reverse of the rest of the string
+       (substr s (- (strlen s) 1)) ; the last character
+       (string-reverse (substr s 0 (- (strlen s) 1))) ; everything but the last character
+       )
+      )
+    )
+  )                                         ; string-reverse
+
+(string-reverse "abcdefg")                  ; "gfedcba"
+(string-reverse (string-reverse "abcdefg")) ; "abcdefg"

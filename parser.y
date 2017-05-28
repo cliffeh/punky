@@ -38,7 +38,7 @@
  // misc operations
 %token LET QUOTE
  // string operations
-%token SUBSTR STRLEN SPLIT
+%token SUBSTR STRLEN SPLIT CONCAT
  // booleans and boolean operations
 %token TRU FALS NOT AND OR
  // equality
@@ -109,6 +109,7 @@ op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | GE       { $$ = _op_expr(strdup(yytext), &eval_op_ge); }
 | SUBSTR   { $$ = _op_expr(strdup(yytext), &eval_op_substr); }
 | STRLEN   { $$ = _op_expr(strdup(yytext), &eval_op_strlen); }
+| CONCAT   { $$ = _op_expr(strdup(yytext), &eval_op_concat); }
 | SPLIT    { $$ = _op_expr(strdup(yytext), &eval_op_split); }
 | OPENIF   { $$ = _op_expr(strdup(yytext), &eval_op_openif); }
 | CLOSEIF  { $$ = _op_expr(strdup(yytext), &eval_op_closeif); }

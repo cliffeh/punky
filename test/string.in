@@ -4,3 +4,10 @@
 (strlen "")                           ; 0
 (strlen "abcdefg")                    ; 7
 (split "this is the string" " ")      ; ("this" "is" "the" "string")
+(concat)                              ; ""
+(concat "")                           ; ""
+(concat "" "")                        ; ""
+(concat "" "" "")                     ; ""
+(concat "foo")                        ; "foo"
+(concat "foo" "bar")                  ; "foobar"
+(concat "foo" "bar" "baz")            ; "foobarbaz"

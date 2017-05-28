@@ -49,6 +49,7 @@
 "substr" { return(SUBSTR); }
 "strlen" { return(STRLEN); }
 "split"  { return(SPLIT);  }
+"concat" { return(CONCAT); }
 
 %{ /* equality operations */ %}
 "="  { return(EQUAL); }

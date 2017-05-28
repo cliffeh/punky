@@ -64,6 +64,7 @@ expr_t *eval_op_ge(expr_t *env, const expr_t *e);
 expr_t *eval_op_substr(expr_t *env, const expr_t *e);
 expr_t *eval_op_strlen(expr_t *env, const expr_t *e);
 expr_t *eval_op_split(expr_t *env, const expr_t *e);
+expr_t *eval_op_concat(expr_t *env, const expr_t *e);
 
 /* port operations */
 expr_t *eval_op_openif(expr_t *env, const expr_t *e);

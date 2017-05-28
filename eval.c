@@ -680,6 +680,32 @@ expr_t *eval_op_split(expr_t *env, const expr_t *e)
   return r;
 }
 
+expr_t *eval_op_concat(expr_t *env, const expr_t *e)
+{
+  char *s1 = calloc(1, sizeof(char));
+  for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
+    expr_t *s2 = ptr->car->eval(env, ptr->car);
+    if(!IS_STRING(s2)) {
+      _free_expr(s2);
+      free(s1);
+      return _err_expr(0, "eval: concat: all arguments must be strings", 0);
+    }
+
+    int l_s1 = strlen(s1);
+    int l_s2 = strlen(s2->strval);
+    char *tmp = calloc(l_s1 + l_s2 + 1, sizeof(char));
+    strncat(tmp, s1, l_s1);
+    strncat(tmp, s2->strval, l_s2);
+
+    _free_expr(s2);
+    free(s1);
+    s1 = tmp;
+  }
+
+  // return empty string if we weren't passed any args
+  return _str_expr(s1);
+}
+
 expr_t *eval_op_openif(expr_t *env, const expr_t *e)
 {
   if(!ONE_ARGS(e)) {

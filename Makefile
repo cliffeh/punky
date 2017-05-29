@@ -2,6 +2,7 @@ OBJ=parser.o scanner.o main.o expr.o print.o eval.o env.o punky.o
 
 LEX=flex
 CFLAGS=-g
+LDFLAGS=-lm
 YFLAGS=--defines=symbols.h
 
 TESTOUT=$(wildcard test/*.out)
@@ -9,6 +10,7 @@ TESTIN=$(wildcard test/*.in)
 TEST=$(patsubst %.in,%,$(TESTIN))
 
 punky: $(OBJ)
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 scanner.c: scanner.l
 

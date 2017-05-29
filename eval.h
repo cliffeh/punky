@@ -34,6 +34,7 @@ expr_t *eval_op_sub(expr_t *env, const expr_t *e);
 expr_t *eval_op_mul(expr_t *env, const expr_t *e);
 expr_t *eval_op_div(expr_t *env, const expr_t *e);
 expr_t *eval_op_mod(expr_t *env, const expr_t *e);
+expr_t *eval_op_pow(expr_t *env, const expr_t *e);
 
 /* list operations */
 expr_t *eval_op_car(expr_t *env, const expr_t *e);

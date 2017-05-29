@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <time.h>
+#include <math.h>
 #include "punky.h"
 #include "types.h"
 #include "env.h"
@@ -359,6 +360,44 @@ expr_t *eval_op_mod(expr_t *env, const expr_t *e)
   _free_expr(e2);
 
   return r;
+}
+
+expr_t *eval_op_pow(expr_t *env, const expr_t *e)
+{
+  if(!TWO_ARGS(e)) {
+    return _err_expr(0, "eval: pow: requires exactly two arguments", 0);
+  }
+
+  int doubles = 0;
+  
+  expr_t *e1 = e->car->eval(env, e->car);
+  double v1;
+  switch(e1->type) {
+  case INT_T: v1 = (double)e1->intval; break;
+  case FLOAT_T: v1 = e1->floatval; doubles = 1; break;
+  default: {
+    _free_expr(e1);
+    return _err_expr(0, "eval: pow: attempt to raise a non-numeric value", 0);
+  }
+  }
+
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  double v2;
+  switch(e2->type) {
+  case INT_T: v2 = (double)e2->intval; break;
+  case FLOAT_T: v2 = e2->floatval; doubles = 1; break;
+  default: {
+    _free_expr(e1);
+    _free_expr(e2);
+    return _err_expr(0, "eval: pow: attempt to raise a value to a non-numeric power", 0);
+  }
+  }
+
+  double result = pow(v1, v2);
+  _free_expr(e1);
+  _free_expr(e2);
+
+  return doubles ? _float_expr(result) : _int_expr((int)result);
 }
 
 expr_t *eval_op_car(expr_t *env, const expr_t *e)

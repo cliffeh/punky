@@ -91,6 +91,7 @@
 "*" { return(STAR); }
 "/" { return(FSLASH); }
 "%" { return(MOD); }
+"^" { return(CARET); }
 
 "'" { return(SQUOTE); }
 "." { return(DOT); }

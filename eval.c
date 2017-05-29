@@ -161,7 +161,7 @@ static expr_t *eval_op_sub_float(expr_t *env, const expr_t *e, float partial)
   case INT_T: r = eval_op_sub_float(env, e->cdr, partial - (float)e1->intval); break;
   case FLOAT_T: r = eval_op_sub_float(env, e->cdr, partial - e1->floatval); break;
   default: { 
-    r = _err_expr(0, "eval: subfloat: attempt to substract a non-numeric value", 0);
+    r = _err_expr(0, "eval: subfloat: attempt to subtract a non-numeric value", 0);
   }
   }
 

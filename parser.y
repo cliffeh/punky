@@ -26,7 +26,7 @@
   struct expr_t *e;
 }
 
-%token LPAREN RPAREN PLUS DASH STAR FSLASH SQUOTE DOT EOFTOK
+%token LPAREN RPAREN PLUS DASH STAR FSLASH MOD SQUOTE DOT EOFTOK
  // variable/function definition
 %token DEFINE
  // anonymous functions
@@ -91,6 +91,7 @@ op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | DASH     { $$ = _op_expr(strdup(yytext), &eval_op_sub); }
 | STAR     { $$ = _op_expr(strdup(yytext), &eval_op_mul); }
 | FSLASH   { $$ = _op_expr(strdup(yytext), &eval_op_div); }
+| MOD      { $$ = _op_expr(strdup(yytext), &eval_op_mod); }
 | DEFINE   { $$ = _op_expr(strdup(yytext), &eval_op_define); }
 | LAMBDA   { $$ = _op_expr(strdup(yytext), &eval_op_lambda); }
 | CAR      { $$ = _op_expr(strdup(yytext), &eval_op_car); }

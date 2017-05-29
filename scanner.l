@@ -89,6 +89,7 @@
 "-" { return(DASH); }
 "*" { return(STAR); }
 "/" { return(FSLASH); }
+"%" { return(MOD); }
 
 "'" { return(SQUOTE); }
 "." { return(DOT); }

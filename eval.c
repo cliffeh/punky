@@ -325,6 +325,42 @@ expr_t *eval_op_div(expr_t *env, const expr_t *e)
   return r;
 }
 
+expr_t *eval_op_mod(expr_t *env, const expr_t *e)
+{
+  if(!TWO_ARGS(e)) {
+    return _err_expr(0, "eval: mod: requires exactly two arguments", 0);
+  }
+
+  expr_t *e1 = e->car->eval(env, e->car);
+  int v1;
+  switch(e1->type) {
+  case INT_T: v1 = e1->intval; break;
+  case FLOAT_T: v1 = (int)e1->floatval; break;
+  default: {
+    _free_expr(e1);
+    return _err_expr(0, "eval: mod: attempt to mod a non-numeric value (numerator)", 0);
+  }
+  }
+
+  expr_t *e2 = e->cdr->car->eval(env, e->cdr->car);
+  int v2;
+  switch(e2->type) {
+  case INT_T: v2 = e2->intval; break;
+  case FLOAT_T: v2 = (int)e2->floatval; break;
+  default: {
+    _free_expr(e1);
+    _free_expr(e2);
+    return _err_expr(0, "eval: mod: attempt to mod a non-numeric value (denominator)", 0);
+  }
+  }
+
+  expr_t *r = _int_expr(v1 % v2);
+  _free_expr(e1);
+  _free_expr(e2);
+
+  return r;
+}
+
 expr_t *eval_op_car(expr_t *env, const expr_t *e)
 {
   expr_t *e1 = e->car->eval(env, e->car), *r;

@@ -23,6 +23,7 @@
 "not" { return(NOT); }
 "and" { return(AND); }
 "or"  { return(OR); }
+"xor" { return(XOR); }
 
 %{ /* variable/function definition */ %}
 "define" { return(DEFINE); }

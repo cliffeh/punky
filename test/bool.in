@@ -12,3 +12,13 @@
 (or #t #f)                            ; #t
 (or #f #t)                            ; #t
 (or #t #t)                            ; #t
+(xor)                                 ; #f
+(xor #t)                              ; #t
+(xor #f)                              ; #f
+(xor #f #f)                           ; #f
+(xor #f #t)                           ; #t
+(xor #t #f)                           ; #t
+(xor #t #t)                           ; #f
+(xor #f #f #f)                        ; #f
+(xor #f #t #f)                        ; #t
+(xor #t #t #t)                        ; #t

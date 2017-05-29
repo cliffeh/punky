@@ -53,6 +53,7 @@ expr_t *eval_op_if(expr_t *env, const expr_t *e);
 expr_t *eval_op_not(expr_t *env, const expr_t *e);
 expr_t *eval_op_and(expr_t *env, const expr_t *e);
 expr_t *eval_op_or(expr_t *env, const expr_t *e);
+expr_t *eval_op_xor(expr_t *env, const expr_t *e);
 
 /* comparison operations */
 expr_t *eval_op_equal(expr_t *env, const expr_t *e);

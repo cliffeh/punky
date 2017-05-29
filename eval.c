@@ -544,6 +544,22 @@ expr_t *eval_op_or(expr_t *env, const expr_t *e)
   return &F;
 }
 
+expr_t *eval_op_xor(expr_t *env, const expr_t *e)
+{
+  int v = 0;
+  for(const expr_t *ptr = e; ptr != &NIL; ptr = ptr->cdr) {
+    expr_t *b = ptr->car->eval(env, ptr->car);
+    if(!IS_BOOL(b)) {
+      _free_expr(b);
+      return _err_expr(0, "eval: xor: boolean value expected", 0);
+    } else {
+      v = v ^ (b == &T ? 1 : 0);
+    }
+  }
+
+  return v ? &T : &F;
+}
+
 expr_t *eval_op_equal(expr_t *env, const expr_t *e)
 {
   if(e == &NIL) return &T;

@@ -40,7 +40,7 @@
  // string operations
 %token SUBSTR STRLEN SPLIT CONCAT
  // booleans and boolean operations
-%token TRU FALS NOT AND OR
+%token TRU FALS NOT AND OR XOR
  // equality
 %token EQUAL LT GT LE GE
  // ports
@@ -105,6 +105,7 @@ op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | NOT      { $$ = _op_expr(strdup(yytext), &eval_op_not); }
 | AND      { $$ = _op_expr(strdup(yytext), &eval_op_and); }
 | OR       { $$ = _op_expr(strdup(yytext), &eval_op_or); }
+| XOR      { $$ = _op_expr(strdup(yytext), &eval_op_xor); }
 | EQUAL    { $$ = _op_expr(strdup(yytext), &eval_op_equal); }
 | LT       { $$ = _op_expr(strdup(yytext), &eval_op_lt); }
 | GT       { $$ = _op_expr(strdup(yytext), &eval_op_gt); }

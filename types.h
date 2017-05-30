@@ -38,7 +38,7 @@
 
 #define NUM_T        (INT_T|FLOAT_T)
 #define BOOL_T       (BOOL_TRUE_T|BOOL_FALSE_T)
-#define ANY_T        (LIST_T|NUM_T|BOOL_T|STRING_T|IDENT_T|OP_T|FUN_T|PORT_T|ENV_T|NIL_T)
+#define ANY_T        (LIST_T|NUM_T|BOOL_T|STRING_T|IDENT_T|OP_T|FUN_T|PORT_T|ENV_T|RE_T|NIL_T)
 
 /* IO buffer sizing */
 #define _PORT_IO_BUF_SIZE 4096

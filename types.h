@@ -7,6 +7,7 @@
 #define IS_BOOL(l)   (l->type & BOOL_T)
 #define IS_INT(l)    (l->type == INT_T)
 #define IS_FLOAT(l)  (l->type == FLOAT_T)
+#define IS_NUM(l)    (l->type & NUM_T)
 #define IS_STRING(l) (l->type == STRING_T)
 #define IS_IDENT(l)  (l->type == IDENT_T)
 #define IS_OP(l)     (l->type == OP_T)

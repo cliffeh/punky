@@ -81,7 +81,7 @@ char *type_to_string(int t)
     _print(out, e->car, 0, 0);
   }
 
-  case RE_T: fprintf(out, "<compiled regex>"); break;
+  case RE_T: fprintf(out, "/%s/", e->strval); break;
     
   default: fprintf(stderr, "print: error: unknown expression type: %s\n", type_to_string(e->type)); return;
   }

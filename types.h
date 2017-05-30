@@ -56,7 +56,6 @@ typedef struct expr_t
     float floatval;
     char *strval;
     FILE *fp;
-    regex_t *re;
 
     /* for lists and functions */
     struct

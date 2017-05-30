@@ -73,19 +73,12 @@ expr_t *_port_expr(FILE *fp)
   return e;
 }
 
-expr_t *__re_expr(regex_t *re)
-{
-  expr_t *e = _new_expr(RE_T);
-  e->re = re;
-  e->eval = &eval_clone;
-  return e;
-}
-
 expr_t *_re_expr(char *re)
 {
-  regex_t *compiled = calloc(1, sizeof(regex_t));
-  regcomp(compiled, re+1, 0); // TODO support flags
-  return __re_expr(compiled);
+  expr_t *e = _new_expr(RE_T);
+  e->strval = re;
+  e->eval = &eval_clone;
+  return e;
 }
 
 expr_t *_err_expr(expr_t *cdr, const char *msg, const char *opt)
@@ -127,7 +120,7 @@ expr_t *_clone_expr(const expr_t *e)
   case FUN_T: return _fun_expr(_clone_expr(e->car), _clone_expr(e->cdr));
   case PORT_T: return _port_expr(e->fp);
   case ENV_T: return _env_expr(_clone_expr(e->car), &NIL); // TODO clone parent?
-  case RE_T: return __re_expr(memcpy(calloc(1, sizeof(regex_t)), e->re, 1));
+  case RE_T: return _re_expr(strdup(e->strval));
 
   case EOF_T: return &_EOF;
   case NIL_T: return &NIL;
@@ -156,7 +149,7 @@ int compare(expr_t *e1, expr_t *e2)
   }
   case STRING_T: return strcmp(e1->strval, e2->strval);
   case PORT_T: return e1->fp == e2->fp;
-  case RE_T: return memcmp(e1->re, e2->re, sizeof(regex_t));
+  case RE_T: return strcmp(e1->strval, e2->strval);
   default: return (e1 == e2) ? 0 : -1;
   }
 }
@@ -194,7 +187,7 @@ void _free_expr(expr_t *e)
   }break;
 
   case RE_T: {
-    free(e->re);
+    free(e->strval);
   }break;
     
   default: {

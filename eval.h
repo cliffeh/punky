@@ -14,9 +14,6 @@
 /* clone eval function */
 expr_t *eval_clone(expr_t *env, const expr_t *e);
 
-/* cloning eval function */
-expr_t *eval_clone(expr_t *env, const expr_t *e);
-
 /* variable/function definition */
 expr_t *eval_op_define(expr_t *env, const expr_t *e);
 

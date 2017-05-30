@@ -13,6 +13,7 @@ expr_t *_list_expr(expr_t *car, expr_t *cdr)
   expr_t *e = _new_expr(LIST_T);
   e->car = car;
   e->cdr = cdr;
+  e->depth = cdr->depth + 1;
   e->eval = &eval_list;
   return e;
 }

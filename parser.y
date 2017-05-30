@@ -50,7 +50,7 @@
  // misc
 %token TIME SLEEP
  // atoms (do we need to define their types?)
-%token <e> INTLIT FLOATLIT
+%token <e> INTLIT FLOATLIT RE
 %token <strval> IDENT STRLIT
 
  // non-terminals
@@ -74,6 +74,7 @@ atom: INTLIT { $$ = _int_expr(atoi(yytext)); }
 | FLOATLIT { $$ = _float_expr(atof(yytext)); }
 | STRLIT { $$ = _str_expr(strdup(yytext)); }
 | IDENT { $$ = _id_expr(strdup(yytext)); }
+| RE    { $$ = _re_expr(strndup(yytext+1,strlen(yytext+1)-1)); /* strip slashes */ }
 | TRU   { $$ = &T; }
 | FALS  { $$ = &F; }
 ;

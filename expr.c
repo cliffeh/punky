@@ -77,13 +77,14 @@ expr_t *__re_expr(regex_t *re)
 {
   expr_t *e = _new_expr(RE_T);
   e->re = re;
+  e->eval = &eval_clone;
   return e;
 }
 
 expr_t *_re_expr(char *re)
 {
   regex_t *compiled = calloc(1, sizeof(regex_t));
-  regcomp(compiled, re, 0); // TODO support flags
+  regcomp(compiled, re+1, 0); // TODO support flags
   return __re_expr(compiled);
 }
 
@@ -193,7 +194,7 @@ void _free_expr(expr_t *e)
   }break;
 
   case RE_T: {
-    regfree(e->re);
+    free(e->re);
   }break;
     
   default: {

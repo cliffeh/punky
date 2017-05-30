@@ -72,6 +72,9 @@
 "time"  { return(TIME); }
 "sleep" { return(SLEEP); }
 
+%{ /* regex */ %}
+\/.*\/  { return(RE); }
+
 [_a-zA-Z][\?_\-a-zA-Z0-9]* {
   return(IDENT);
 }

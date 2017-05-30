@@ -19,6 +19,7 @@ char *type_to_string(int t)
   case OP_T: return "OP";
   case FUN_T: return "FUN";
   case PORT_T: return "PORT";
+  case RE_T: return "RE";
     
     /* special types */
   case NIL_T: return "NIL";
@@ -79,6 +80,8 @@ char *type_to_string(int t)
   case ENV_T: {
     _print(out, e->car, 0, 0);
   }
+
+  case RE_T: fprintf(out, "<compiled regex>"); break;
     
   default: fprintf(stderr, "print: error: unknown expression type: %s\n", type_to_string(e->type)); return;
   }

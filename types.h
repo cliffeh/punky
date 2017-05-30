@@ -1,6 +1,8 @@
 #ifndef _PUNKY_TYPES_H
 #define _PUNKY_TYPES_H 1
 
+#include <regex.h>
+
 #define IS_LIST(l)   (l->type == LIST_T)
 #define IS_BOOL(l)   (l->type & BOOL_T)
 #define IS_INT(l)    (l->type == INT_T)
@@ -12,6 +14,7 @@
 #define IS_PORT(l)   (l->type == PORT_T)
 #define IS_ERR(l)    (l->type == ERR_T)
 #define IS_ENV(l)    (l->type == ENV_T)
+#define IS_RE(l)     (l->type == RE_T)
 
 /* types */
 #define LIST_T       (1<<0)
@@ -23,13 +26,14 @@
 #define FUN_T        (1<<6)
 #define PORT_T       (1<<7)
 #define ENV_T        (1<<8)
+#define RE_T         (1<<9)
 
 /* special types */
-#define NIL_T        (1<<9)
-#define EOF_T        (1<<10)
-#define ERR_T        (1<<11)
-#define BOOL_TRUE_T  (1<<12)
-#define BOOL_FALSE_T (1<<13)
+#define NIL_T        (1<<10)
+#define EOF_T        (1<<11)
+#define ERR_T        (1<<12)
+#define BOOL_TRUE_T  (1<<13)
+#define BOOL_FALSE_T (1<<14)
 
 #define NUM_T        (INT_T|FLOAT_T)
 #define BOOL_T       (BOOL_TRUE_T|BOOL_FALSE_T)
@@ -52,6 +56,7 @@ typedef struct expr_t
     float floatval;
     char *strval;
     FILE *fp;
+    regex_t *re;
 
     /* for lists and functions */
     struct

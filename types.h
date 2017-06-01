@@ -47,7 +47,7 @@
 typedef struct expr_t
 {
   int type, depth;
-  struct expr_t * (*eval)(struct expr_t *, const struct expr_t *);
+  struct expr_t * (*eval)(struct expr_t *, const struct expr_t *, const struct expr_t *);
   void (*print)(FILE *out, struct expr_t *e);
 
   union 

@@ -50,7 +50,7 @@ expr_t *_id_expr(char *value)
   return e;
 }
 
-expr_t *_op_expr(char *name, expr_t * (*eval)(struct expr_t *, const struct expr_t *))
+expr_t *_op_expr(char *name, expr_t * (*eval)(struct expr_t *, const struct expr_t *, const struct expr_t *))
 {
   expr_t *e = _new_expr(OP_T);
   e->strval = name;
@@ -63,7 +63,7 @@ expr_t *_fun_expr(expr_t *formals, expr_t *body)
   expr_t *e = _new_expr(FUN_T);
   e->car = formals;
   e->cdr = body;
-  e->eval = &eval_clone;
+  e->eval = &eval_fun;
   return e;
 }
 
@@ -71,6 +71,7 @@ expr_t *_port_expr(FILE *fp)
 {
   expr_t *e = _new_expr(PORT_T);
   e->fp = fp;
+  // TODO eval?
   return e;
 }
 
@@ -78,7 +79,7 @@ expr_t *_re_expr(char *re)
 {
   expr_t *e = _new_expr(RE_T);
   e->strval = re;
-  e->eval = &eval_clone;
+  // TODO eval?
   return e;
 }
 

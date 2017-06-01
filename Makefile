@@ -39,11 +39,11 @@ test: .test
 valgrind: .valgrind
 
 .test: punky $(TESTIN) $(TESTOUT)
-	for f in $(TEST); do ./punky -i $$f.in -o .test && diff $$f.out .test; done
+	for f in $(TEST); do echo "\ntesting $$f.in\n"; ./punky -i $$f.in -o .test && diff $$f.out .test; done
 	rm -f .test
 
 .valgrind: punky $(TESTIN)
-	for f in $(TESTIN); do echo "\ntesting $$f...\n"; valgrind --leak-check=full --log-file=.valgrind ./punky -i $$f -o /dev/null; tail -1 .valgrind; done
+	for f in $(TESTIN); do echo "\nvalgrinding $$f\n"; valgrind --leak-check=full --log-file=.valgrind ./punky -i $$f -o /dev/null; tail -1 .valgrind; done
 	rm -f .valgrind
 
 test-clean:

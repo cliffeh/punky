@@ -30,7 +30,7 @@ char *type_to_string(int t)
   }
 }
 
-/* static */ void _print(FILE *out, expr_t *e, int indent, int depth)
+/* static */ void _print(FILE *out, const expr_t *e, int indent, int depth)
 {
   switch(e->type){
 
@@ -39,7 +39,7 @@ char *type_to_string(int t)
     if(indent && depth) nl_and_spaces(out, indent*depth); 
     fprintf(out, "(");
     _print(out, e->car, indent, depth+1);
-    expr_t *ptr;
+    const expr_t *ptr;
     for(ptr = e->cdr; ptr->type == LIST_T; ptr = ptr->cdr) {
       fprintf(out, " ");
       _print(out, ptr->car, indent, depth+1);
@@ -70,7 +70,7 @@ char *type_to_string(int t)
     
   case NIL_T: fprintf(out, "()"); break;
   case ERR_T: {
-    for(expr_t *cdr = e; cdr != &NIL; cdr = cdr->cdr) {
+    for(const expr_t *cdr = e; cdr != &NIL; cdr = cdr->cdr) {
       if(cdr && cdr->car && cdr->car->strval)
 	fprintf(out, "\nerror: %s", cdr->car->strval);
     }

@@ -1,0 +1,8 @@
+re/(abc)/                  ; re/(abc)/
+re/(abc)/e                 ; re/(abc)/e
+re/(abc)/ie                ; re/(abc)/ie
+(re/a(b)c/ "abc")          ; ()
+(re/a(b)c/e "abc")         ; ("abc" "b")
+(re/a(b)c/ei "AbC")        ; ("AbC" "b")
+(re/(f(o)*bar)/e "foobar") ; ("foobar" "foobar" "o")
+(re/(f(o*)bar)/e "foobar") ; ("foobar" "foobar" "oo")

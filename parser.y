@@ -74,7 +74,7 @@ atom: INTLIT { $$ = _int_expr(atoi(yytext)); }
 | FLOATLIT { $$ = _float_expr(atof(yytext)); }
 | STRLIT { $$ = _str_expr(strdup(yytext)); }
 | IDENT { $$ = _id_expr(strdup(yytext)); }
-| RE    { $$ = _re_expr(strndup(yytext+1,strlen(yytext+1)-1)); /* strip slashes */ }
+| RE    { $$ = _re_expr(strdup(yytext)); }
 | TRU   { $$ = &T; }
 | FALS  { $$ = &F; }
 ;

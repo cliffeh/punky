@@ -79,4 +79,7 @@ expr_t *eval_op_keys(expr_t *env, const expr_t *self, const expr_t *args);
 expr_t *eval_op_time(expr_t *env, const expr_t *self, const expr_t *args);
 expr_t *eval_op_sleep(expr_t *env, const expr_t *self, const expr_t *args);
 
+/* regex */
+expr_t *eval_re(expr_t *env, const expr_t *self, const expr_t *args);
+
 #endif

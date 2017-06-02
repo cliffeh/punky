@@ -43,6 +43,7 @@
 /* IO buffer sizing */
 #define _PORT_IO_BUF_SIZE 4096
 #define _DEFAULT_STR_SIZE 1024
+#define _MAX_RE_MATCHES   64
 
 typedef struct expr_t
 {

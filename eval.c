@@ -92,7 +92,7 @@ static expr_t *eval_function_call(expr_t *env, const expr_t *formals, const expr
 expr_t *eval_list(expr_t *env, const expr_t *self, const expr_t *args)
 {
   expr_t *fun = self->car->eval(env, self->car, self->cdr), *r;
-  if(args) {
+  if(!IS_ERR(fun) && args) {
     r = fun->eval(env, fun, args);
     _free_expr(fun);
   } else {
@@ -104,7 +104,7 @@ expr_t *eval_list(expr_t *env, const expr_t *self, const expr_t *args)
 expr_t *eval_ident(expr_t *env, const expr_t *self, const expr_t *args)
 {
   expr_t *fun = get(env, self->strval), *r;
-  if(args) {
+  if(!IS_ERR(fun) && args) {
     r = fun->eval(env, fun, args);
     _free_expr(fun);
   } else {
@@ -913,4 +913,62 @@ expr_t *eval_op_sleep(expr_t *env, const expr_t *self, const expr_t *args)
   }
 
   return &NIL;
+}
+
+expr_t *eval_re(expr_t *env, const expr_t *self, const expr_t *args)
+{
+  if(!args) return _clone_expr(self);
+  if(!ONE_ARGS(args)) return _err_expr(0, "eval: re: regex takes exactly one argument", 0);
+
+  expr_t *e = args->car->eval(env, args->car, 0);
+  if(!IS_STRING(e)) {
+    _free_expr(e);
+    return _err_expr(0, "eval: re: regex takes a string argument", 0);
+  }
+
+  char *restr = strdup(self->strval+3), *p;
+  int cflags = 0;
+  for(p = restr; *p != '/'; p++);
+  *p = 0;
+  for(p = p+1; *p; p++) {
+    switch(*p) {
+    case 'e': cflags |= REG_EXTENDED; break; // extended regex
+    case 'i': cflags |= REG_ICASE; break; // case insensitivity
+    default: {
+      _free_expr(e);
+      free(restr);
+      return _err_expr(0, "eval: re: unsupported flag(s)", 0);
+    }
+    }
+  }
+		       
+  regex_t re;
+  if(regcomp(&re, restr, cflags) != 0) { // TODO support flags
+    _free_expr(e);
+    free(restr);
+    return _err_expr(0, "eval: re: unable to compile regex", 0);
+  }
+
+  regmatch_t m[_MAX_RE_MATCHES];
+  int reti = regexec(&re, e->strval, _MAX_RE_MATCHES, m, 0); // TODO support flags?
+
+  expr_t *r = &NIL, *tmp;
+  if(reti == 0) {
+    for(int i = _MAX_RE_MATCHES-1; i >= 0; i--) { // TODO inefficient...
+      if(m[i].rm_so != -1) {
+	char *str = strndup(e->strval+m[i].rm_so, m[i].rm_eo-m[i].rm_so);
+	tmp = _list_expr(_str_expr(str), r);
+	r = tmp;
+      }
+    }
+  } else if(reti != REG_NOMATCH) {
+    char errmsg[_DEFAULT_STR_SIZE];
+    regerror(reti, &re, errmsg, _DEFAULT_STR_SIZE);
+    r = _err_expr(0, "eval: re: match error", errmsg);
+  } // otherwise it's just no match, so we return NIL
+
+  _free_expr(e);
+  free(restr);
+  regfree(&re);
+  return r;
 }

@@ -79,7 +79,7 @@ expr_t *_re_expr(char *re)
 {
   expr_t *e = _new_expr(RE_T);
   e->strval = re;
-  // TODO eval?
+  e->eval = &eval_re;
   return e;
 }
 

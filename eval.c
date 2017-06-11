@@ -46,6 +46,20 @@ expr_t *eval_op_define(expr_t *env, const expr_t *self, const expr_t *args)
   return r;
 }
 
+expr_t *eval_op_defun(expr_t *env, const expr_t *self, const expr_t *args)
+{
+  expr_t *id = args->car;
+  if(!IS_IDENT(id)) {
+    return _err_expr(id, "eval: defun: first argument must be an identifier", 0);
+  }
+
+  expr_t *fundef = _fun_expr(_clone_expr(args->cdr->car), _clone_expr(args->cdr->cdr->car));
+  put(env, id->strval, fundef);
+  _free_expr(fundef);
+
+  return _id_expr(strdup(id->strval));
+}
+
 expr_t *eval_op_lambda(expr_t *env, const expr_t *self, const expr_t *args)
 {
   return _fun_expr(_clone_expr(args->car), _clone_expr(args->cdr->car));

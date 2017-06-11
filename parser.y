@@ -28,7 +28,7 @@
 
 %token LPAREN RPAREN PLUS DASH STAR FSLASH MOD CARET SQUOTE DOT EOFTOK
  // variable/function definition
-%token DEFINE
+%token DEFINE DEFUN
  // anonymous functions
 %token LAMBDA
  // list operations
@@ -95,6 +95,7 @@ op: PLUS   { $$ = _op_expr(strdup(yytext), &eval_op_add); }
 | MOD      { $$ = _op_expr(strdup(yytext), &eval_op_mod); }
 | CARET    { $$ = _op_expr(strdup(yytext), &eval_op_pow); }
 | DEFINE   { $$ = _op_expr(strdup(yytext), &eval_op_define); }
+| DEFUN    { $$ = _op_expr(strdup(yytext), &eval_op_defun); }
 | LAMBDA   { $$ = _op_expr(strdup(yytext), &eval_op_lambda); }
 | CAR      { $$ = _op_expr(strdup(yytext), &eval_op_car); }
 | CDR      { $$ = _op_expr(strdup(yytext), &eval_op_cdr); }

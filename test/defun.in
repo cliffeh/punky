@@ -1,0 +1,5 @@
+(defun foo)                ; foo
+foo                        ; <function>
+(foo)                      ; ()
+(defun double (x) (* x 2)) ; double
+(double 25)                ; 50

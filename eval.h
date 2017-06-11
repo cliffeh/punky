@@ -16,6 +16,7 @@ expr_t *eval_clone(expr_t *env, const expr_t *self, const expr_t *args);
 
 /* variable/function definition */
 expr_t *eval_op_define(expr_t *env, const expr_t *self, const expr_t *args);
+expr_t *eval_op_defun(expr_t *env, const expr_t *self, const expr_t *args);
 
 /* anonymous functions and function calls */
 expr_t *eval_op_lambda(expr_t *env, const expr_t *self, const expr_t *args);

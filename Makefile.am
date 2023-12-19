@@ -1,6 +1,6 @@
 bin_PROGRAMS = punky
 
-punky_SOURCES = main.c
+punky_SOURCES = main.c punky.h
    
 #    main.c        \
 #    parse.h       \

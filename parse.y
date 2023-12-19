@@ -4,18 +4,18 @@
 %parse-param { sexpr **result }
 %param       { void *scanner  }
 
-%union {
-  int num;
-  char *str;
-  sexpr *sexpr;
-}
-
 %code requires {
   #include "punky.h"
   #include <string.h>
   #include <stdio.h>
   #include <stdlib.h>
   typedef void* yyscan_t;
+}
+
+%union {
+  int ival;
+  char *sval;
+  sexpr *sexpr;
 }
 
 %code provides {
@@ -30,7 +30,10 @@
   void yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg);
 }
 
-%type <sexpr> sexpr
+%token INTLIT
+
+%type <ival> INTLIT
+%type <sexpr> atom sexpr
 
 %start program
 
@@ -48,10 +51,18 @@ program:
 }
 ;
 
-sexpr:
-  '(' ')' 
+sexpr: atom /* | list */;
+
+atom:
+  '(' ')'
 {
   $$ = calloc(1, sizeof(sexpr));
+}
+| INTLIT
+{
+  $$ = calloc(1, sizeof(sexpr));
+  $$->type = S_INT;
+  $$->ival = $1;
 }
 ;
 

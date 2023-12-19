@@ -46,6 +46,10 @@ program:
 sexpr: 
   atom
 | list
+| '\'' sexpr
+{
+  $$ = new_quote($1);
+}
 ;
 
 atom:

@@ -15,6 +15,8 @@ eval (environment *env, sexpr *e)
     case SEXPR_INT:
     case SEXPR_STR:
       return e;
+    case SEXPR_QUOTE:
+      return e->car;
     case SEXPR_IDENT:
       return env_get (env, e->sval);
     default:
@@ -39,6 +41,14 @@ print (FILE *out, int flags, sexpr *e)
     case SEXPR_STR:
       fprintf (out, "\"%s\"\n", e->sval);
       break;
+    case SEXPR_QUOTE:
+      fprintf (out, "(quote ");
+      print (out, flags, e->car);
+      fprintf (out, ")");
+      break;
+    case SEXPR_IDENT:
+      fprintf (out, "%s", e->sval);
+      break;
     default:
       fprintf (stderr, "print: unknown expression type\n");
     }
@@ -46,7 +56,7 @@ print (FILE *out, int flags, sexpr *e)
 
 /* environment */
 static entry *
-find (environment *env, const char *key)
+env_find_entry (environment *env, const char *key)
 {
   for (entry *entry = &env->handle; entry->next; entry = entry->next)
     {
@@ -60,7 +70,7 @@ find (environment *env, const char *key)
 sexpr *
 env_get (environment *env, const char *key)
 {
-  entry *e = find (env, key);
+  entry *e = env_find_entry (env, key);
   if (e)
     return e->value;
   return new_err ("eval: unbound variable '%s'", key);
@@ -69,7 +79,7 @@ env_get (environment *env, const char *key)
 sexpr *
 env_put (environment *env, const char *key, sexpr *value)
 {
-  entry *e = find (env, key);
+  entry *e = env_find_entry (env, key);
   if (e)
     { // replace
       free (e->value);
@@ -95,13 +105,13 @@ new_err (const char *fmt, ...)
   e->type = SEXPR_ERR;
 
   va_list args;
-  
+
   va_start (args, fmt);
   int len = vsnprintf (0, 0, fmt, args) + 1;
   va_end (args);
-  
+
   char *msg = calloc (len, sizeof (char));
-  
+
   va_start (args, fmt);
   vsnprintf (msg, len, fmt, args);
   va_end (args);
@@ -134,6 +144,15 @@ new_str (const char *str)
   sexpr *e = calloc (1, sizeof (sexpr));
   e->type = SEXPR_STR;
   e->sval = strdup (str);
+  return e;
+}
+
+sexpr *
+new_quote (sexpr *q)
+{
+  sexpr *e = calloc (1, sizeof (sexpr));
+  e->type = SEXPR_QUOTE;
+  e->car = q;
   return e;
 }
 

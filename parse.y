@@ -33,10 +33,6 @@
 
 %token INTLIT STRLIT
 
-// %type <ival> INTLIT
-// %type <sval> STRLIT
-// %type <sexpr> atom elements list sexpr
-
 %start program
 
 %%
@@ -61,20 +57,10 @@ sexpr:
 atom:
   '(' ')'
 {
-  $$ = calloc(1, sizeof(sexpr)); // nil
+  $$ = new_nil();
 }
 | INTLIT
-{
-  // $$ = calloc(1, sizeof(sexpr));
-  // $$->type = S_INT;
-  // $$->ival = $1;
-}
 | STRLIT
-{
-  // $$ = calloc(1, sizeof(sexpr));
-  // $$->type = S_STR;
-  // $$->sval = $1;
-}
 ;
 
 list:

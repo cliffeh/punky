@@ -34,3 +34,7 @@ typedef struct environment
 // TODO env!
 sexpr *eval (sexpr *e, environment *env);
 void print (FILE *out, sexpr *e);
+
+sexpr *new_nil();
+sexpr *new_int(int ival);
+sexpr *new_str(char *sval);

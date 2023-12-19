@@ -25,7 +25,7 @@
   void yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg);
 }
 
-%token INTLIT STRLIT
+%token IDENT INTLIT STRLIT
 
 %start program
 
@@ -53,6 +53,7 @@ atom:
 {
   $$ = new_nil();
 }
+| IDENT
 | INTLIT
 | STRLIT
 ;

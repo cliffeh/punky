@@ -5,6 +5,7 @@
 /* types */
 enum
 {
+  SEXPR_ERR = -1,
   SEXPR_NIL = 0,
   SEXPR_INT,
   SEXPR_STR,
@@ -27,21 +28,34 @@ typedef struct sexpr
   struct sexpr *car, *cdr;
 } sexpr;
 
+// TODO something better than linear search through a linked list
+typedef struct entry
+{
+  char *key;
+  sexpr *value;
+  struct entry *next;
+} entry;
+
 typedef struct environment
 {
+  entry handle;
   struct env *parent;
 } environment;
 
-// TODO env!
-sexpr *eval (sexpr *e, environment *env);
-void print (FILE *out, int flags, sexpr *e);
+sexpr *eval (environment *env, sexpr *e);
+void print (FILE *out, int flags, sexpr *value);
+
+/* environment */
+sexpr *env_get (environment *env, const char *key);
+sexpr *env_put (environment *env, const char *key, sexpr *e);
+// TODO delete?
 
 /* memory management */
-sexpr *new_nil();
-sexpr *new_int(int ival);
-sexpr *new_str(char *sval);
-sexpr *new_ident(char *sval);
-sexpr *new_list(sexpr *car, sexpr *cdr);
-
+sexpr *new_err (const char *fmt, ...);
+sexpr *new_nil ();
+sexpr *new_int (int ival);
+sexpr *new_str (const char *str);
+sexpr *new_ident (const char *name);
+sexpr *new_list (sexpr *car, sexpr *cdr);
 
 // TODO free_sexpr

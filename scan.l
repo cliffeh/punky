@@ -27,13 +27,16 @@
 %x STRING
 %%
 
+ // TODO make identifiers accept more characters
+[_a-zA-Z]+            { *yylval = new_ident(yytext); return(IDENT); }
+
  /* literals */
-0|-?[1-9][0-9]*       { *yylval = new_int(atoi(yytext));  return(INTLIT); }
+0|-?[1-9][0-9]*       { *yylval = new_int(atoi(yytext));    return(INTLIT); }
 
 \" { // TODO this needs entirely more rigor
   BEGIN STRING;
 }
-<STRING>(\\\"|[^\"])* { *yylval = new_str(strdup(yytext)); return(STRLIT); }
+<STRING>(\\\"|[^\"])* { *yylval = new_str(yytext);  return(STRLIT); }
 <STRING>\" {
   BEGIN INITIAL;
 }

@@ -17,7 +17,7 @@ main (int argc, char *argv[])
 
   while ((rc = yyparse (&result, scanner)) == 0 && result)
     {
-      result = eval (result, &env);
+      result = eval (&env, result);
       print (out, flags, result);
     }
 

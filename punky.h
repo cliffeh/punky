@@ -1,14 +1,16 @@
 #pragma once
 
+#include <stdio.h>
+
 /* types */
 enum
 {
-  SEXPR_NIL = 0,
-  SEXPR_INT,
-  SEXPR_STR,
+  S_NIL = 0,
+  S_INT,
+  S_STR,
   // SEXPR_FLOAT,
-  SEXPR_IDENT,
-  SEXPR_LIST
+  S_IDENT,
+  S_LIST
 };
 
 typedef struct sexpr
@@ -23,3 +25,7 @@ typedef struct sexpr
   };
   struct sexpr *car, *cdr;
 } sexpr;
+
+// TODO env!
+sexpr *eval (sexpr *e);
+void print (FILE *out, sexpr *e);

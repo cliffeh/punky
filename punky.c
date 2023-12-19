@@ -18,7 +18,7 @@ eval (sexpr *e, environment *env)
 }
 
 void
-print (FILE *out, sexpr *e)
+print (FILE *out, int flags, sexpr *e)
 {
   switch (e->type)
     {

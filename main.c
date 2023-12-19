@@ -5,20 +5,20 @@
 int
 main (int argc, char *argv[])
 {
+  FILE *in = stdin, *out = stdout;
+
   yyscan_t scanner;
   yylex_init (&scanner);
-  // yyset_in (in, scanner);
+  yyset_in (in, scanner);
 
-  FILE *out = stdout;
-
-  int rc;
+  int rc, flags = 0;
   environment env;
   sexpr *result;
-  // TODO pass in something to hang the result off of, and do something with it
+
   while ((rc = yyparse (&result, scanner)) == 0 && result)
     {
       result = eval (result, &env);
-      print (out, result);
+      print (out, flags, result);
     }
 
   yylex_destroy (scanner);

@@ -9,8 +9,9 @@ enum
   SEXPR_INT,
   SEXPR_STR,
   // SEXPR_FLOAT,
+  SEXPR_IDENT,
   SEXPR_LIST,
-  SEXPR_IDENT
+  SEXPR_BUILTIN
 };
 
 typedef struct sexpr
@@ -33,7 +34,7 @@ typedef struct environment
 
 // TODO env!
 sexpr *eval (sexpr *e, environment *env);
-void print (FILE *out, sexpr *e);
+void print (FILE *out, int flags, sexpr *e);
 
 /* memory management */
 sexpr *new_nil();

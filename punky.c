@@ -50,6 +50,10 @@ print (FILE *out, int flags, sexpr *e)
     case SEXPR_IDENT:
       fprintf (out, "%s", e->sval);
       break;
+    case SEXPR_LIST:
+      fprintf (out, "(");
+      break;
+      // for(sexpr car )
     default:
       fprintf (stderr, "print: unknown expression type\n");
     }
@@ -166,6 +170,16 @@ new_ident (const char *name)
   sexpr *e = calloc (1, sizeof (sexpr));
   e->type = SEXPR_IDENT;
   e->sval = strdup (name);
+  return e;
+}
+
+sexpr *
+new_pair (sexpr *car, sexpr *cdr)
+{
+  sexpr *e = calloc (1, sizeof (sexpr));
+  e->type = SEXPR_PAIR;
+  e->car = car;
+  e->cdr = cdr;
   return e;
 }
 

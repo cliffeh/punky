@@ -12,6 +12,7 @@ enum
   SEXPR_QUOTE,
   // SEXPR_FLOAT,
   SEXPR_IDENT,
+  SEXPR_PAIR,
   SEXPR_LIST,
   SEXPR_BUILTIN
 };
@@ -25,8 +26,9 @@ typedef struct sexpr
     char *sval;
     // float fval;
     // TODO double? other data types?
+    struct sexpr *car;
   };
-  struct sexpr *car, *cdr;
+  struct sexpr *cdr;
 } sexpr;
 
 // TODO something better than linear search through a linked list
@@ -58,6 +60,7 @@ sexpr *new_int (int ival);
 sexpr *new_str (const char *str);
 sexpr *new_quote (sexpr *q);
 sexpr *new_ident (const char *name);
+sexpr *new_pair (sexpr *car, sexpr *cdr);
 sexpr *new_list (sexpr *car, sexpr *cdr);
 
 // TODO free_sexpr

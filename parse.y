@@ -45,9 +45,16 @@ program:
 
 sexpr: 
   atom
-| list
+| '(' elements ')'
+{ // list
+  $$ = $2;
+}
+| '(' sexpr[car] '.' sexpr[cdr] ')'
+{ // pair
+  $$ = new_pair($$->car = $car, $$->cdr = $cdr);
+}
 | '\'' sexpr
-{
+{ // quote
   $$ = new_quote($2);
 }
 ;
@@ -62,34 +69,14 @@ atom:
 | STRLIT
 ;
 
-list:
-  '(' elements ')'
-{
-  $$ = $2;
-}
-| '(' sexpr[car] '.' sexpr[cdr] ')'
-{
-  $$ = calloc(1, sizeof(sexpr));
-  $$->type = SEXPR_LIST;
-  $$->car = $car;
-  $$->cdr = $cdr;
-}
-;
-
 elements:
   sexpr[car]
 {
-  $$ = calloc(1, sizeof(sexpr));
-  $$->type = SEXPR_LIST;
-  $$->car = $car;
-  $$->cdr = calloc(1, sizeof(sexpr)); // nil
+  $$ = new_list($car, new_nil());
 }
 | sexpr[car] elements[cdr]
 {
-  $$ = calloc(1, sizeof(sexpr));
-  $$->type = SEXPR_LIST;
-  $$->car = $car;
-  $$->cdr = $cdr;
+  $$ = new_list($car, $cdr);
 }
 ;
 

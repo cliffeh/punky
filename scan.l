@@ -28,12 +28,23 @@
 %%
 
  /* literals */
-0|-?[1-9][0-9]*       { yylval->ival = atoi(yytext); return(INTLIT); }
+0|-?[1-9][0-9]*       {
+  sexpr *s = calloc(1, sizeof(sexpr));
+  s->type = SEXPR_INT;
+  s->ival = atoi(yytext);
+  *yylval = s;
+  return(INTLIT); }
 
 \" { // TODO this needs entirely more rigor
   BEGIN STRING;
 }
-<STRING>(\\\"|[^\"])* { yylval->sval = strdup(yytext); return(STRLIT); }
+<STRING>(\\\"|[^\"])*   {
+  sexpr *s = calloc(1, sizeof(sexpr));
+  s->type = SEXPR_STR;
+  s->sval = strdup(yytext);
+  *yylval = s;
+  return(STRLIT); 
+}
 <STRING>\" {
   BEGIN INITIAL;
 }

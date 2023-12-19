@@ -7,9 +7,9 @@ eval (sexpr *e, environment *env)
 {
   switch (e->type)
     {
-    case S_INT:
-    case S_NIL:
-    case S_STR:
+    case SEXPR_INT:
+    case SEXPR_NIL:
+    case SEXPR_STR:
       return e;
     default:
       fprintf (stderr, "eval: unknown expression type\n");
@@ -21,13 +21,13 @@ print (FILE *out, sexpr *e)
 {
   switch (e->type)
     {
-    case S_INT:
+    case SEXPR_INT:
       fprintf(out, "%d\n", e->ival);
       break;
-    case S_NIL:
+    case SEXPR_NIL:
       fprintf (out, "nil\n"); // ()
       break;
-    case S_STR:
+    case SEXPR_STR:
       fprintf(out, "\"%s\"\n", e->sval);
       break;
     default:

@@ -1,4 +1,5 @@
 %define api.pure full
+%define api.value.type { sexpr * }
 %locations
 %define parse.error verbose
 %parse-param { sexpr **result }
@@ -12,11 +13,11 @@
   typedef void* yyscan_t;
 }
 
-%union {
-  int ival;
-  char *sval;
-  sexpr *sexpr;
-}
+// %union {
+//   int ival;
+//   char *sval;
+//   sexpr *sexpr;
+// }
 
 %code provides {
   // need all of these to prevent compiler warnings
@@ -32,9 +33,9 @@
 
 %token INTLIT STRLIT
 
-%type <ival> INTLIT
-%type <sval> STRLIT
-%type <sexpr> atom elements list sexpr
+// %type <ival> INTLIT
+// %type <sval> STRLIT
+// %type <sexpr> atom elements list sexpr
 
 %start program
 
@@ -64,15 +65,15 @@ atom:
 }
 | INTLIT
 {
-  $$ = calloc(1, sizeof(sexpr));
-  $$->type = S_INT;
-  $$->ival = $1;
+  // $$ = calloc(1, sizeof(sexpr));
+  // $$->type = S_INT;
+  // $$->ival = $1;
 }
 | STRLIT
 {
-  $$ = calloc(1, sizeof(sexpr));
-  $$->type = S_STR;
-  $$->sval = $1;
+  // $$ = calloc(1, sizeof(sexpr));
+  // $$->type = S_STR;
+  // $$->sval = $1;
 }
 ;
 
@@ -84,7 +85,7 @@ list:
 | '(' sexpr[car] '.' sexpr[cdr] ')'
 {
   $$ = calloc(1, sizeof(sexpr));
-  $$->type = S_LIST;
+  $$->type = SEXPR_LIST;
   $$->car = $car;
   $$->cdr = $cdr;
 }
@@ -94,14 +95,14 @@ elements:
   sexpr[car]
 {
   $$ = calloc(1, sizeof(sexpr));
-  $$->type = S_LIST;
+  $$->type = SEXPR_LIST;
   $$->car = $car;
   $$->cdr = calloc(1, sizeof(sexpr)); // nil
 }
 | sexpr[car] elements[cdr]
 {
   $$ = calloc(1, sizeof(sexpr));
-  $$->type = S_LIST;
+  $$->type = SEXPR_LIST;
   $$->car = $car;
   $$->cdr = $cdr;
 }

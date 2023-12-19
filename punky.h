@@ -5,12 +5,12 @@
 /* types */
 enum
 {
-  S_NIL = 0,
-  S_INT,
-  S_STR,
+  SEXPR_NIL = 0,
+  SEXPR_INT,
+  SEXPR_STR,
   // SEXPR_FLOAT,
-  S_IDENT,
-  S_LIST
+  SEXPR_IDENT,
+  SEXPR_LIST
 };
 
 typedef struct sexpr

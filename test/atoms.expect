@@ -1,2 +1,6 @@
 nil
 "Hello, world!"
+a
+123
+nil
+(quote "Lorem ipsum est")

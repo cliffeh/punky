@@ -48,7 +48,7 @@ sexpr:
 | list
 | '\'' sexpr
 {
-  $$ = new_quote($1);
+  $$ = new_quote($2);
 }
 ;
 

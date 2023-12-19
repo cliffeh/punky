@@ -27,23 +27,24 @@ eval (environment *env, sexpr *e)
 void
 print (FILE *out, int flags, sexpr *e)
 {
+  int depth = flags & 0x0000FFFF;
   switch (e->type)
     {
     case SEXPR_ERR:
-      fprintf (out, "error: %s\n", e->sval);
+      fprintf (out, "error: %s", e->sval);
       break;
     case SEXPR_NIL:
-      fprintf (out, "nil\n"); // ()
+      fprintf (out, "nil"); // ()
       break;
     case SEXPR_INT:
-      fprintf (out, "%d\n", e->ival);
+      fprintf (out, "%d", e->ival);
       break;
     case SEXPR_STR:
-      fprintf (out, "\"%s\"\n", e->sval);
+      fprintf (out, "\"%s\"", e->sval);
       break;
     case SEXPR_QUOTE:
       fprintf (out, "(quote ");
-      print (out, flags, e->car);
+      print (out, flags + 1, e->car);
       fprintf (out, ")");
       break;
     case SEXPR_IDENT:
@@ -52,6 +53,9 @@ print (FILE *out, int flags, sexpr *e)
     default:
       fprintf (stderr, "print: unknown expression type\n");
     }
+
+  if (depth == 0)
+    fprintf (out, "\n");
 }
 
 /* environment */

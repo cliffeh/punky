@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 sexpr *
-eval (sexpr *e)
+eval (sexpr *e, environment *env)
 {
   switch (e->type)
     {

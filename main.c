@@ -12,11 +12,12 @@ main (int argc, char *argv[])
   FILE *out = stdout;
 
   int rc;
+  environment env;
   sexpr *result;
   // TODO pass in something to hang the result off of, and do something with it
   while ((rc = yyparse (&result, scanner)) == 0 && result)
     {
-      result = eval (result);
+      result = eval (result, &env);
       print (out, result);
     }
 

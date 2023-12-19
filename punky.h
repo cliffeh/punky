@@ -26,6 +26,11 @@ typedef struct sexpr
   struct sexpr *car, *cdr;
 } sexpr;
 
+typedef struct environment
+{
+  struct env *parent;
+} environment;
+
 // TODO env!
-sexpr *eval (sexpr *e);
+sexpr *eval (sexpr *e, environment *env);
 void print (FILE *out, sexpr *e);

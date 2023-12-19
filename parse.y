@@ -33,7 +33,7 @@
 %token INTLIT
 
 %type <ival> INTLIT
-%type <sexpr> atom sexpr
+%type <sexpr> atom elements list sexpr
 
 %start program
 
@@ -51,7 +51,10 @@ program:
 }
 ;
 
-sexpr: atom /* | list */;
+sexpr: 
+  atom
+| list
+;
 
 atom:
   '(' ')'
@@ -63,6 +66,25 @@ atom:
   $$ = calloc(1, sizeof(sexpr));
   $$->type = S_INT;
   $$->ival = $1;
+}
+;
+
+list: '(' elements ')' { $$ = $2; };
+
+elements:
+  sexpr[car]
+{
+  $$ = calloc(1, sizeof(sexpr));
+  $$->type = S_LIST;
+  $$->car = $car;
+  $$->cdr = calloc(1, sizeof(sexpr));
+}
+| sexpr[car] elements[cdr]
+{
+  $$ = calloc(1, sizeof(sexpr));
+  $$->type = S_LIST;
+  $$->car = $car;
+  $$->cdr = $cdr;
 }
 ;
 

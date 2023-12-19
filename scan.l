@@ -38,10 +38,10 @@
   BEGIN INITIAL;
 }
 
-
  /* stuff to ignore */
 \n      { yylineno++; } // ignore newlines, but count them
 [ \t]*  // ignore whitespace
+;.*     // ignore comments
 
  /* if we don't know what it is, just return it */
 . return *yytext;

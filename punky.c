@@ -61,3 +61,20 @@ new_str (char *sval)
   e->sval = sval;
   return e;
 }
+
+sexpr *new_ident(char *sval)
+{
+  sexpr *e = calloc (1, sizeof (sexpr));
+  e->type = SEXPR_IDENT;
+  e->sval = sval;
+  return e;
+}
+
+sexpr *new_list(sexpr *car, sexpr *cdr)
+{
+  sexpr *e = calloc (1, sizeof (sexpr));
+  e->type = SEXPR_LIST;
+  e->car = car;
+  e->cdr = cdr;
+  return e;
+}

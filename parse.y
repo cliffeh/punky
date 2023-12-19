@@ -3,7 +3,7 @@
 %locations
 %define parse.error verbose
 %parse-param { sexpr **result }
-%param       { void *scanner  }
+%param       { void  *scanner }
 
 %code requires {
   #include "punky.h"
@@ -12,12 +12,6 @@
   #include <stdlib.h>
   typedef void* yyscan_t;
 }
-
-// %union {
-//   int ival;
-//   char *sval;
-//   sexpr *sexpr;
-// }
 
 %code provides {
   // need all of these to prevent compiler warnings

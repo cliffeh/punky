@@ -24,9 +24,20 @@
 %option noyywrap nounput noinput
 %option reentrant bison-bridge bison-locations
 
+%x STRING
 %%
 
-0|-?[1-9][0-9]* { yylval->ival = atoi(yytext); return(INTLIT); }
+ /* literals */
+0|-?[1-9][0-9]*       { yylval->ival = atoi(yytext); return(INTLIT); }
+
+\" { // TODO this needs entirely more rigor
+  BEGIN STRING;
+}
+<STRING>(\\\"|[^\"])* { yylval->sval = strdup(yytext); return(STRLIT); }
+<STRING>\" {
+  BEGIN INITIAL;
+}
+
 
  /* stuff to ignore */
 \n      { yylineno++; } // ignore newlines, but count them

@@ -30,9 +30,10 @@
   void yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg);
 }
 
-%token INTLIT
+%token INTLIT STRLIT
 
 %type <ival> INTLIT
+%type <sval> STRLIT
 %type <sexpr> atom elements list sexpr
 
 %start program
@@ -59,7 +60,7 @@ sexpr:
 atom:
   '(' ')'
 {
-  $$ = calloc(1, sizeof(sexpr));
+  $$ = calloc(1, sizeof(sexpr)); // nil
 }
 | INTLIT
 {
@@ -67,9 +68,27 @@ atom:
   $$->type = S_INT;
   $$->ival = $1;
 }
+| STRLIT
+{
+  $$ = calloc(1, sizeof(sexpr));
+  $$->type = S_STR;
+  $$->sval = $1;
+}
 ;
 
-list: '(' elements ')' { $$ = $2; };
+list:
+  '(' elements ')'
+{
+  $$ = $2;
+}
+| '(' sexpr[car] '.' sexpr[cdr] ')'
+{
+  $$ = calloc(1, sizeof(sexpr));
+  $$->type = S_LIST;
+  $$->car = $car;
+  $$->cdr = $cdr;
+}
+;
 
 elements:
   sexpr[car]
@@ -77,7 +96,7 @@ elements:
   $$ = calloc(1, sizeof(sexpr));
   $$->type = S_LIST;
   $$->car = $car;
-  $$->cdr = calloc(1, sizeof(sexpr));
+  $$->cdr = calloc(1, sizeof(sexpr)); // nil
 }
 | sexpr[car] elements[cdr]
 {
@@ -89,7 +108,6 @@ elements:
 ;
 
 %%
-
 
 void
 yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg)

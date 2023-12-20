@@ -76,6 +76,15 @@ sexpr:
 {
   $$ = new_list($def, new_list($car, $cdr));
 }
+|
+  '(' '+' ')'
+{
+  $$ = new_list(new_builtin('+', "+"), new_nil());
+}
+| '(' '+' elements[args] ')'
+{
+  $$ = new_list(new_builtin('+', "+"), $args);
+}
 ;
 
 atom:

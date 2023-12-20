@@ -10,7 +10,22 @@ builtin_apply_define (environment *env, sexpr *args)
 static sexpr *
 builtin_apply_plus (environment *env, sexpr *args)
 {
-  return new_err ("I don't know how to do plus yet");
+  int r = 0;
+  sexpr *list;
+  for (list = args; list->s_type == S_LIST; list = list->cdr)
+    {
+      sexpr *e = sexpr_eval (env, list->car);
+      if (e->s_type != S_INT)
+        {
+          return new_err ("cannot perform addition on non-integer type");
+        }
+      r += e->ival;
+    }
+
+  if (list->s_type != S_NIL)
+    return new_err ("malformed input arguments to addition");
+
+  return new_int (r);
 }
 
 static sexpr *

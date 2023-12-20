@@ -2,6 +2,7 @@
 369
 "Hello, world!"
 a
+query?
 123
 ()
 (quote "Lorem ipsum est")

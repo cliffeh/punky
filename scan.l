@@ -31,7 +31,7 @@
 [dD][eE][fF][iI][nN][eE] { *yylval = new_builtin(B_DEFINE, "define"); return(BUILTIN); }
 
  /* TODO make identifiers accept more characters */
-[_a-zA-Z]+               { *yylval = new_ident(yytext);     return(IDENT);   }
+[_?a-zA-Z]+               { *yylval = new_ident(yytext);     return(IDENT);   }
 
  /* literals */
 0|-?[1-9][0-9]*          { *yylval = new_int(atoi(yytext)); return(INTLIT);  }

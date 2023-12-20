@@ -6,10 +6,12 @@
 
 sexpr NIL = { .s_type = 0 };
 
+#define SEXPR_ALLOC(e) calloc (1, sizeof(*e))
+
 sexpr *
 new_err (const char *fmt, ...)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_ERR;
 
   va_list args;
@@ -32,7 +34,7 @@ new_err (const char *fmt, ...)
 sexpr *
 new_int (int ival)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_INT;
   e->ival = ival;
   return e;
@@ -41,7 +43,7 @@ new_int (int ival)
 sexpr *
 new_str (const char *str)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_STR;
   e->sval = strdup (str);
   return e;
@@ -50,7 +52,7 @@ new_str (const char *str)
 sexpr *
 new_quote (sexpr *q)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_QUOTE;
   e->car = q;
   return e;
@@ -59,7 +61,7 @@ new_quote (sexpr *q)
 sexpr *
 new_ident (const char *name)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_IDENT;
   e->sval = strdup (name);
   return e;
@@ -68,7 +70,7 @@ new_ident (const char *name)
 sexpr *
 new_pair (sexpr *car, sexpr *cdr)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_PAIR;
   e->car = car;
   e->cdr = cdr;
@@ -78,7 +80,7 @@ new_pair (sexpr *car, sexpr *cdr)
 sexpr *
 new_list (sexpr *car, sexpr *cdr)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_LIST;
   e->car = car;
   e->cdr = cdr;
@@ -88,7 +90,7 @@ new_list (sexpr *car, sexpr *cdr)
 sexpr *
 new_builtin (builtin_type b_type, const char *desc)
 {
-  sexpr *e = calloc (1, sizeof (sexpr));
+  struct sexpr *e = SEXPR_ALLOC(e);
   e->s_type = S_BUILTIN;
   e->b_type = b_type;
   e->sval = strdup (desc);

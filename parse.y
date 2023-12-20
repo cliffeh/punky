@@ -6,7 +6,7 @@
 %param       { void  *scanner }
 
 %code requires {
-  #include "punky.h"
+  #include "alloc.h"
   #include <string.h>
   #include <stdio.h>
   #include <stdlib.h>

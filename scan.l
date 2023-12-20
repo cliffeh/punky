@@ -1,5 +1,4 @@
 %{
-#include "punky.h"
 #include "parse.h"
 
 #define YY_DECL int yylex \

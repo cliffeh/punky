@@ -20,7 +20,8 @@ typedef enum sexpr_type
 /* builtin procedure types */
 typedef enum builtin_type
 {
-  B_DEFINE
+  // what should 0 be?
+  B_DEFINE = 1
 } builtin_type;
 
 typedef struct sexpr
@@ -59,15 +60,3 @@ void print (FILE *out, int flags, sexpr *value);
 sexpr *env_get (environment *env, const char *key);
 sexpr *env_put (environment *env, const char *key, sexpr *e);
 // TODO delete?
-
-/* memory management */
-sexpr *new_err (const char *fmt, ...);
-sexpr *new_nil ();
-sexpr *new_int (int ival);
-sexpr *new_str (const char *str);
-sexpr *new_quote (sexpr *q);
-sexpr *new_ident (const char *name);
-sexpr *new_pair (sexpr *car, sexpr *cdr);
-sexpr *new_list (sexpr *car, sexpr *cdr);
-
-// TODO free_sexpr

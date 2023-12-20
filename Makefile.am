@@ -1,11 +1,14 @@
 bin_PROGRAMS = punky
 
-punky_SOURCES = main.c parse.y punky.c punky.h scan.l
-   
-#    main.c        \
-#    parse.h       \
-#    parse.y       \
-#    scan.l
+punky_SOURCES = \
+        alloc.c \
+        alloc.h \
+        main.c  \
+        parse.y \
+        print.c \
+        punky.c \
+        punky.h \
+        scan.l
 
 BUILT_SOURCES = parse.h
 

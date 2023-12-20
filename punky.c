@@ -6,7 +6,7 @@
 #include <string.h>
 
 sexpr *
-eval (environment *env, sexpr *e)
+sexpr_eval (environment *env, sexpr *e)
 {
   switch (e->s_type)
     {
@@ -14,6 +14,7 @@ eval (environment *env, sexpr *e)
     case S_NIL:
     case S_INT:
     case S_STR:
+    case S_BUILTIN:
       return e;
     case S_QUOTE:
       return e->car;
@@ -22,7 +23,8 @@ eval (environment *env, sexpr *e)
     case S_PAIR:
       return new_err ("eval: cannot evaluate pair");
     // case S_LIST
-    // case S_BUILTIN
+      // sexpr *fun = eval(e->car);
+      // sexpr *args = 
     default:
       return new_err ("eval: unknown expression type %i", e->s_type);
     }

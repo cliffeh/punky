@@ -17,8 +17,8 @@ main (int argc, char *argv[])
 
   while ((rc = yyparse (&result, scanner)) == 0 && result)
     {
-      result = eval (&env, result);
-      print (out, flags, result);
+      result = sexpr_eval (&env, result);
+      sexpr_print (out, flags, result);
     }
 
   yylex_destroy (scanner);

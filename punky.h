@@ -53,8 +53,8 @@ typedef struct environment
   struct env *parent;
 } environment;
 
-sexpr *eval (environment *env, sexpr *e);
-void print (FILE *out, int flags, sexpr *value);
+sexpr *sexpr_eval (environment *env, sexpr *e);
+void sexpr_print (FILE *out, int flags, sexpr *value);
 
 /* environment */
 sexpr *env_get (environment *env, const char *key);

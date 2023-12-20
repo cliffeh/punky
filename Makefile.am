@@ -3,6 +3,8 @@ bin_PROGRAMS = punky
 punky_SOURCES = \
         alloc.c \
         alloc.h \
+        env.c   \
+        env.h   \
         main.c  \
         parse.y \
         print.c \

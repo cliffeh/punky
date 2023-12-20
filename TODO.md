@@ -1,1 +1,3 @@
-* rewrite it! :-)
+* builtins!
+* popt
+* valgrind

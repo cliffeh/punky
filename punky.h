@@ -1,5 +1,6 @@
 #pragma once
 
+#include "env.h"
 #include <stdio.h>
 
 /* s-expression types */
@@ -39,24 +40,5 @@ typedef struct sexpr
   struct sexpr *cdr;
 } sexpr;
 
-// TODO something better than linear search through a linked list
-typedef struct entry
-{
-  char *key;
-  sexpr *value;
-  struct entry *next;
-} entry;
-
-typedef struct environment
-{
-  entry handle;
-  struct env *parent;
-} environment;
-
 sexpr *sexpr_eval (environment *env, sexpr *e);
 void sexpr_print (FILE *out, int flags, sexpr *value);
-
-/* environment */
-sexpr *env_get (environment *env, const char *key);
-sexpr *env_put (environment *env, const char *key, sexpr *e);
-// TODO delete?

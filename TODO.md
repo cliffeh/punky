@@ -1,5 +1,5 @@
 * builtins!
 * popt
-* valgrind
+* valgrind/make sure memory is getting freed
 * more efficient env
-* make All the Things `const`
+* push errs into errs (stacktrace)

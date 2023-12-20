@@ -26,7 +26,7 @@ typedef enum builtin_type
   B_PLUS = '+'
 } builtin_type;
 
-struct sexpr
+typedef struct sexpr
 {
   sexpr_type s_type;
   builtin_type b_type;
@@ -36,12 +36,10 @@ struct sexpr
     const char *sval;
     // float fval;
     // TODO double? other data types?
-    const struct sexpr *car;
+    struct sexpr *car;
   };
-  const struct sexpr *cdr;
-};
-
-typedef const struct sexpr sexpr;
+  struct sexpr *cdr;
+} sexpr;
 
 extern sexpr NIL; // in alloc.c
 

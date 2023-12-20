@@ -19,6 +19,7 @@ main (int argc, char *argv[])
     {
       result = sexpr_eval (&env, result);
       sexpr_print (out, flags, result);
+      // free (result);
     }
 
   yylex_destroy (scanner);

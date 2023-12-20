@@ -5,10 +5,10 @@ punky_SOURCES = \
         alloc.h \
         env.c   \
         env.h   \
+        eval.c  \
         main.c  \
         parse.y \
         print.c \
-        punky.c \
         punky.h \
         scan.l
 

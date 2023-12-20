@@ -1,9 +1,5 @@
 #include "punky.h"
 #include "alloc.h"
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 sexpr *
 sexpr_eval (environment *env, sexpr *e)

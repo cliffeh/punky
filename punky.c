@@ -31,7 +31,6 @@ eval (environment *env, sexpr *e)
 void
 print (FILE *out, int flags, sexpr *e)
 {
-  int depth = flags & 0x0000FFFF;
   switch (e->s_type)
     {
     case S_ERR:
@@ -67,16 +66,15 @@ print (FILE *out, int flags, sexpr *e)
       for (sexpr *cdr = e->cdr; cdr->s_type != S_NIL; cdr = cdr->cdr)
         {
           fprintf (out, " ");
-          print (out, depth + 1, cdr->car);
+          print (out, flags + 1, cdr->car);
         }
       fprintf (out, ")");
       break;
-      // for(sexpr car )
     default:
       fprintf (stderr, "print: unknown expression type\n");
     }
 
-  if (depth == 0)
+  if ((flags & 0x00FFFFFF) == 0)
     fprintf (out, "\n");
 }
 

@@ -26,8 +26,7 @@
 %x STRING
 %%
 
-\+                       { *yylval = new_builtin('+', "+");           return(BUILTIN); }
-[dD][eE][fF][iI][nN][eE] { *yylval = new_builtin(B_DEFINE, "define"); return(BUILTIN); }
+[dD][eE][fF][iI][nN][eE] { *yylval = new_builtin(B_DEFINE, "define"); return(DEFINE); }
 
  /* TODO make identifiers accept more characters */
 [_a-zA-Z]+               { *yylval = new_ident(yytext);     return(IDENT);   }

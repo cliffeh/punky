@@ -25,7 +25,11 @@
   void yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg);
 }
 
-%token BUILTIN IDENT INTLIT STRLIT
+// builtins
+%token DEFINE
+
+// literals & identifiers
+%token IDENT INTLIT STRLIT
 
 %start program
 
@@ -36,6 +40,13 @@ program:
 {
   *result = $1;
   YYACCEPT;
+}
+| error
+{
+  // *result set in yyerror
+  YYACCEPT;
+  // yyclearin;
+  // yyerrok;
 }
 | YYEOF
 {
@@ -57,6 +68,14 @@ sexpr:
 { // quote
   $$ = new_quote($2);
 }
+| '(' DEFINE[def] IDENT[car] ')' // undefine
+{
+  $$ = new_list($def, $car);
+}
+| '(' DEFINE[def] IDENT[car] sexpr[cdr] ')'
+{
+  $$ = new_list($def, new_list($car, $cdr));
+}
 ;
 
 atom:
@@ -64,7 +83,6 @@ atom:
 {
   $$ = new_nil();
 }
-| BUILTIN
 | IDENT
 | INTLIT
 | STRLIT
@@ -86,6 +104,9 @@ elements:
 void
 yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg)
 {
-  fprintf(stderr, "[line %d, column %d]: %s\n",
+  // TODO get rid of this in favor of returning an error expression?
+  // fprintf(stderr, "[line %d, column %d]: %s\n",
+  //         yyllocp->first_line, yyllocp->first_column, msg);
+  *result = new_err("[line %d, column %d]: %s\n",
           yyllocp->first_line, yyllocp->first_column, msg);
 }

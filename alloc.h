@@ -2,8 +2,9 @@
 
 #include "punky.h"
 
+extern sexpr NIL;
+
 sexpr *new_err (const char *fmt, ...);
-sexpr *new_nil ();
 sexpr *new_int (int ival);
 sexpr *new_str (const char *str);
 sexpr *new_quote (sexpr *q);

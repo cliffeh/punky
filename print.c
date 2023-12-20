@@ -35,7 +35,7 @@ sexpr_print (FILE *out, int flags, sexpr *e)
     case S_LIST:
       fprintf (out, "(");
       sexpr_print (out, flags + 1, e->car);
-      for (sexpr *cdr = e->cdr; cdr->s_type != S_NIL; cdr = cdr->cdr)
+      for (sexpr *cdr = e->cdr; cdr != &NIL; cdr = cdr->cdr)
         {
           fprintf (out, " ");
           sexpr_print (out, flags + 1, cdr->car);

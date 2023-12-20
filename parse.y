@@ -70,7 +70,7 @@ sexpr:
 atom:
   '(' ')'
 {
-  $$ = new_nil();
+  $$ = &NIL;
 }
 | IDENT
 | INTLIT
@@ -81,7 +81,7 @@ atom:
 elements:
   sexpr[car]
 {
-  $$ = new_list($car, new_nil());
+  $$ = new_list($car, &NIL);
 }
 | sexpr[car] elements[cdr]
 {

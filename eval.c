@@ -22,7 +22,7 @@ builtin_apply_plus (environment *env, sexpr *args)
       r += e->ival;
     }
 
-  if (list->s_type != S_NIL)
+  if (list != &NIL)
     return new_err ("malformed input arguments to addition");
 
   return new_int (r);

@@ -41,5 +41,7 @@ typedef struct sexpr
   struct sexpr *cdr;
 } sexpr;
 
+extern sexpr NIL;
+
 sexpr *sexpr_eval (environment *env, sexpr *e);
 void sexpr_print (FILE *out, int flags, sexpr *value);

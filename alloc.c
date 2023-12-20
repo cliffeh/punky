@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+sexpr NIL = { .s_type = 0 };
+
 sexpr *
 new_err (const char *fmt, ...)
 {

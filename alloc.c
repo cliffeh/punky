@@ -30,14 +30,6 @@ new_err (const char *fmt, ...)
 }
 
 sexpr *
-new_nil ()
-{
-  sexpr *e = calloc (1, sizeof (sexpr));
-  e->s_type = S_NIL;
-  return e;
-}
-
-sexpr *
 new_int (int ival)
 {
   sexpr *e = calloc (1, sizeof (sexpr));

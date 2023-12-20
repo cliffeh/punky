@@ -33,7 +33,7 @@ typedef struct sexpr
   union
   {
     int ival;
-    char *sval;
+    const char *sval;
     // float fval;
     // TODO double? other data types?
     struct sexpr *car;

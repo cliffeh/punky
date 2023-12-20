@@ -2,26 +2,33 @@
 
 #include <stdio.h>
 
-/* types */
-enum
+/* s-expression types */
+typedef enum sexpr_type
 {
-  SEXPR_ERR = -1,
-  SEXPR_NIL = 0,
-  SEXPR_INT,
-  SEXPR_STR,
-  SEXPR_QUOTE,
-  // SEXPR_FLOAT,
-  SEXPR_IDENT,
-  SEXPR_PAIR,
-  SEXPR_LIST,
-  SEXPR_BUILTIN
-};
+  S_ERR = -1,
+  S_NIL = 0,
+  S_INT,
+  S_STR,
+  S_QUOTE,
+  // S_FLOAT,
+  S_IDENT,
+  S_PAIR,
+  S_LIST,
+  S_BUILTIN
+} sexpr_type;
+
+/* builtin procedure types */
+typedef enum builtin_type
+{
+  B_DEFINE
+} builtin_type;
 
 typedef struct sexpr
 {
-  int type;
+  sexpr_type s_type;
   union
   {
+    builtin_type b_type;
     int ival;
     char *sval;
     // float fval;

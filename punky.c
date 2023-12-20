@@ -14,7 +14,6 @@ sexpr_eval (environment *env, sexpr *e)
     case S_NIL:
     case S_INT:
     case S_STR:
-    case S_BUILTIN:
       return e;
     case S_QUOTE:
       return e->car;
@@ -26,6 +25,8 @@ sexpr_eval (environment *env, sexpr *e)
     // case S_LIST
     // sexpr *fun = eval(e->car);
     // sexpr *args =
+    case S_BUILTIN:
+      return new_err ("<builtin>: %s", e->sval);
     default:
       return new_err ("eval: unknown expression type %i", e->s_type);
     }

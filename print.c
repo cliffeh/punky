@@ -6,7 +6,7 @@ sexpr_print (FILE *out, int flags, sexpr *e)
   switch (e->s_type)
     {
     case S_ERR:
-      fprintf (out, "error: %s", e->sval);
+      fprintf (out, "%s", e->sval);
       break;
     case S_NIL:
       fprintf (out, "nil"); // ()
@@ -42,8 +42,9 @@ sexpr_print (FILE *out, int flags, sexpr *e)
         }
       fprintf (out, ")");
       break;
-    // case S_BUILTIN:
-        
+    case S_BUILTIN:
+      fprintf(out, "%s", e->sval);
+      break;
     default:
       fprintf (stderr, "print: unknown expression type\n");
     }

@@ -92,10 +92,11 @@ new_list (sexpr *car, sexpr *cdr)
 }
 
 sexpr *
-new_builtin (builtin_type b_type)
+new_builtin (builtin_type b_type, const char *desc)
 {
   sexpr *e = calloc (1, sizeof (sexpr));
   e->s_type = S_BUILTIN;
   e->b_type = b_type;
+  e->sval = strdup (desc);
   return e;
 }

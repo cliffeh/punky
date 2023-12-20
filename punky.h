@@ -28,9 +28,9 @@ typedef enum builtin_type
 typedef struct sexpr
 {
   sexpr_type s_type;
+  builtin_type b_type;
   union
   {
-    builtin_type b_type;
     int ival;
     char *sval;
     // float fval;

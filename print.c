@@ -9,7 +9,7 @@ sexpr_print (FILE *out, int flags, sexpr *e)
       fprintf (out, "%s", e->sval);
       break;
     case S_NIL:
-      fprintf (out, "nil"); // ()
+      fprintf (out, "()");
       break;
     case S_INT:
       fprintf (out, "%d", e->ival);

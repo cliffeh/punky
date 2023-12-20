@@ -1,9 +1,9 @@
-nil
+()
 369
 "Hello, world!"
 a
 123
-nil
+()
 (quote "Lorem ipsum est")
 (x . 9)
 (foo bar baz)

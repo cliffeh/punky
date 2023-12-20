@@ -25,11 +25,8 @@
   void yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg);
 }
 
-// builtins
-%token DEFINE
-
 // literals & identifiers
-%token IDENT INTLIT STRLIT
+%token BUILTIN IDENT INTLIT STRLIT
 
 %start program
 
@@ -68,23 +65,6 @@ sexpr:
 { // quote
   $$ = new_quote($2);
 }
-| '(' DEFINE[def] IDENT[car] ')' // undefine
-{
-  $$ = new_list($def, $car);
-}
-| '(' DEFINE[def] IDENT[car] sexpr[cdr] ')'
-{
-  $$ = new_list($def, new_list($car, $cdr));
-}
-|
-  '(' '+' ')'
-{
-  $$ = new_list(new_builtin('+', "+"), new_nil());
-}
-| '(' '+' elements[args] ')'
-{
-  $$ = new_list(new_builtin('+', "+"), $args);
-}
 ;
 
 atom:
@@ -95,6 +75,7 @@ atom:
 | IDENT
 | INTLIT
 | STRLIT
+| BUILTIN
 ;
 
 elements:

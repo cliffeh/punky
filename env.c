@@ -24,8 +24,8 @@ env_get (environment *env, const char *key)
   return 0;
 }
 
-void *
-env_put (environment *env, const char *key, void *value)
+void
+env_set (environment *env, const char *key, void *value)
 {
   entry *e = env_find_entry (env, key);
   if (e)
@@ -42,5 +42,4 @@ env_put (environment *env, const char *key, void *value)
       e->next = env->handle.next;
       env->handle.next = e;
     }
-  return value;
 }

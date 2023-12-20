@@ -15,6 +15,7 @@ punky_SOURCES = \
 BUILT_SOURCES = parse.h
 
 ACLOCAL_AMFLAGS = -I m4
+AM_CFLAGS = -Wall
 AM_YFLAGS = -d -Wno-yacc -Wcounterexamples
 
 check_SCRIPTS = test/atoms.test

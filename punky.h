@@ -22,7 +22,8 @@ typedef enum sexpr_type
 typedef enum builtin_type
 {
   // what should 0 be?
-  B_DEFINE = 1
+  B_DEFINE = 1,
+  B_PLUS = '+'
 } builtin_type;
 
 typedef struct sexpr

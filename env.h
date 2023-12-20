@@ -15,5 +15,5 @@ typedef struct environment
 } environment;
 
 void *env_get (environment *env, const char *key);
-void *env_put (environment *env, const char *key, void *e);
+void env_set (environment *env, const char *key, void *e);
 // TODO delete?

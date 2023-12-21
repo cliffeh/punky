@@ -1,5 +1,6 @@
 #include "env.h"
 
+#include "alloc.h" // for sexpr_free()
 #include <stdlib.h>
 #include <string.h>
 
@@ -15,7 +16,7 @@ env_find_entry (environment *env, const char *key)
   return 0;
 }
 
-void *
+sexpr *
 env_get (environment *env, const char *key)
 {
   entry *e = env_find_entry (env, key);
@@ -25,12 +26,12 @@ env_get (environment *env, const char *key)
 }
 
 void
-env_set (environment *env, const char *key, void *value)
+env_set (environment *env, const char *key, sexpr *value)
 {
   entry *e = env_find_entry (env, key);
   if (e)
     { // replace
-      free (e->value);
+      sexpr_free (e->value);
       e->value = value;
     }
   else

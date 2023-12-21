@@ -100,21 +100,24 @@ new_builtin (builtin_type b_type, const char *desc)
 void
 sexpr_free (sexpr *e)
 {
+  if (!e)
+    return;
+
   switch (e->s_type)
     {
     case S_NIL:
       return;
-    case S_INT:
-      break;
     case S_ERR: // TODO handle freeing the error stack better
       free (e->sval);
       break;
+    case S_INT:
+      break;
     case S_QUOTE:
-      sexpr_free(e->car);
+      sexpr_free (e->car);
       break;
     case S_STR:
     case S_IDENT:
-    case S_BUILTIN:
+    case S_BUILTIN: // TODO probably should have static svals here...
       free (e->sval);
       break;
     case S_PAIR:

@@ -10,7 +10,8 @@ punky_SOURCES = \
         parse.y \
         print.c \
         punky.h \
-        scan.l
+        scan.l  \
+        types.h
 
 BUILT_SOURCES = parse.h
 
@@ -19,7 +20,7 @@ AM_CFLAGS = -Wall
 AM_YFLAGS = -d -Wno-yacc -Wcounterexamples
 
 check_SCRIPTS = test/atoms.test
-MEMCHECKS = test/valgrind-atoms.test
+MEMCHECKS = test/valgrind.atoms.test
 
 # uncomment for memory checks (SLOW)
 check_SCRIPTS += $(MEMCHECKS)
@@ -29,7 +30,7 @@ TESTS_ENVIRONMENT = SRCDIR=$(srcdir) BUILDDIR=$(builddir)
 TESTS_INPUTS = test/atoms.in
 TESTS_OUTPUTS = test/atoms.expect
 
-CLEANFILES = test/*.out test/*.valgrind
+CLEANFILES = test/*.out
 
 EXTRA_DIST = $(check_SCRIPTS) $(TESTS_INPUTS) $(TESTS_OUTPUTS)
 

@@ -10,8 +10,11 @@ DIR=$(dirname "$0")
 SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
-logfile="$BUILDDIR/test/atoms.valgrind"
-
 IN="$SRCDIR/test/atoms.in"
+OUT="$SRCDIR/test/atoms.valgrind.out"
 
-valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 --log-file="$logfile" "$BUILDDIR/punky" < "$IN" -i > /dev/null
+valgrind \
+  --leak-check=full \
+  --show-leak-kinds=all \
+  --error-exitcode=1 \
+  "$BUILDDIR/punky" < "$IN" > "$OUT"

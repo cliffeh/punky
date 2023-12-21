@@ -1,5 +1,6 @@
 #include "alloc.h"
 #include "punky.h"
+#include <stdlib.h>
 
 static sexpr *
 builtin_apply_define (environment *env, sexpr *args)
@@ -61,7 +62,9 @@ sexpr_eval (environment *env, sexpr *e)
     case S_STR:
       return e;
     case S_QUOTE:
-      return e->car;
+      sexpr *q = e->car;
+      free (e);
+      return q;
     case S_IDENT:
       sexpr *r = env_get (env, e->sval);
       return r ? r : new_err ("unbound variable '%s'", e->sval);

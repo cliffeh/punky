@@ -64,6 +64,34 @@ builtin_apply_plus (environment *env, const sexpr *args)
 }
 
 static sexpr *
+builtin_apply_mult (environment *env, const sexpr *args)
+{
+  int r = 1;
+  const sexpr *list;
+  for (list = args; list->s_type == S_LIST; list = list->cdr)
+    {
+      sexpr *e = sexpr_eval (env, list->car);
+      if (e->s_type != S_INT)
+        {
+          if (e->s_type == S_ERR)
+            return e;
+
+          sexpr *err
+              = new_err ("cannot perform arithmetic on non-integer type");
+          err->cdr = e;
+          return err;
+        }
+      r *= e->ival;
+      sexpr_free (e);
+    }
+
+  if (list != &NIL)
+    return new_err ("malformed arguments to arithmetic");
+
+  return new_int (r);
+}
+
+static sexpr *
 builtin_apply_minus (environment *env, const sexpr *args)
 {
   const sexpr *list = args;
@@ -110,6 +138,8 @@ sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
       return builtin_apply_define (env, args);
     case B_TYPE_PLUS:
       return builtin_apply_plus (env, args);
+    case B_TYPE_MULT:
+      return builtin_apply_mult (env, args);
     case B_TYPE_MINUS:
       return builtin_apply_minus (env, args);
     default:

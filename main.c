@@ -6,6 +6,11 @@ int
 main (int argc, char *argv[])
 {
   FILE *in = stdin, *out = stdout;
+  // TODO popt!
+  if (argc == 2)
+    {
+      in = fopen (argv[1], "r");
+    }
 
   yyscan_t scanner;
   yylex_init (&scanner);
@@ -19,7 +24,7 @@ main (int argc, char *argv[])
     {
       result = sexpr_eval (&env, result);
       sexpr_print (out, flags, result);
-      // free (result);
+      sexpr_free (result);
     }
 
   yylex_destroy (scanner);

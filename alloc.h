@@ -11,4 +11,4 @@ sexpr *new_pair (sexpr *car, sexpr *cdr);
 sexpr *new_list (sexpr *car, sexpr *cdr);
 sexpr *new_builtin (builtin_type b_type, const char *desc);
 
-// TODO free!
+void sexpr_free(sexpr *e);

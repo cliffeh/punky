@@ -94,9 +94,7 @@ elements:
 void
 yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg)
 {
-  // TODO get rid of this in favor of returning an error expression?
-  // fprintf(stderr, "[line %d, column %d]: %s\n",
-  //         yyllocp->first_line, yyllocp->first_column, msg);
+   // TODO destructor for the expression that cause the error?
   *result = new_err("[line %d, column %d]: %s\n",
           yyllocp->first_line, yyllocp->first_column, msg);
 }

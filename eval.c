@@ -41,7 +41,8 @@ builtin_apply_plus (environment *env, const sexpr *args)
           if (e->s_type == S_ERR)
             return e;
 
-          sexpr *err = new_err ("cannot perform addition on non-integer type");
+          sexpr *err
+              = new_err ("cannot perform arithmetic on non-integer type");
           err->cdr = e;
           return err;
         }
@@ -50,7 +51,45 @@ builtin_apply_plus (environment *env, const sexpr *args)
     }
 
   if (list != &NIL)
-    return new_err ("malformed arguments to addition");
+    return new_err ("malformed arguments to arithmetic");
+
+  return new_int (r);
+}
+
+static sexpr *
+builtin_apply_minus (environment *env, const sexpr *args)
+{
+  const sexpr *list = args;
+
+  if (list->s_type != S_LIST)
+    return new_err ("subtraction requires at least one argument");
+
+  sexpr *e = sexpr_eval (env, list->car);
+  if (e->s_type != S_INT)
+    {
+      if (e->s_type == S_ERR)
+        return e;
+
+      sexpr *err = new_err ("cannot perform arithmetic on non-integer type");
+      err->cdr = e;
+      return err;
+    }
+
+  int r = e->ival;
+  if (args->cdr == &NIL)
+    { // special case
+      e->ival = -e->ival;
+      return e;
+    }
+  sexpr_free (e);
+
+  // guaranteed S_INT or S_ERR
+  sexpr *rest = builtin_apply_plus (env, args->cdr);
+  if (rest->s_type == S_ERR)
+    return rest;
+
+  r -= rest->ival;
+  sexpr_free (rest);
 
   return new_int (r);
 }
@@ -64,6 +103,8 @@ sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
       return builtin_apply_define (env, args);
     case B_TYPE_PLUS:
       return builtin_apply_plus (env, args);
+    case B_TYPE_MINUS:
+      return builtin_apply_minus (env, args);
     default:
       return new_err ("unknown/unimplemented builtin %d\n", builtin->b_type);
     }

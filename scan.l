@@ -27,6 +27,7 @@
 %%
  /* builtins */
 \+                       { *yylval = &B_PLUS;   return(BUILTIN); }
+\-                       { *yylval = &B_MINUS;  return(BUILTIN); }
 
 [dD][eE][fF][iI][nN][eE] { *yylval = &B_DEFINE; return(BUILTIN); }
 

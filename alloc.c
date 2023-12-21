@@ -30,6 +30,7 @@ new_err (const char *fmt, ...)
   va_end (args);
 
   e->sval = msg;
+  e->cdr = &NIL;
 
   return e;
 }

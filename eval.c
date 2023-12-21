@@ -38,8 +38,12 @@ builtin_apply_plus (environment *env, const sexpr *args)
       sexpr *e = sexpr_eval (env, list->car);
       if (e->s_type != S_INT)
         {
-          sexpr_free (e); // TODO what if it's an err?
-          return new_err ("cannot perform addition on non-integer type");
+          if (e->s_type == S_ERR)
+            return e;
+
+          sexpr *err = new_err ("cannot perform addition on non-integer type");
+          err->cdr = e;
+          return err;
         }
       r += e->ival;
       sexpr_free (e);

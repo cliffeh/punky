@@ -9,6 +9,6 @@ sexpr *new_quote (sexpr *q);
 sexpr *new_ident (const char *name);
 sexpr *new_pair (sexpr *car, sexpr *cdr);
 sexpr *new_list (sexpr *car, sexpr *cdr);
-sexpr *new_builtin (builtin_type b_type, const char *desc);
 
-void sexpr_free(sexpr *e);
+sexpr *sexpr_copy (sexpr *e);
+void sexpr_free (sexpr *e);

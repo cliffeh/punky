@@ -5,13 +5,16 @@
 #include <string.h>
 
 sexpr NIL = { .s_type = 0 };
+sexpr B_DEFINE
+    = { .s_type = S_BUILTIN, .b_type = B_TYPE_DEFINE, .sval = "define" };
+sexpr B_PLUS = { .s_type = S_BUILTIN, .b_type = '+', .sval = "+" };
 
 #define SEXPR_ALLOC(e) calloc (1, sizeof (*e))
 
 sexpr *
 new_err (const char *fmt, ...)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
+  sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_ERR;
 
   va_list args;
@@ -34,7 +37,7 @@ new_err (const char *fmt, ...)
 sexpr *
 new_int (int ival)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
+  sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_INT;
   e->ival = ival;
   return e;
@@ -43,7 +46,7 @@ new_int (int ival)
 sexpr *
 new_str (const char *str)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
+  sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_STR;
   e->sval = strdup (str);
   return e;
@@ -52,7 +55,7 @@ new_str (const char *str)
 sexpr *
 new_quote (sexpr *q)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
+  sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_QUOTE;
   e->car = q;
   return e;
@@ -61,7 +64,7 @@ new_quote (sexpr *q)
 sexpr *
 new_ident (const char *name)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
+  sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_IDENT;
   e->sval = strdup (name);
   return e;
@@ -70,7 +73,7 @@ new_ident (const char *name)
 sexpr *
 new_pair (sexpr *car, sexpr *cdr)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
+  sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_PAIR;
   e->car = car;
   e->cdr = cdr;
@@ -80,7 +83,7 @@ new_pair (sexpr *car, sexpr *cdr)
 sexpr *
 new_list (sexpr *car, sexpr *cdr)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
+  sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_LIST;
   e->car = car;
   e->cdr = cdr;
@@ -88,13 +91,31 @@ new_list (sexpr *car, sexpr *cdr)
 }
 
 sexpr *
-new_builtin (builtin_type b_type, const char *desc)
+sexpr_copy (sexpr *e)
 {
-  struct sexpr *e = SEXPR_ALLOC (e);
-  e->s_type = S_BUILTIN;
-  e->b_type = b_type;
-  e->sval = strdup (desc);
-  return e;
+  switch (e->s_type)
+    {
+    case S_NIL:
+      return &NIL;
+    case S_ERR:
+      return new_err (strdup (e->sval));
+    case S_INT:
+      return new_int (e->ival);
+    case S_STR:
+      return new_str (strdup (e->sval));
+    case S_QUOTE:
+      return new_quote (sexpr_copy (e->car));
+    case S_IDENT:
+      return new_ident (strdup (e->sval));
+    case S_PAIR:
+      return new_pair (sexpr_copy (e->car), sexpr_copy (e->cdr));
+    case S_LIST:
+      return new_list (sexpr_copy (e->car), sexpr_copy (e->cdr));
+    case S_BUILTIN:
+      return e;
+    default:
+      return new_err ("I don't know how to copy type %d", e->s_type);
+    }
 }
 
 void
@@ -106,6 +127,7 @@ sexpr_free (sexpr *e)
   switch (e->s_type)
     {
     case S_NIL:
+    case S_BUILTIN:
       return;
     case S_ERR: // TODO handle freeing the error stack better
       free (e->sval);
@@ -117,7 +139,6 @@ sexpr_free (sexpr *e)
       break;
     case S_STR:
     case S_IDENT:
-    case S_BUILTIN: // TODO probably should have static svals here...
       free (e->sval);
       break;
     case S_PAIR:

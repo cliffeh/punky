@@ -16,6 +16,7 @@ typedef struct environment
   struct env *parent;
 } environment;
 
+void env_init(environment *env);
 sexpr *env_get (environment *env, const char *key);
 void env_set (environment *env, const char *key, sexpr *e);
-// TODO delete?
+void env_destroy(environment *env);

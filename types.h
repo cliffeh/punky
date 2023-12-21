@@ -19,8 +19,8 @@ typedef enum sexpr_type
 typedef enum builtin_type
 {
   // what should 0 be?
-  B_DEFINE = 1,
-  B_PLUS = '+'
+  B_TYPE_DEFINE = 1,
+  B_TYPE_PLUS = '+'
 } builtin_type;
 
 typedef struct sexpr
@@ -39,3 +39,5 @@ typedef struct sexpr
 } sexpr;
 
 extern sexpr NIL; // in alloc.c
+extern sexpr B_DEFINE;
+extern sexpr B_PLUS;

@@ -26,12 +26,12 @@
 %x STRING
 %%
  /* builtins */
-\+                       { *yylval = new_builtin('+', "+");           return(BUILTIN); }
+\+                       { *yylval = &B_PLUS;   return(BUILTIN); }
 
-[dD][eE][fF][iI][nN][eE] { *yylval = new_builtin(B_DEFINE, "define"); return(BUILTIN); }
+[dD][eE][fF][iI][nN][eE] { *yylval = &B_DEFINE; return(BUILTIN); }
 
  /* TODO make identifiers accept more characters */
-[_?a-zA-Z]+               { *yylval = new_ident(yytext);     return(IDENT);   }
+[_?a-zA-Z]+              { *yylval = new_ident(yytext);     return(IDENT);   }
 
  /* literals */
 0|-?[1-9][0-9]*          { *yylval = new_int(atoi(yytext)); return(INTLIT);  }

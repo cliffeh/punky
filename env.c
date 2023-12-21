@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+void
+env_init (environment *env)
+{
+  memset (env, 0, sizeof (*env));
+}
+
 static entry *
 env_find_entry (environment *env, const char *key)
 {
@@ -22,7 +28,7 @@ env_get (environment *env, const char *key)
   entry *e = env_find_entry (env, key);
   if (e)
     return e->value;
-  return 0;
+  return new_err ("unbound variable '%s'", key);
 }
 
 void
@@ -43,4 +49,9 @@ env_set (environment *env, const char *key, sexpr *value)
       e->next = env->handle.next;
       env->handle.next = e;
     }
+}
+
+void env_destroy(environment *env)
+{
+    // TODO!
 }

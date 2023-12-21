@@ -10,8 +10,8 @@ DIR=$(dirname "$0")
 SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
-IN="$SRCDIR/test/define.in"
-OUT="$SRCDIR/test/define.valgrind.out"
+IN="$SRCDIR/test/builtins.in"
+OUT="$SRCDIR/test/builtins.valgrind.out"
 
 valgrind \
   --leak-check=full \

@@ -8,9 +8,9 @@ DIR=$(dirname "$0")
 SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
-IN="$SRCDIR/test/define.in"
-EXPECT="$SRCDIR/test/define.expect"
-OUT="$BUILDDIR/test/define.out"
+IN="$SRCDIR/test/builtins.in"
+EXPECT="$SRCDIR/test/builtins.expect"
+OUT="$BUILDDIR/test/builtins.out"
 
 "$BUILDDIR/punky" < "$IN" > "$OUT"
 diff "$EXPECT" "$OUT"

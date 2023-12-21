@@ -18,15 +18,17 @@ main (int argc, char *argv[])
 
   int rc, flags = 0;
   environment env;
-  sexpr *result;
+  env_init (&env);
+  sexpr *result = 0;
 
   while ((rc = yyparse (&result, scanner)) == 0 && result)
     {
-      result = sexpr_eval (&env, result);
-      sexpr_print (out, flags, result);
-      sexpr_free (result);
+      sexpr *e = sexpr_eval (&env, result);
+      sexpr_print (out, flags, e);
+      sexpr_free (e);
     }
 
+  env_destroy (&env);
   yylex_destroy (scanner);
 
   return rc;

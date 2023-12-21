@@ -96,9 +96,9 @@ sexpr_copy (const sexpr *e)
   switch (e->s_type)
     {
     case S_NIL:
-      return &NIL;
     case S_ERR:
-      return new_err (e->sval);
+    case S_BUILTIN:
+      return (sexpr *)e; // this should be okay
     case S_INT:
       return new_int (e->ival);
     case S_STR:
@@ -111,8 +111,6 @@ sexpr_copy (const sexpr *e)
       return new_pair (sexpr_copy (e->car), sexpr_copy (e->cdr));
     case S_LIST:
       return new_list (sexpr_copy (e->car), sexpr_copy (e->cdr));
-    case S_BUILTIN:
-      return (sexpr *)e; // this should be okay
     default:
       return new_err ("I don't know how to copy type %d", e->s_type);
     }
@@ -129,8 +127,9 @@ sexpr_free (sexpr *e)
     case S_NIL:
     case S_BUILTIN:
       return;
-    case S_ERR: // TODO handle freeing the error stack better
+    case S_ERR:
       free (e->sval);
+      sexpr_free (e->cdr);
       break;
     case S_INT:
       break;

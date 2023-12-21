@@ -54,28 +54,40 @@ sexpr_apply (environment *env, sexpr *fun, sexpr *args)
 sexpr *
 sexpr_eval (environment *env, sexpr *e)
 {
+  sexpr *r = 0;
+
   switch (e->s_type)
     {
     case S_ERR:
     case S_NIL:
     case S_INT:
     case S_STR:
-      return e;
+      r = e;
+      break;
     case S_QUOTE:
-      sexpr *q = e->car;
+      r = e->car;
       free (e);
-      return q;
+      break;
     case S_IDENT:
-      sexpr *r = env_get (env, e->sval);
+      r = env_get (env, e->sval);
+      sexpr_free (e);
+      break;
+    case S_PAIR:
+      r = new_err ("eval: cannot evaluate pair");
+      sexpr_free (e);
+      break;
+    case S_LIST:
+      r = sexpr_apply (env, e->car, e->cdr);
+      sexpr_free (e);
+      break;
+    case S_BUILTIN:
+      r = new_err ("<builtin>: %s", e->sval);
+      break;
+    default:
+      r = new_err ("eval: unknown expression type %i", e->s_type);
       sexpr_free (e);
       return r;
-    case S_PAIR:
-      return new_err ("eval: cannot evaluate pair");
-    case S_LIST:
-      return sexpr_apply (env, e->car, e->cdr);
-    case S_BUILTIN:
-      return new_err ("<builtin>: %s", e->sval);
-    default:
-      return new_err ("eval: unknown expression type %i", e->s_type);
     }
+
+  return r;
 }

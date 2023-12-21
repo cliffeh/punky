@@ -13,10 +13,11 @@ typedef struct entry
 typedef struct environment
 {
   entry handle;
-  struct env *parent;
+  struct environment *parent;
 } environment;
 
-void env_init(environment *env);
+void env_init (environment *env);
 sexpr *env_get (environment *env, const char *key);
-void env_set (environment *env, const char *key, sexpr *e);
-void env_destroy(environment *env);
+sexpr *env_set (environment *env, const char *key, sexpr *e);
+sexpr *env_del (environment *env, const char *key);
+void env_destroy (environment *env);

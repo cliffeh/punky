@@ -24,6 +24,7 @@ main (int argc, char *argv[])
   while ((rc = yyparse (&result, scanner)) == 0 && result)
     {
       sexpr *e = sexpr_eval (&env, result);
+      sexpr_free (result);
       sexpr_print (out, flags, e);
       sexpr_free (e);
     }

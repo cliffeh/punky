@@ -7,8 +7,8 @@ sexpr *new_int (int ival);
 sexpr *new_str (const char *str);
 sexpr *new_quote (sexpr *q);
 sexpr *new_ident (const char *name);
-sexpr *new_pair (sexpr *car, sexpr *cdr);
-sexpr *new_list (sexpr *car, sexpr *cdr);
+sexpr *new_pair (const sexpr *car, const sexpr *cdr);
+sexpr *new_list (const sexpr *car, const sexpr *cdr);
 
-sexpr *sexpr_copy (sexpr *e);
+sexpr *sexpr_copy (const sexpr *e);
 void sexpr_free (sexpr *e);

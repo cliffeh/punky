@@ -1,7 +1,7 @@
 #include "punky.h"
 
 void
-sexpr_print (FILE *out, int flags, sexpr *e)
+sexpr_print (FILE *out, int flags, const sexpr *e)
 {
   switch (e->s_type)
     {

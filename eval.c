@@ -3,34 +3,56 @@
 #include <stdlib.h>
 
 static sexpr *
-builtin_apply_define (environment *env, sexpr *args)
+builtin_apply_define (environment *env, const sexpr *args)
 {
-  return new_err ("I don't know how to do defines yet");
+  const sexpr *list = args, *key;
+  if (list->s_type != S_LIST || (key = list->car)->s_type != S_IDENT)
+    {
+      return new_err ("malformed arguments to define");
+    }
+
+  if (list->cdr == &NIL)
+    {
+      return env_del (env, key->sval);
+    }
+  else if (list->cdr->s_type != S_LIST)
+    {
+      return new_err ("malformed arguments to define");
+    }
+
+  sexpr *value = sexpr_eval (env, list->cdr->car);
+
+  if (value->s_type == S_ERR)
+    return value;
+
+  return env_set (env, key->sval, value);
 }
 
 static sexpr *
-builtin_apply_plus (environment *env, sexpr *args)
+builtin_apply_plus (environment *env, const sexpr *args)
 {
   int r = 0;
-  sexpr *list;
+  const sexpr *list;
   for (list = args; list->s_type == S_LIST; list = list->cdr)
     {
       sexpr *e = sexpr_eval (env, list->car);
       if (e->s_type != S_INT)
         {
+          sexpr_free (e); // TODO what if it's an err?
           return new_err ("cannot perform addition on non-integer type");
         }
       r += e->ival;
+      sexpr_free (e);
     }
 
   if (list != &NIL)
-    return new_err ("malformed input arguments to addition");
+    return new_err ("malformed arguments to addition");
 
   return new_int (r);
 }
 
 static sexpr *
-sexpr_apply_builtin (environment *env, sexpr *builtin, sexpr *args)
+sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
 {
   switch (builtin->b_type)
     {
@@ -44,7 +66,7 @@ sexpr_apply_builtin (environment *env, sexpr *builtin, sexpr *args)
 }
 
 sexpr *
-sexpr_apply (environment *env, sexpr *fun, sexpr *args)
+sexpr_apply (environment *env, sexpr *fun, const sexpr *args)
 {
   if (fun->s_type == S_BUILTIN)
     return sexpr_apply_builtin (env, fun, args);
@@ -52,42 +74,29 @@ sexpr_apply (environment *env, sexpr *fun, sexpr *args)
 }
 
 sexpr *
-sexpr_eval (environment *env, sexpr *e)
+sexpr_eval (environment *env, const sexpr *e)
 {
-  sexpr *r = 0;
-
   switch (e->s_type)
     {
     case S_ERR:
+      return sexpr_copy (e);
     case S_NIL:
+      return &NIL;
     case S_INT:
+      return new_int (e->ival);
     case S_STR:
-      r = e;
-      break;
+      return new_str (e->sval);
     case S_QUOTE:
-      r = e->car;
-      free (e);
-      break;
+      return sexpr_copy (e->car);
     case S_IDENT:
-      r = env_get (env, e->sval);
-      sexpr_free (e);
-      break;
+      return env_get (env, e->sval);
     case S_PAIR:
-      r = new_err ("eval: cannot evaluate pair");
-      sexpr_free (e);
-      break;
+      return new_err ("eval: cannot evaluate pair");
     case S_LIST:
-      r = sexpr_apply (env, e->car, e->cdr);
-      sexpr_free (e);
-      break;
+      return sexpr_apply (env, e->car, e->cdr);
     case S_BUILTIN:
-      r = new_err ("<builtin>: %s", e->sval);
-      break;
+      return new_err ("<builtin>: %s", e->sval);
     default:
-      r = new_err ("eval: unknown expression type %i", e->s_type);
-      sexpr_free (e);
-      return r;
+      return new_err ("eval: unknown expression type %i", e->s_type);
     }
-
-  return r;
 }

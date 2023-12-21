@@ -10,48 +10,75 @@ env_init (environment *env)
   memset (env, 0, sizeof (*env));
 }
 
-static entry *
-env_find_entry (environment *env, const char *key)
-{
-  for (entry *entry = &env->handle; entry->next; entry = entry->next)
-    {
-      if (strcmp (key, entry->next->key) == 0)
-        return entry->next;
-    }
-  // didn't find it
-  return 0;
-}
-
 sexpr *
 env_get (environment *env, const char *key)
 {
-  entry *e = env_find_entry (env, key);
-  if (e)
-    return e->value;
+  for (entry *ent = &env->handle; ent->next; ent = ent->next)
+    {
+      if (strcmp (key, ent->next->key) == 0)
+        return sexpr_copy (ent->next->value);
+    }
+
+  if (env->parent)
+    return env_get (env->parent, key);
+
+  // didn't find it
   return new_err ("unbound variable '%s'", key);
 }
 
-void
+sexpr *
 env_set (environment *env, const char *key, sexpr *value)
 {
-  entry *e = env_find_entry (env, key);
-  if (e)
-    { // replace
-      sexpr_free (e->value);
-      e->value = value;
+  for (entry *ent = &env->handle; ent->next; ent = ent->next)
+    {
+      if (strcmp (key, ent->next->key) == 0)
+        {
+          sexpr_free (ent->next->value);
+          ent->next->value = value;
+          return new_ident (key);
+        }
     }
-  else
-    { // create
-      e = calloc (1, sizeof (entry));
-      e->key = strdup (key);
-      e->value = value;
-      // insert at head
-      e->next = env->handle.next;
-      env->handle.next = e;
-    }
+
+  // didn't find it
+  entry *ent = calloc (1, sizeof (entry));
+  ent->key = strdup (key);
+  ent->value = value;
+  // insert at head
+  ent->next = env->handle.next;
+  env->handle.next = ent;
+
+  return new_ident (key);
 }
 
-void env_destroy(environment *env)
+sexpr *
+env_del (environment *env, const char *key)
 {
-    // TODO!
+  for (entry *ent = &env->handle; ent->next; ent = ent->next)
+    {
+      if (strcmp (key, ent->next->key) == 0)
+        {
+          entry *tmp = ent->next;
+          ent->next = tmp->next;
+          free (tmp->key);
+          sexpr_free (tmp->value);
+          free (tmp);
+          return new_ident (key);
+        }
+    }
+  // return the key even if we didn't find it
+  return new_ident (key);
+}
+
+void
+env_destroy (environment *env)
+{
+  entry *ent = &env->handle;
+  while (ent->next)
+    {
+      entry *tmp = ent->next;
+      ent->next = tmp->next;
+      free (tmp->key);
+      sexpr_free (tmp->value);
+      free (tmp);
+    }
 }

@@ -1,17 +1,17 @@
 bin_PROGRAMS = punky
 
-punky_SOURCES = \
-        alloc.c \
-        alloc.h \
-        env.c   \
-        env.h   \
-        eval.c  \
-        main.c  \
-        parse.y \
-        print.c \
-        punky.h \
-        scan.l  \
-        types.h
+punky_SOURCES =   \
+        alloc.c   \
+        alloc.h   \
+        builtin.c \
+        env.c     \
+        env.h     \
+        eval.c    \
+        main.c    \
+        parse.y   \
+        print.c   \
+        punky.h   \
+        scan.l
 
 BUILT_SOURCES = parse.h
 

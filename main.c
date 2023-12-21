@@ -1,3 +1,4 @@
+#include "env.h"
 #include "parse.h"
 #include "punky.h"
 #include <stdio.h>

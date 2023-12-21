@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types.h"
+#include "punky.h"
 
 // TODO something better than linear search through a linked list
 typedef struct entry

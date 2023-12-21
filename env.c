@@ -1,6 +1,6 @@
 #include "env.h"
 
-#include "alloc.h" // for sexpr_free()
+#include "alloc.h"
 #include <stdlib.h>
 #include <string.h>
 

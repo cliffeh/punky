@@ -23,7 +23,8 @@ typedef enum builtin_type
   B_TYPE_NIL = 0,
   B_TYPE_DEFINE,
   B_TYPE_PLUS = '+',
-  B_TYPE_MINUS = '-'
+  B_TYPE_MINUS = '-',
+  B_TYPE_MULT = '*'
 } builtin_type;
 
 typedef struct sexpr
@@ -51,3 +52,4 @@ extern sexpr NIL;
 extern sexpr B_DEFINE;
 extern sexpr B_PLUS;
 extern sexpr B_MINUS;
+extern sexpr B_MULT;

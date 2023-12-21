@@ -4,12 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-sexpr NIL = { .s_type = 0 };
-sexpr B_DEFINE
-    = { .s_type = S_BUILTIN, .b_type = B_TYPE_DEFINE, .sval = "define" };
-sexpr B_PLUS = { .s_type = S_BUILTIN, .b_type = '+', .sval = "+" };
-sexpr B_MINUS = { .s_type = S_BUILTIN, .b_type = '-', .sval = "-" };
-
 #define SEXPR_ALLOC(e) calloc (1, sizeof (*e))
 
 sexpr *

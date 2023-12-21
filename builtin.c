@@ -2,6 +2,13 @@
 #include "env.h"
 #include "punky.h"
 
+sexpr NIL = { .s_type = 0 };
+sexpr B_DEFINE
+    = { .s_type = S_BUILTIN, .b_type = B_TYPE_DEFINE, .sval = "define" };
+sexpr B_MINUS = { .s_type = S_BUILTIN, .b_type = '-', .sval = "-" };
+sexpr B_MULT = { .s_type = S_BUILTIN, .b_type = '*', .sval = "*" };
+sexpr B_PLUS = { .s_type = S_BUILTIN, .b_type = '+', .sval = "+" };
+
 static sexpr *
 builtin_apply_define (environment *env, const sexpr *args)
 {

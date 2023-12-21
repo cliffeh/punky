@@ -11,7 +11,7 @@ SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
 IN="$SRCDIR/test/atoms.in"
-OUT="$SRCDIR/test/atoms.valgrind.out"
+OUT="$BUILDDIR/test/atoms.valgrind.out"
 
 valgrind \
   --leak-check=full \

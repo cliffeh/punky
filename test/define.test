@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euxo pipefail
+
+# tests that define statements are handled correctly
+
+# if unset we'll expect our input to reside in the directory alongside our script
+DIR=$(dirname "$0")
+SRCDIR=${SRCDIR:-$DIR/..}
+BUILDDIR=${BUILDDIR:-$DIR/..}
+
+IN="$SRCDIR/test/define.in"
+EXPECT="$SRCDIR/test/define.expect"
+OUT="$BUILDDIR/test/define.out"
+
+"$BUILDDIR/punky" < "$IN" > "$OUT"
+diff "$EXPECT" "$OUT"

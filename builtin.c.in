@@ -5,6 +5,8 @@
 
 /* @BUILTIN_SINGLETONS@ */
 
+/* @BUILTIN_DECLS@ */
+
 static sexpr *
 builtin_apply_ADD (environment *env, const sexpr *args)
 {

@@ -10,6 +10,8 @@ AC_PROG_YACC
 if test "$YACC" != "bison -y"; then
     AC_MSG_ERROR([bison not found])
 fi
+# TODO use something else for code generation? m4?
+AM_PATH_PYTHON([3.6])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])

@@ -3,12 +3,14 @@
 #include "punky.h"
 
 sexpr NIL = { .s_type = 0 };
-sexpr B_DEFINE
-    = { .s_type = S_BUILTIN, .b_type = B_TYPE_DEFINE, .sval = "define" };
 sexpr B_ADD = { .s_type = S_BUILTIN, .b_type = '+', .sval = "+" };
 sexpr B_SUB = { .s_type = S_BUILTIN, .b_type = '-', .sval = "-" };
 sexpr B_MUL = { .s_type = S_BUILTIN, .b_type = '*', .sval = "*" };
 sexpr B_DIV = { .s_type = S_BUILTIN, .b_type = '/', .sval = "/" };
+sexpr B_DEFINE
+    = { .s_type = S_BUILTIN, .b_type = B_TYPE_DEFINE, .sval = "define" };
+sexpr B_LAMBDA
+    = { .s_type = S_BUILTIN, .b_type = B_TYPE_LAMBDA, .sval = "lambda" };
 
 static sexpr *
 builtin_apply_define (environment *env, const sexpr *args)

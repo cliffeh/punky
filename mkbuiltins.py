@@ -16,6 +16,7 @@ BUILTIN_TYPEDEFS_MACRO = '@BUILTIN_TYPEDEFS@'
 BUILTIN_EXTERN_MACRO = '@BUILTIN_EXTERNS@'
 BUILTIN_PATTERN_MACRO = '@BUILTIN_PATTERNS@'
 BUILTIN_SINGLETON_MACRO = '@BUILTIN_SINGLETONS@'
+BUILTIN_CASES_MACRO = '@BUILTIN_CASES@'
 
 def print_typedefs():
     typedefs = []
@@ -43,6 +44,11 @@ def print_singletons():
         b_type = f"'{builtin[1]}'" if builtin[1] else f'B_TYPE_{builtin[0]}'
         print(f'sexpr B_{builtin[0]} = {{ .s_type = S_BUILTIN, .b_type = {b_type}, .sval = "{builtin[2]}" }};')
 
+def print_builtin_cases():
+    for builtin in BUILTINS:
+        print(f'    case B_TYPE_{builtin[0]}:')
+        print(f'      return builtin_apply_{builtin[0]} (env, args);')
+
 def replace_macros():
     for line in sys.stdin:
         line = line.rstrip()
@@ -54,6 +60,8 @@ def replace_macros():
             print_scanner_patterns()
         elif BUILTIN_SINGLETON_MACRO in line:
             print_singletons()
+        elif BUILTIN_CASES_MACRO in line:
+            print_builtin_cases()
         else:
             print(line)
 

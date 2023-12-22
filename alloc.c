@@ -92,9 +92,12 @@ sexpr_copy (const sexpr *e)
   switch (e->s_type)
     {
     case S_NIL:
-    case S_ERR:
     case S_BUILTIN:
       return (sexpr *)e; // this should be okay
+    case S_ERR:
+      sexpr *r = new_err (e->sval);
+      r->cdr = sexpr_copy (e->cdr);
+      return r;
     case S_INT:
       return new_int (e->ival);
     case S_STR:

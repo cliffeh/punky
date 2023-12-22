@@ -42,8 +42,6 @@ program:
 {
   // *result set in yyerror
   YYACCEPT;
-  // yyclearin;
-  // yyerrok;
 }
 | YYEOF
 {
@@ -94,7 +92,7 @@ elements:
 void
 yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg)
 {
-   // TODO destructor for the expression that cause the error?
-  *result = new_err("[line %d, column %d]: %s\n",
-          yyllocp->first_line, yyllocp->first_column, msg);
+  // TODO destructor for the expression that caused the error?
+  *result = new_err("[line %d, column %d]: %s",
+            yyllocp->first_line, yyllocp->first_column, msg);
 }

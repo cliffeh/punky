@@ -63,6 +63,7 @@ Makefile
 /parse.h
 /punky.h
 /scan.c
+/scan.l
 
 # generated object files
 *.o

@@ -13,9 +13,12 @@ punky_SOURCES =   \
         punky.h   \
         scan.l
 
-BUILT_SOURCES = parse.h punky.h
+BUILT_SOURCES = parse.h punky.h scan.l
 
 punky.h: punky.h.in
+	$(PYTHON) mkbuiltins.py $< > $@
+
+scan.l: scan.l.in
 	$(PYTHON) mkbuiltins.py $< > $@
 
 ACLOCAL_AMFLAGS = -I m4

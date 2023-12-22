@@ -26,13 +26,7 @@
 %x STRING
 %%
  /* builtins */
-\+                       { *yylval = &B_ADD;    return(BUILTIN); }
-\-                       { *yylval = &B_SUB;    return(BUILTIN); }
-\*                       { *yylval = &B_MUL;    return(BUILTIN); }
-\/                       { *yylval = &B_DIV;    return(BUILTIN); }
-
-[dD][eE][fF][iI][nN][eE] { *yylval = &B_DEFINE; return(BUILTIN); }
-[lL][aA][mM][bB][dD][aA] { *yylval = &B_LAMBDA; return(BUILTIN); }
+@BUILTIN_PATTERNS@
 
  /* TODO make identifiers accept more characters */
 [_!#$?\-a-zA-Z]+         { *yylval = new_ident(yytext);     return(IDENT);  }

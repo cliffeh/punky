@@ -3,4 +3,5 @@
 #include "punky.h"
 
 /* singletons */
+extern sexpr NIL;
 /* @BUILTIN_EXTERNS@ */

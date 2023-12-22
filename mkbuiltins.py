@@ -15,7 +15,7 @@ BUILTINS = [
 BUILTIN_TYPEDEFS_MACRO = '@BUILTIN_TYPEDEFS@'
 BUILTIN_EXTERN_MACRO = '@BUILTIN_EXTERNS@'
 BUILTIN_PATTERN_MACRO = '@BUILTIN_PATTERNS@'
-
+BUILTIN_SINGLETON_MACRO = '@BUILTIN_SINGLETONS@'
 
 def print_typedefs():
     typedefs = []
@@ -29,7 +29,6 @@ def print_typedefs():
 
 
 def print_externs():
-    print('extern sexpr NIL;')  # NIL special case
     for builtin in BUILTINS:
         print(f'extern sexpr B_{builtin[0]};')
 
@@ -39,6 +38,10 @@ def print_scanner_patterns():
         print(
             f'{builtin[3]} {{ *yylval = &B_{builtin[0]}; return(BUILTIN); }}')
 
+def print_singletons():
+    for builtin in BUILTINS:
+        b_type = f"'{builtin[1]}'" if builtin[1] else f'B_TYPE_{builtin[0]}'
+        print(f'sexpr B_{builtin[0]} = {{ .s_type = S_BUILTIN, .b_type = {b_type}, .sval = "{builtin[2]}" }};')
 
 def replace_macros():
     for line in sys.stdin:
@@ -49,6 +52,8 @@ def replace_macros():
             print_externs()
         elif BUILTIN_PATTERN_MACRO in line:
             print_scanner_patterns()
+        elif BUILTIN_SINGLETON_MACRO in line:
+            print_singletons()
         else:
             print(line)
 

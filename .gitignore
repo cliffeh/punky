@@ -58,6 +58,7 @@ Makefile
 *~
 
 # generated source files
+/builtin.c
 /builtin.h
 /config.h
 /parse.c

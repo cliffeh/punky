@@ -4,17 +4,10 @@
 #include "punky.h"
 
 sexpr NIL = { .s_type = 0 };
-sexpr B_ADD = { .s_type = S_BUILTIN, .b_type = '+', .sval = "+" };
-sexpr B_SUB = { .s_type = S_BUILTIN, .b_type = '-', .sval = "-" };
-sexpr B_MUL = { .s_type = S_BUILTIN, .b_type = '*', .sval = "*" };
-sexpr B_DIV = { .s_type = S_BUILTIN, .b_type = '/', .sval = "/" };
-sexpr B_DEFINE
-    = { .s_type = S_BUILTIN, .b_type = B_TYPE_DEFINE, .sval = "define" };
-sexpr B_LAMBDA
-    = { .s_type = S_BUILTIN, .b_type = B_TYPE_LAMBDA, .sval = "lambda" };
+/* @BUILTIN_SINGLETONS@ */
 
 static sexpr *
-builtin_apply_add (environment *env, const sexpr *args)
+builtin_apply_ADD (environment *env, const sexpr *args)
 {
   int r = 0;
   const sexpr *list;
@@ -42,7 +35,7 @@ builtin_apply_add (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_sub (environment *env, const sexpr *args)
+builtin_apply_SUB (environment *env, const sexpr *args)
 {
   const sexpr *list = args;
 
@@ -69,7 +62,7 @@ builtin_apply_sub (environment *env, const sexpr *args)
   sexpr_free (e);
 
   // guaranteed S_INT or S_ERR
-  sexpr *rest = builtin_apply_add (env, args->cdr);
+  sexpr *rest = builtin_apply_ADD (env, args->cdr);
   if (rest->s_type == S_ERR)
     return rest;
 
@@ -80,7 +73,7 @@ builtin_apply_sub (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_mul (environment *env, const sexpr *args)
+builtin_apply_MUL (environment *env, const sexpr *args)
 {
   int r = 1;
   const sexpr *list;
@@ -108,7 +101,7 @@ builtin_apply_mul (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_div (environment *env, const sexpr *args)
+builtin_apply_DIV (environment *env, const sexpr *args)
 {
   const sexpr *list = args;
 
@@ -140,7 +133,7 @@ builtin_apply_div (environment *env, const sexpr *args)
   sexpr_free (e);
 
   // guaranteed S_INT or S_ERR
-  sexpr *rest = builtin_apply_mul (env, args->cdr);
+  sexpr *rest = builtin_apply_MUL (env, args->cdr);
   if (rest->s_type == S_ERR)
     return rest;
 
@@ -157,7 +150,7 @@ builtin_apply_div (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_define (environment *env, const sexpr *args)
+builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
   const sexpr *list = args, *key;
   if (list->s_type != S_LIST || (key = list->car)->s_type != S_IDENT)
@@ -183,7 +176,7 @@ builtin_apply_define (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_lambda (environment *env, const sexpr *args)
+builtin_apply_LAMBDA (environment *env, const sexpr *args)
 {
   // TODO
   return new_err ("i don't know from lambda");
@@ -195,17 +188,17 @@ sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
   switch (builtin->b_type)
     {
     case B_TYPE_ADD:
-      return builtin_apply_add (env, args);
+      return builtin_apply_ADD (env, args);
     case B_TYPE_SUB:
-      return builtin_apply_sub (env, args);
+      return builtin_apply_SUB (env, args);
     case B_TYPE_MUL:
-      return builtin_apply_mul (env, args);
+      return builtin_apply_MUL (env, args);
     case B_TYPE_DIV:
-      return builtin_apply_div (env, args);
+      return builtin_apply_DIV (env, args);
     case B_TYPE_DEFINE:
-      return builtin_apply_define (env, args);
+      return builtin_apply_DEFINE (env, args);
     case B_TYPE_LAMBDA:
-      return builtin_apply_lambda (env, args);
+      return builtin_apply_LAMBDA (env, args);
     default:
       return new_err ("unknown/unimplemented builtin %d\n", builtin->b_type);
     }

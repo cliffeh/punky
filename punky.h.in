@@ -44,6 +44,3 @@ typedef struct environment environment; // env.h
 
 sexpr *sexpr_eval (environment *env, const sexpr *e);
 void sexpr_print (FILE *out, int flags, const sexpr *value);
-
-/* singletons (in builtin.c) */
-/* @BUILTIN_EXTERNS@ */

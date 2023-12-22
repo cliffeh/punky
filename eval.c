@@ -1,4 +1,5 @@
 #include "alloc.h"
+#include "builtin.h"
 #include "env.h"
 #include "punky.h"
 #include <stdlib.h>

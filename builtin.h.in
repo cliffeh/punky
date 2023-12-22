@@ -1,0 +1,6 @@
+#pragma once
+
+#include "punky.h"
+
+/* singletons */
+/* @BUILTIN_EXTERNS@ */

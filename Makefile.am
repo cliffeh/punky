@@ -4,6 +4,7 @@ punky_SOURCES =   \
         alloc.c   \
         alloc.h   \
         builtin.c \
+		builtin.h \
         env.c     \
         env.h     \
         eval.c    \
@@ -13,7 +14,10 @@ punky_SOURCES =   \
         punky.h   \
         scan.l
 
-BUILT_SOURCES = parse.h punky.h scan.l
+BUILT_SOURCES = builtin.h parse.h punky.h scan.l
+
+builtin.h: builtin.h.in
+	$(PYTHON) mkbuiltins.py < $< > $@
 
 punky.h: punky.h.in
 	$(PYTHON) mkbuiltins.py < $< > $@
@@ -38,6 +42,7 @@ TESTS_OUTPUTS = test/atoms.expect test/builtins.expect
 
 CLEANFILES = test/*.out
 
-EXTRA_DIST = punky.h.in scan.l.in $(check_SCRIPTS) $(TESTS_INPUTS) $(TESTS_OUTPUTS)
+EXTRA_DIST = builtin.h.in punky.h.in scan.l.in \
+	$(check_SCRIPTS) $(TESTS_INPUTS) $(TESTS_OUTPUTS)
 
 dist_doc_DATA = LICENSE README.md TODO.md

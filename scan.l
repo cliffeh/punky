@@ -26,22 +26,23 @@
 %x STRING
 %%
  /* builtins */
-\+                       { *yylval = &B_PLUS;   return(BUILTIN); }
-\*                       { *yylval = &B_MULT;   return(BUILTIN); }
-\-                       { *yylval = &B_MINUS;  return(BUILTIN); }
+\+                       { *yylval = &B_ADD;    return(BUILTIN); }
+\-                       { *yylval = &B_SUB;    return(BUILTIN); }
+\*                       { *yylval = &B_MUL;    return(BUILTIN); }
+\/                       { *yylval = &B_DIV;    return(BUILTIN); }
 
 [dD][eE][fF][iI][nN][eE] { *yylval = &B_DEFINE; return(BUILTIN); }
 
  /* TODO make identifiers accept more characters */
-[_!#$?\-a-zA-Z]+              { *yylval = new_ident(yytext);     return(IDENT);   }
+[_!#$?\-a-zA-Z]+         { *yylval = new_ident(yytext);     return(IDENT);  }
 
  /* literals */
-0|-?[1-9][0-9]*          { *yylval = new_int(atoi(yytext)); return(INTLIT);  }
+0|-?[1-9][0-9]*          { *yylval = new_int(atoi(yytext)); return(INTLIT); }
 
 \" { // TODO this needs entirely more rigor
   BEGIN STRING;
 }
-<STRING>(\\\"|[^\"])*    { *yylval = new_str(yytext);        return(STRLIT); }
+<STRING>(\\\"|[^\"])*    { *yylval = new_str(yytext);       return(STRLIT); }
 <STRING>\" {
   BEGIN INITIAL;
 }

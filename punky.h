@@ -22,9 +22,10 @@ typedef enum builtin_type
 {
   B_TYPE_NIL = 0,
   B_TYPE_DEFINE,
-  B_TYPE_PLUS = '+',
-  B_TYPE_MINUS = '-',
-  B_TYPE_MULT = '*'
+  B_TYPE_ADD = '+',
+  B_TYPE_SUB = '-',
+  B_TYPE_MUL = '*',
+  B_TYPE_DIV = '/'
 } builtin_type;
 
 typedef struct sexpr
@@ -50,6 +51,7 @@ void sexpr_print (FILE *out, int flags, const sexpr *value);
 /* singletons (in builtin.c) */
 extern sexpr NIL;
 extern sexpr B_DEFINE;
-extern sexpr B_PLUS;
-extern sexpr B_MINUS;
-extern sexpr B_MULT;
+extern sexpr B_ADD;
+extern sexpr B_SUB;
+extern sexpr B_MUL;
+extern sexpr B_DIV;

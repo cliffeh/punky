@@ -5,9 +5,10 @@
 sexpr NIL = { .s_type = 0 };
 sexpr B_DEFINE
     = { .s_type = S_BUILTIN, .b_type = B_TYPE_DEFINE, .sval = "define" };
-sexpr B_MINUS = { .s_type = S_BUILTIN, .b_type = '-', .sval = "-" };
-sexpr B_MULT = { .s_type = S_BUILTIN, .b_type = '*', .sval = "*" };
-sexpr B_PLUS = { .s_type = S_BUILTIN, .b_type = '+', .sval = "+" };
+sexpr B_ADD = { .s_type = S_BUILTIN, .b_type = '+', .sval = "+" };
+sexpr B_SUB = { .s_type = S_BUILTIN, .b_type = '-', .sval = "-" };
+sexpr B_MUL = { .s_type = S_BUILTIN, .b_type = '*', .sval = "*" };
+sexpr B_DIV = { .s_type = S_BUILTIN, .b_type = '/', .sval = "/" };
 
 static sexpr *
 builtin_apply_define (environment *env, const sexpr *args)
@@ -36,7 +37,7 @@ builtin_apply_define (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_plus (environment *env, const sexpr *args)
+builtin_apply_add (environment *env, const sexpr *args)
 {
   int r = 0;
   const sexpr *list;
@@ -64,7 +65,45 @@ builtin_apply_plus (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_mult (environment *env, const sexpr *args)
+builtin_apply_sub (environment *env, const sexpr *args)
+{
+  const sexpr *list = args;
+
+  if (list->s_type != S_LIST)
+    return new_err ("subtraction requires at least one argument");
+
+  sexpr *e = sexpr_eval (env, list->car);
+  if (e->s_type != S_INT)
+    {
+      if (e->s_type == S_ERR)
+        return e;
+
+      sexpr *err = new_err ("cannot perform arithmetic on non-integer type");
+      err->cdr = e;
+      return err;
+    }
+
+  int r = e->ival;
+  if (args->cdr == &NIL)
+    { // special case
+      e->ival = -e->ival;
+      return e;
+    }
+  sexpr_free (e);
+
+  // guaranteed S_INT or S_ERR
+  sexpr *rest = builtin_apply_add (env, args->cdr);
+  if (rest->s_type == S_ERR)
+    return rest;
+
+  r -= rest->ival;
+  sexpr_free (rest);
+
+  return new_int (r);
+}
+
+static sexpr *
+builtin_apply_mul (environment *env, const sexpr *args)
 {
   int r = 1;
   const sexpr *list;
@@ -92,12 +131,12 @@ builtin_apply_mult (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_minus (environment *env, const sexpr *args)
+builtin_apply_div (environment *env, const sexpr *args)
 {
   const sexpr *list = args;
 
   if (list->s_type != S_LIST)
-    return new_err ("subtraction requires at least one argument");
+    return new_err ("division requires at least one argument");
 
   sexpr *e = sexpr_eval (env, list->car);
   if (e->s_type != S_INT)
@@ -113,17 +152,28 @@ builtin_apply_minus (environment *env, const sexpr *args)
   int r = e->ival;
   if (args->cdr == &NIL)
     { // special case
-      e->ival = -e->ival;
+      if (e->ival == 0)
+        {
+          sexpr_free (e);
+          return new_err ("divide by zero error");
+        }
+      e->ival = 1 / e->ival; // TODO fractions?
       return e;
     }
   sexpr_free (e);
 
   // guaranteed S_INT or S_ERR
-  sexpr *rest = builtin_apply_plus (env, args->cdr);
+  sexpr *rest = builtin_apply_mul (env, args->cdr);
   if (rest->s_type == S_ERR)
     return rest;
 
-  r -= rest->ival;
+  if (rest->ival == 0)
+    {
+      sexpr_free (rest);
+      return new_err ("divide by zero error");
+    }
+
+  r /= rest->ival;
   sexpr_free (rest);
 
   return new_int (r);
@@ -136,12 +186,15 @@ sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
     {
     case B_TYPE_DEFINE:
       return builtin_apply_define (env, args);
-    case B_TYPE_PLUS:
-      return builtin_apply_plus (env, args);
-    case B_TYPE_MULT:
-      return builtin_apply_mult (env, args);
-    case B_TYPE_MINUS:
-      return builtin_apply_minus (env, args);
+    case B_TYPE_ADD:
+      return builtin_apply_add (env, args);
+    case B_TYPE_SUB:
+      return builtin_apply_sub (env, args);
+    case B_TYPE_MUL:
+      return builtin_apply_mul (env, args);
+    case B_TYPE_DIV:
+      return builtin_apply_div (env, args);
+
     default:
       return new_err ("unknown/unimplemented builtin %d\n", builtin->b_type);
     }

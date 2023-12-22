@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdio.h>
+#include <stdio.h> // for FILE *
 
 /* s-expression types */
 typedef enum sexpr_type

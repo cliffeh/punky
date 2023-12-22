@@ -13,32 +13,6 @@ sexpr B_LAMBDA
     = { .s_type = S_BUILTIN, .b_type = B_TYPE_LAMBDA, .sval = "lambda" };
 
 static sexpr *
-builtin_apply_define (environment *env, const sexpr *args)
-{
-  const sexpr *list = args, *key;
-  if (list->s_type != S_LIST || (key = list->car)->s_type != S_IDENT)
-    {
-      return new_err ("malformed arguments to define");
-    }
-
-  if (list->cdr == &NIL)
-    {
-      return env_del (env, key->sval);
-    }
-  else if (list->cdr->s_type != S_LIST)
-    {
-      return new_err ("malformed arguments to define");
-    }
-
-  sexpr *value = sexpr_eval (env, list->cdr->car);
-
-  if (value->s_type == S_ERR)
-    return value;
-
-  return env_set (env, key->sval, value);
-}
-
-static sexpr *
 builtin_apply_add (environment *env, const sexpr *args)
 {
   int r = 0;
@@ -181,13 +155,44 @@ builtin_apply_div (environment *env, const sexpr *args)
   return new_int (r);
 }
 
+static sexpr *
+builtin_apply_define (environment *env, const sexpr *args)
+{
+  const sexpr *list = args, *key;
+  if (list->s_type != S_LIST || (key = list->car)->s_type != S_IDENT)
+    {
+      return new_err ("malformed arguments to define");
+    }
+
+  if (list->cdr == &NIL)
+    {
+      return env_del (env, key->sval);
+    }
+  else if (list->cdr->s_type != S_LIST)
+    {
+      return new_err ("malformed arguments to define");
+    }
+
+  sexpr *value = sexpr_eval (env, list->cdr->car);
+
+  if (value->s_type == S_ERR)
+    return value;
+
+  return env_set (env, key->sval, value);
+}
+
+static sexpr *
+builtin_apply_lambda (environment *env, const sexpr *args)
+{
+  // TODO
+  return new_err ("i don't know from lambda");
+}
+
 sexpr *
 sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
 {
   switch (builtin->b_type)
     {
-    case B_TYPE_DEFINE:
-      return builtin_apply_define (env, args);
     case B_TYPE_ADD:
       return builtin_apply_add (env, args);
     case B_TYPE_SUB:
@@ -196,7 +201,10 @@ sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
       return builtin_apply_mul (env, args);
     case B_TYPE_DIV:
       return builtin_apply_div (env, args);
-
+    case B_TYPE_DEFINE:
+      return builtin_apply_define (env, args);
+    case B_TYPE_LAMBDA:
+      return builtin_apply_lambda (env, args);
     default:
       return new_err ("unknown/unimplemented builtin %d\n", builtin->b_type);
     }

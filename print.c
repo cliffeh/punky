@@ -29,6 +29,13 @@ sexpr_print (FILE *out, int flags, const sexpr *e)
     case S_IDENT:
       fprintf (out, "%s", e->sval);
       break;
+    case S_FUN:
+      fprintf (out, "(lambda "); // TODO is this correct?
+      sexpr_print (out, flags + 1, e->car);
+      fprintf (out, " ");
+      sexpr_print (out, flags + 1, e->cdr);
+      fprintf (out, ")");
+      break;
     case S_PAIR:
       fprintf (out, "(");
       sexpr_print (out, flags + 1, e->car);

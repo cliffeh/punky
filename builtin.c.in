@@ -11,17 +11,12 @@ static sexpr *
 builtin_apply_ADD (environment *env, const sexpr *args)
 {
   int r = 0;
-  const sexpr *list;
-  for (list = args; list->s_type == S_LIST; list = list->cdr)
+  for (; args->s_type == S_LIST; args = args->cdr)
     {
-      sexpr *e = sexpr_eval (env, list->car);
+      sexpr *e = sexpr_eval (env, args->car);
       if (e->s_type != S_INT)
         {
-          if (e->s_type == S_ERR)
-            return e;
-
-          sexpr *err
-              = new_err ("cannot perform arithmetic on non-integer type");
+          sexpr *err = new_err ("numeric type required");
           err->cdr = e;
           return err;
         }
@@ -29,8 +24,8 @@ builtin_apply_ADD (environment *env, const sexpr *args)
       sexpr_free (e);
     }
 
-  if (list != &NIL)
-    return new_err ("malformed arguments to arithmetic");
+  if (args != &NIL)
+    return new_err ("malformed arguments");
 
   return new_int (r);
 }
@@ -38,18 +33,13 @@ builtin_apply_ADD (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_SUB (environment *env, const sexpr *args)
 {
-  const sexpr *list = args;
-
-  if (list->s_type != S_LIST)
+  if (args->s_type != S_LIST)
     return new_err ("subtraction requires at least one argument");
 
-  sexpr *e = sexpr_eval (env, list->car);
+  sexpr *e = sexpr_eval (env, args->car);
   if (e->s_type != S_INT)
     {
-      if (e->s_type == S_ERR)
-        return e;
-
-      sexpr *err = new_err ("cannot perform arithmetic on non-integer type");
+      sexpr *err = new_err ("numeric type required");
       err->cdr = e;
       return err;
     }

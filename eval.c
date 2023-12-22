@@ -31,6 +31,8 @@ sexpr_eval (environment *env, const sexpr *e)
       return sexpr_copy (e->car);
     case S_IDENT:
       return env_get (env, e->sval);
+    case S_FUN:
+      return new_err("<function>");
     case S_PAIR:
       return new_err ("eval: cannot evaluate pair");
     case S_LIST:

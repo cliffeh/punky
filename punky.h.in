@@ -10,14 +10,14 @@ typedef enum sexpr_type
   S_INT,
   S_STR,
   S_QUOTE,
-  // S_FLOAT,
+  // S_FLOAT, // TODO
   S_IDENT,
+  S_FUN,
   S_PAIR,
   S_LIST,
   S_BUILTIN
 } sexpr_type;
 
-/* builtin procedure types */
 /* builtin procedure types */
 typedef enum builtin_type
 {
@@ -33,8 +33,7 @@ typedef struct sexpr
   {
     int ival;
     char *sval;
-    // float fval;
-    // TODO double? other data types?
+    // float fval; // TODO double? other data types?
     struct sexpr *car;
   };
   struct sexpr *cdr;

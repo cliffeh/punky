@@ -67,6 +67,16 @@ new_ident (const char *name)
 }
 
 sexpr *
+new_fun (sexpr *params, sexpr *body)
+{
+  sexpr *e = SEXPR_ALLOC (e);
+  e->s_type = S_FUN;
+  e->car = params;
+  e->cdr = body;
+  return e;
+}
+
+sexpr *
 new_pair (sexpr *car, sexpr *cdr)
 {
   sexpr *e = SEXPR_ALLOC (e);
@@ -106,6 +116,8 @@ sexpr_copy (const sexpr *e)
       return new_quote (sexpr_copy (e->car));
     case S_IDENT:
       return new_ident (e->sval);
+    case S_FUN:
+      return new_fun (sexpr_copy (e->car), sexpr_copy (e->cdr));
     case S_PAIR:
       return new_pair (sexpr_copy (e->car), sexpr_copy (e->cdr));
     case S_LIST:
@@ -139,6 +151,7 @@ sexpr_free (sexpr *e)
     case S_IDENT:
       free (e->sval);
       break;
+    case S_FUN:
     case S_PAIR:
     case S_LIST:
       sexpr_free (e->car);

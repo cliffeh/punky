@@ -3,7 +3,6 @@
 #include "env.h"
 #include "punky.h"
 
-sexpr NIL = { .s_type = S_NIL };
 /* @BUILTIN_SINGLETONS@ */
 
 static sexpr *

@@ -4,8 +4,7 @@
 #include "punky.h"
 #include <stdlib.h>
 
-sexpr *sexpr_apply_builtin (environment *env, sexpr *builtin,
-                            const sexpr *args); // builtin.c
+sexpr NIL = { .s_type = S_NIL };
 
 static sexpr *
 sexpr_apply (environment *env, sexpr *fun, const sexpr *args)

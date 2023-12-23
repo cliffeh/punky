@@ -108,6 +108,12 @@ builtin_apply_DIV (environment *env, const sexpr *args)
 }
 
 static sexpr *
+builtin_apply_CONS (environment *env, const sexpr *args)
+{
+  return new_err("i don't know from CONS");
+}
+
+static sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
   EXPECT (args, S_LIST, "malformed arguments to define");

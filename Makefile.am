@@ -16,16 +16,16 @@ punky_SOURCES =   \
 
 BUILT_SOURCES = builtin.c builtin.h parse.h punky.h scan.l
 
-builtin.c: builtin.c.in
+builtin.c: builtin.c.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py < $< > $@
 
-builtin.h: builtin.h.in
+builtin.h: builtin.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py < $< > $@
 
-punky.h: punky.h.in
+punky.h: punky.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py < $< > $@
 
-scan.l: scan.l.in
+scan.l: scan.l.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py < $< > $@
 
 ACLOCAL_AMFLAGS = -I m4
@@ -51,7 +51,7 @@ TESTS_OUTPUTS = test/atoms.expect test/builtins.expect test/functions.expect
 
 CLEANFILES = test/*.out
 
-EXTRA_DIST = builtin.c.in builtin.h.in punky.h.in scan.l.in \
+EXTRA_DIST = mkbuiltins.py builtin.c.in builtin.h.in punky.h.in scan.l.in \
 	$(check_SCRIPTS) $(TESTS_INPUTS) $(TESTS_OUTPUTS)
 
 dist_doc_DATA = LICENSE README.md TODO.md

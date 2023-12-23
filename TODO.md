@@ -1,4 +1,6 @@
+* popt (CLI args)
 * moar builtins
-* popt
 * more efficient env
-* handle parse errors gracefully
+* moar tests
+  * error testing!
+  * fuzzing?

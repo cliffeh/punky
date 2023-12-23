@@ -4,7 +4,7 @@
 #include "punky.h"
 #include <stdlib.h>
 
-sexpr NIL = { .s_type = S_NIL };
+const sexpr NIL = { .s_type = S_NIL };
 
 static sexpr *
 bind_params (environment *fenv, const sexpr *params, const sexpr *args,
@@ -34,7 +34,7 @@ bind_params (environment *fenv, const sexpr *params, const sexpr *args,
   if (args != &NIL)
     return new_err ("too many arguments to function");
 
-  return &NIL;
+  return (sexpr *)&NIL;
 }
 
 static sexpr *
@@ -80,7 +80,7 @@ sexpr_eval (environment *env, const sexpr *e)
     case S_ERR:
       return sexpr_copy (e);
     case S_NIL:
-      return &NIL;
+      return (sexpr *)&NIL;
     case S_INT:
       return new_int (e->ival);
     case S_STR:

@@ -69,7 +69,7 @@ sexpr:
 atom:
   '(' ')'
 {
-  $$ = &NIL;
+  $$ = (sexpr *)&NIL;
 }
 | IDENT
 | INTLIT

@@ -9,7 +9,7 @@ sexpr_print (FILE *out, int flags, const sexpr *e)
     case S_ERR:
       fprintf (out, "%s", e->sval);
       // print the rest of the stack trace
-      for (const sexpr *err = e->cdr; err->s_type == S_ERR; err = err->cdr)
+      for (const sexpr *err = e->cdr; err && err->s_type == S_ERR; err = err->cdr)
         fprintf (out, "\n%s", err->sval);
       break;
     case S_NIL:

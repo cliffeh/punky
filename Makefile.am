@@ -29,7 +29,7 @@ scan.l: scan.l.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py < $< > $@
 
 ACLOCAL_AMFLAGS = -I m4
-AM_CFLAGS = -Wall
+AM_CFLAGS = -Wall -Werror
 AM_YFLAGS = -d -Wno-yacc -Wcounterexamples
 
 check_SCRIPTS =         \

@@ -33,19 +33,19 @@ def print_typedefs():
 # BUILTIN_EXTERN_MACRO
 def print_externs():
     for builtin in BUILTINS:
-        print(f'extern sexpr B_{builtin[0]};')
+        print(f'extern const sexpr B_{builtin[0]};')
 
 # BUILTIN_PATTERN_MACRO
 def print_scanner_patterns():
     for builtin in BUILTINS:
         print(
-            f'{builtin[3]} {{ *yylval = &B_{builtin[0]}; return(BUILTIN); }}')
+            f'{builtin[3]} {{ *yylval = (sexpr *)&B_{builtin[0]}; return(BUILTIN); }}')
 
 # BUILTIN_SINGLETON_MACRO
 def print_singletons():
     for builtin in BUILTINS:
         b_type = f"'{builtin[1]}'" if builtin[1] else f'B_TYPE_{builtin[0]}'
-        print(f'sexpr B_{builtin[0]} = {{ .s_type = S_BUILTIN, .b_type = {b_type}, .sval = "{builtin[2]}" }};')
+        print(f'const sexpr B_{builtin[0]} = {{ .s_type = S_BUILTIN, .b_type = {b_type}, .sval = "{builtin[2]}" }};')
 
 # BUILTIN_CASES_MACRO
 def print_builtin_cases():

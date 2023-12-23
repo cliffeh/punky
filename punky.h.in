@@ -44,4 +44,4 @@ typedef struct environment environment; // env.h
 sexpr *sexpr_eval (environment *env, const sexpr *e);
 void sexpr_print (FILE *out, int flags, const sexpr *value);
 
-extern sexpr NIL; // in eval.c
+extern const sexpr NIL; // in eval.c

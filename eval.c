@@ -30,11 +30,7 @@ bind_params (environment *fenv, const sexpr *params, const sexpr *args,
     }
 
   if (params != &NIL)
-    {
-      fprintf (stderr, "\n\n\nleftover params:\n\n\n");
-      sexpr_print (stderr, 0, params);
-      return new_err ("not enough arguments to function");
-    }
+    return new_err ("not enough arguments to function");
   if (args != &NIL)
     return new_err ("too many arguments to function");
 

@@ -110,22 +110,22 @@ builtin_apply_DIV (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
-  const sexpr *list = args, *key;
-  if (list->s_type != S_LIST || (key = list->car)->s_type != S_IDENT)
+  const sexpr *key;
+  if (args->s_type != S_LIST || (key = args->car)->s_type != S_IDENT)
     {
       return new_err ("malformed arguments to define");
     }
 
-  if (list->cdr == &NIL)
-    {
+  if (args->cdr == &NIL)
+    { // special case
       return env_del (env, key->sval);
     }
-  else if (list->cdr->s_type != S_LIST)
+  else if (args->cdr->s_type != S_LIST || args->cdr->cdr != &NIL)
     {
       return new_err ("malformed arguments to define");
     }
 
-  sexpr *value = sexpr_eval (env, list->cdr->car);
+  sexpr *value = sexpr_eval (env, args->cdr->car);
 
   if (value->s_type == S_ERR)
     return value;

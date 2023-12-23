@@ -19,7 +19,7 @@ main (int argc, char *argv[])
 
   int rc, flags = 0;
   environment env;
-  env_init (&env);
+  env_init (&env, 0);
   sexpr *result = 0;
 
   while ((rc = yyparse (&result, scanner)) == 0 && result)

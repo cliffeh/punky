@@ -5,18 +5,19 @@
 #include <string.h>
 
 void
-env_init (environment *env)
+env_init (environment *env, environment *parent)
 {
   memset (env, 0, sizeof (*env));
+  env->parent = parent;
 }
 
 sexpr *
 env_get (environment *env, const char *key)
 {
-  for (entry *ent = &env->handle; ent->next; ent = ent->next)
+  for (entry *ent = env->entries; ent; ent = ent->next)
     {
-      if (strcmp (key, ent->next->key) == 0)
-        return sexpr_copy (ent->next->value);
+      if (strcmp (key, ent->key) == 0) // found it
+        return sexpr_copy (ent->value);
     }
 
   if (env->parent)
@@ -29,12 +30,12 @@ env_get (environment *env, const char *key)
 sexpr *
 env_set (environment *env, const char *key, sexpr *value)
 {
-  for (entry *ent = &env->handle; ent->next; ent = ent->next)
+  for (entry *ent = env->entries; ent; ent = ent->next)
     {
-      if (strcmp (key, ent->next->key) == 0)
+      if (strcmp (key, ent->key) == 0) // found existing entry
         {
-          sexpr_free (ent->next->value);
-          ent->next->value = value;
+          sexpr_free (ent->value);
+          ent->value = value;
           return new_ident (key);
         }
     }
@@ -44,8 +45,9 @@ env_set (environment *env, const char *key, sexpr *value)
   ent->key = strdup (key);
   ent->value = value;
   // insert at head
-  ent->next = env->handle.next;
-  env->handle.next = ent;
+  ent->next = env->entries;
+  env->entries = ent;
+  env->count++;
 
   return new_ident (key);
 }
@@ -53,17 +55,20 @@ env_set (environment *env, const char *key, sexpr *value)
 sexpr *
 env_del (environment *env, const char *key)
 {
-  for (entry *ent = &env->handle; ent->next; ent = ent->next)
+  entry *prev = env->entries;
+  for (entry *ent = env->entries; ent; ent = ent->next)
     {
-      if (strcmp (key, ent->next->key) == 0)
+      if (strcmp (key, ent->key) == 0) // found it
         {
-          entry *tmp = ent->next;
-          ent->next = tmp->next;
-          free (tmp->key);
-          sexpr_free (tmp->value);
-          free (tmp);
+          prev->next = ent->next;
+          free (ent->key);
+          sexpr_free (ent->value);
+          free (ent);
+          if (--env->count == 0)
+            env->entries = 0;
           return new_ident (key);
         }
+      prev = ent;
     }
   // return the key even if we didn't find it
   return new_ident (key);
@@ -72,13 +77,13 @@ env_del (environment *env, const char *key)
 void
 env_destroy (environment *env)
 {
-  entry *ent = &env->handle;
-  while (ent->next)
+  entry *ent = env->entries;
+  while (ent)
     {
-      entry *tmp = ent->next;
-      ent->next = tmp->next;
-      free (tmp->key);
-      sexpr_free (tmp->value);
-      free (tmp);
+      entry *next = ent->next;
+      free (ent->key);
+      sexpr_free (ent->value);
+      free (ent);
+      ent = next;
     }
 }

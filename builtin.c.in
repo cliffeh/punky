@@ -7,59 +7,35 @@
 
 /* @BUILTIN_DECLS@ */
 
+#define EXPECT(e, TYPE, errmsg)                                               \
+  if (e->s_type != (TYPE))                                                    \
+  return new_err (errmsg)
+
+#define EVAL_EXPECT(env, arg, e, TYPE, errmsg)                                \
+  sexpr *e = sexpr_eval (env, arg);                                           \
+  if (e->s_type != TYPE)                                                      \
+    {                                                                         \
+      sexpr *err = new_err (errmsg);                                          \
+      err->cdr = e;                                                           \
+      return err;                                                             \
+    }
+
+#define WALK_LIST(env, args, e, TYPE, ACTION, errmsg)                         \
+  const sexpr *list = args;                                                   \
+  for (; list->s_type == S_LIST; list = list->cdr)                            \
+    {                                                                         \
+      EVAL_EXPECT (env, list->car, e, TYPE, errmsg);                          \
+      ACTION;                                                                 \
+      sexpr_free (e);                                                         \
+    }                                                                         \
+  if (list != &NIL)                                                           \
+  return new_err ("malformed arguments")
+
 static sexpr *
 builtin_apply_ADD (environment *env, const sexpr *args)
 {
   int r = 0;
-  for (; args->s_type == S_LIST; args = args->cdr)
-    {
-      sexpr *e = sexpr_eval (env, args->car);
-      if (e->s_type != S_INT)
-        {
-          sexpr *err = new_err ("numeric type required");
-          err->cdr = e;
-          return err;
-        }
-      r += e->ival;
-      sexpr_free (e);
-    }
-
-  if (args != &NIL)
-    return new_err ("malformed arguments");
-
-  return new_int (r);
-}
-
-static sexpr *
-builtin_apply_SUB (environment *env, const sexpr *args)
-{
-  if (args->s_type != S_LIST)
-    return new_err ("subtraction requires at least one argument");
-
-  sexpr *e = sexpr_eval (env, args->car);
-  if (e->s_type != S_INT)
-    {
-      sexpr *err = new_err ("numeric type required");
-      err->cdr = e;
-      return err;
-    }
-
-  int r = e->ival;
-  if (args->cdr == &NIL)
-    { // special case
-      e->ival = -e->ival;
-      return e;
-    }
-  sexpr_free (e);
-
-  // guaranteed S_INT or S_ERR
-  sexpr *rest = builtin_apply_ADD (env, args->cdr);
-  if (rest->s_type == S_ERR)
-    return rest;
-
-  r -= rest->ival;
-  sexpr_free (rest);
-
+  WALK_LIST (env, args, e, S_INT, r += e->ival, "numeric type required");
   return new_int (r);
 }
 
@@ -67,77 +43,68 @@ static sexpr *
 builtin_apply_MUL (environment *env, const sexpr *args)
 {
   int r = 1;
-  const sexpr *list;
-  for (list = args; list->s_type == S_LIST; list = list->cdr)
-    {
-      sexpr *e = sexpr_eval (env, list->car);
-      if (e->s_type != S_INT)
-        {
-          if (e->s_type == S_ERR)
-            return e;
+  WALK_LIST (env, args, e, S_INT, r *= e->ival, "numeric type required");
+  return new_int (r);
+}
 
-          sexpr *err
-              = new_err ("cannot perform arithmetic on non-integer type");
-          err->cdr = e;
-          return err;
-        }
-      r *= e->ival;
-      sexpr_free (e);
+static sexpr *
+builtin_apply_SUB (environment *env, const sexpr *args)
+{
+  EXPECT (args, S_LIST, "subtraction requires at least one argument");
+  EVAL_EXPECT (env, args->car, e, S_INT, "numeric type required");
+
+  if (args->cdr == &NIL)
+    { // special case
+      e->ival = -e->ival;
+      return e;
     }
 
-  if (list != &NIL)
-    return new_err ("malformed arguments to arithmetic");
+  int r = e->ival;
+  sexpr_free (e);
 
-  return new_int (r);
+  // guaranteed to be either S_INT or S_ERR
+  sexpr *rest = builtin_apply_ADD (env, args->cdr);
+  if (rest->s_type == S_ERR)
+    return rest;
+
+  rest->ival = r - rest->ival;
+  return rest;
 }
 
 static sexpr *
 builtin_apply_DIV (environment *env, const sexpr *args)
 {
-  const sexpr *list = args;
+  EXPECT (args, S_LIST, "division requires at least one argument");
+  EVAL_EXPECT (env, args->car, e, S_INT, "numeric type required");
 
-  if (list->s_type != S_LIST)
-    return new_err ("division requires at least one argument");
-
-  sexpr *e = sexpr_eval (env, list->car);
-  if (e->s_type != S_INT)
-    {
-      if (e->s_type == S_ERR)
-        return e;
-
-      sexpr *err = new_err ("cannot perform arithmetic on non-integer type");
-      err->cdr = e;
-      return err;
-    }
-
-  int r = e->ival;
   if (args->cdr == &NIL)
     { // special case
       if (e->ival == 0)
         {
-          sexpr_free (e);
-          return new_err ("divide by zero error");
+          sexpr *err = new_err ("divide by zero");
+          err->cdr = e;
+          return err;
         }
-      e->ival = 1 / e->ival; // TODO fractions?
+      e->ival = 1 / e->ival;
       return e;
     }
+
+  int r = e->ival;
   sexpr_free (e);
 
-  // guaranteed S_INT or S_ERR
+  // guaranteed to be either S_INT or S_ERR
   sexpr *rest = builtin_apply_MUL (env, args->cdr);
   if (rest->s_type == S_ERR)
     return rest;
-
   if (rest->ival == 0)
     {
-      sexpr_free (rest);
-      return new_err ("divide by zero error");
+      sexpr *err = new_err ("divide by zero");
+      err->cdr = e;
+      return err;
     }
 
-  r /= rest->ival;
-  sexpr_free (rest);
-
-  return new_int (r);
+  rest->ival = r / rest->ival;
+  return rest;
 }
 
 static sexpr *

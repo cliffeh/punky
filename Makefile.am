@@ -32,16 +32,22 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -Wall
 AM_YFLAGS = -d -Wno-yacc -Wcounterexamples
 
-check_SCRIPTS = test/atoms.test test/builtins.test
-MEMCHECKS = test/valgrind.atoms.test test/valgrind.builtins.test
+check_SCRIPTS =         \
+    test/atoms.test     \
+    test/builtins.test  \
+    test/functions.test
+MEMCHECKS =                      \
+    test/valgrind.atoms.test     \
+    test/valgrind.builtins.test  \
+    test/valgrind.functions.test
 
 # uncomment for memory checks (SLOW)
 check_SCRIPTS += $(MEMCHECKS)
 
 TESTS = $(check_SCRIPTS)
 TESTS_ENVIRONMENT = SRCDIR=$(srcdir) BUILDDIR=$(builddir)
-TESTS_INPUTS = test/atoms.lisp test/builtins.lisp
-TESTS_OUTPUTS = test/atoms.expect test/builtins.expect
+TESTS_INPUTS = test/atoms.lisp test/builtins.lisp test/functions.lisp
+TESTS_OUTPUTS = test/atoms.expect test/builtins.expect test/functions.expect
 
 CLEANFILES = test/*.out
 

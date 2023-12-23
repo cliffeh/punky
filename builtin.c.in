@@ -128,7 +128,9 @@ builtin_apply_DEFINE (environment *env, const sexpr *args)
   if (value->s_type == S_ERR)
     return value;
 
-  return env_set (env, key->sval, value);
+  env_set (env, key->sval, value);
+
+  return new_ident (key->sval);
 }
 
 static sexpr *
@@ -148,7 +150,7 @@ builtin_apply_LAMBDA (environment *env, const sexpr *args)
     return new_err ("unexpected extra arguments to lambda");
   sexpr *body = args->cdr->car;
 
-  return new_fun (sexpr_copy(params), sexpr_copy(body));
+  return new_fun (sexpr_copy (params), sexpr_copy (body));
 }
 
 sexpr *

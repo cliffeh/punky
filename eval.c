@@ -7,9 +7,50 @@
 sexpr NIL = { .s_type = S_NIL };
 
 static sexpr *
+bind_params (environment *fenv, const sexpr *params, const sexpr *args,
+             environment *penv)
+{
+  sexpr *key, *value;
+  for (; params->s_type == S_LIST && args->s_type == S_LIST;
+       params = params->cdr, args = args->cdr)
+    {
+      if ((key = params->car)->s_type != S_IDENT)
+        {
+          return new_err ("non-identifier in parameter list");
+        }
+      // evaluate arguments in the parent env
+      else if ((value = sexpr_eval (penv, args->car))->s_type == S_ERR)
+        {
+          return value;
+        }
+      else
+        { // ...and set them in the function env
+          env_set (fenv, key->sval, value);
+        }
+    }
+
+  if (params != &NIL)
+    return new_err ("not enough arguments to function");
+  if (args != &NIL)
+    return new_err ("too many arguments to function");
+
+  return &NIL;
+}
+
+static sexpr *
 sexpr_apply_function (environment *env, const sexpr *params, const sexpr *body,
                       const sexpr *args)
 {
+  environment fenv;
+  env_init (&fenv, env);
+
+  sexpr *result = bind_params (&fenv, params, args, env);
+  if (result != &NIL)
+    return new_err ("error evaluating function", result);
+
+  result = sexpr_eval (&fenv, body);
+  env_destroy (&fenv);
+  return result;
 }
 
 static sexpr *

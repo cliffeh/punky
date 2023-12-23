@@ -19,6 +19,6 @@ typedef struct environment
 
 void env_init (environment *env, environment *parent);
 sexpr *env_get (environment *env, const char *key);
-sexpr *env_set (environment *env, const char *key, sexpr *e);
+void env_set (environment *env, const char *key, sexpr *e);
 sexpr *env_del (environment *env, const char *key);
 void env_destroy (environment *env);

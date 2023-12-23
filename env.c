@@ -27,7 +27,7 @@ env_get (environment *env, const char *key)
   return new_err ("unbound variable '%s'", key);
 }
 
-sexpr *
+void
 env_set (environment *env, const char *key, sexpr *value)
 {
   for (entry *ent = env->entries; ent; ent = ent->next)
@@ -36,7 +36,7 @@ env_set (environment *env, const char *key, sexpr *value)
         {
           sexpr_free (ent->value);
           ent->value = value;
-          return new_ident (key);
+          return;
         }
     }
 
@@ -48,8 +48,6 @@ env_set (environment *env, const char *key, sexpr *value)
   ent->next = env->entries;
   env->entries = ent;
   env->count++;
-
-  return new_ident (key);
 }
 
 sexpr *

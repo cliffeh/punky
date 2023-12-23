@@ -7,6 +7,7 @@ sexpr *new_int (int ival);
 sexpr *new_str (const char *str);
 sexpr *new_quote (sexpr *q);
 sexpr *new_ident (const char *name);
+sexpr *new_fun (const sexpr *params, const sexpr *body);
 sexpr *new_pair (const sexpr *car, const sexpr *cdr);
 sexpr *new_list (const sexpr *car, const sexpr *cdr);
 

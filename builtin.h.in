@@ -5,5 +5,5 @@
 /* singletons */
 /* @BUILTIN_EXTERNS@ */
 
-sexpr *sexpr_apply_builtin (environment *env, sexpr *builtin,
+sexpr *sexpr_apply_builtin (environment *env, const sexpr *builtin,
                             const sexpr *args);

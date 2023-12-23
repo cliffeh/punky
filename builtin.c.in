@@ -110,20 +110,18 @@ builtin_apply_DIV (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
+  EXPECT (args, S_LIST, "malformed arguments to define");
+
   const sexpr *key;
-  if (args->s_type != S_LIST || (key = args->car)->s_type != S_IDENT)
-    {
-      return new_err ("malformed arguments to define");
-    }
+  EXPECT ((key = args->car), S_IDENT, "non-identifier provided to define");
 
   if (args->cdr == &NIL)
     { // special case
       return env_del (env, key->sval);
     }
-  else if (args->cdr->s_type != S_LIST || args->cdr->cdr != &NIL)
-    {
-      return new_err ("malformed arguments to define");
-    }
+  EXPECT (args->cdr, S_LIST, "malformed arguments to define");
+  if (args->cdr->cdr != &NIL)
+    return new_err ("unexpected extra arguments to define");
 
   sexpr *value = sexpr_eval (env, args->cdr->car);
 
@@ -136,12 +134,25 @@ builtin_apply_DEFINE (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_LAMBDA (environment *env, const sexpr *args)
 {
-  // TODO
-  return new_err ("i don't know from lambda");
+  EXPECT (args, S_LIST, "malformed arguments to lambda");
+  EXPECT (args->car, S_LIST, "malformed arguments to lambda");
+
+  sexpr *params = args->car, *e;
+  for (e = params; e->s_type == S_LIST; e = e->cdr)
+    {
+      EXPECT (e->car, S_IDENT, "non-identifier in lambda param list");
+    }
+
+  EXPECT (args->cdr, S_LIST, "malformed arguments to lambda");
+  if (args->cdr->cdr != &NIL)
+    return new_err ("unexpected extra arguments to lambda");
+  sexpr *body = args->cdr->car;
+
+  return new_fun (sexpr_copy(params), sexpr_copy(body));
 }
 
 sexpr *
-sexpr_apply_builtin (environment *env, sexpr *builtin, const sexpr *args)
+sexpr_apply_builtin (environment *env, const sexpr *builtin, const sexpr *args)
 {
   switch (builtin->b_type)
     {

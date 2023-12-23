@@ -57,7 +57,7 @@ sexpr_print (FILE *out, int flags, const sexpr *e)
       fprintf (out, "%s", e->sval);
       break;
     default:
-      fprintf (stderr, "print: unknown expression type\n");
+      fprintf (stderr, "print: unknown expression type %d\n", e->s_type);
     }
 
   if ((flags & 0x00FFFFFF) == 0)

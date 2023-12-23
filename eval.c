@@ -7,11 +7,40 @@
 sexpr NIL = { .s_type = S_NIL };
 
 static sexpr *
-sexpr_apply (environment *env, sexpr *fun, const sexpr *args)
+sexpr_apply_function (environment *env, const sexpr *params, const sexpr *body,
+                      const sexpr *args)
 {
-  if (fun->s_type == S_BUILTIN)
-    return sexpr_apply_builtin (env, fun, args);
-  return new_err ("I don't know how to apply functions yet!");
+}
+
+static sexpr *
+sexpr_apply (environment *env, const sexpr *e, const sexpr *args)
+{
+  switch (e->s_type)
+    {
+    case S_IDENT:
+      {
+        sexpr *fun = env_get (env, e->sval);
+        if (fun->s_type != S_FUN)
+          {
+            sexpr *err = new_err ("cannot apply expression");
+            err->cdr = fun;
+            return err;
+          }
+        sexpr *result = sexpr_apply_function (env, fun->car, fun->cdr, args);
+        sexpr_free (fun);
+        return result;
+      }
+      break;
+
+    case S_FUN: // anonymous function
+      return sexpr_apply_function (env, e->car, e->cdr, args);
+
+    case S_BUILTIN:
+      return sexpr_apply_builtin (env, e, args);
+
+    default: // TODO better error message
+      return new_err ("cannot apply expression type: %d", e->s_type);
+    }
 }
 
 sexpr *
@@ -32,7 +61,7 @@ sexpr_eval (environment *env, const sexpr *e)
     case S_IDENT:
       return env_get (env, e->sval);
     case S_FUN:
-      return new_err("<function>");
+      return new_err ("<function>");
     case S_PAIR:
       return new_err ("eval: cannot evaluate pair");
     case S_LIST:

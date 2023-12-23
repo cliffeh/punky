@@ -8,7 +8,7 @@ DIR=$(dirname "$0")
 SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
-IN="$SRCDIR/test/builtins.in"
+IN="$SRCDIR/test/builtins.lisp"
 EXPECT="$SRCDIR/test/builtins.expect"
 OUT="$BUILDDIR/test/builtins.out"
 

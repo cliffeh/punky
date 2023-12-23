@@ -40,7 +40,7 @@ check_SCRIPTS += $(MEMCHECKS)
 
 TESTS = $(check_SCRIPTS)
 TESTS_ENVIRONMENT = SRCDIR=$(srcdir) BUILDDIR=$(builddir)
-TESTS_INPUTS = test/atoms.in test/builtins.in
+TESTS_INPUTS = test/atoms.lisp test/builtins.lisp
 TESTS_OUTPUTS = test/atoms.expect test/builtins.expect
 
 CLEANFILES = test/*.out

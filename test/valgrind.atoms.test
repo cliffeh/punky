@@ -10,7 +10,7 @@ DIR=$(dirname "$0")
 SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
-IN="$SRCDIR/test/atoms.in"
+IN="$SRCDIR/test/atoms.lisp"
 OUT="$BUILDDIR/test/atoms.valgrind.out"
 
 valgrind \

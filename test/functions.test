@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euxo pipefail
+
+# tests that atoms are parsed correctly
+
+# if unset we'll expect our input to reside in the directory alongside our script
+DIR=$(dirname "$0")
+SRCDIR=${SRCDIR:-$DIR/..}
+BUILDDIR=${BUILDDIR:-$DIR/..}
+
+IN="$SRCDIR/test/functions.lisp"
+EXPECT="$SRCDIR/test/functions.expect"
+OUT="$BUILDDIR/test/functions.out"
+
+"$BUILDDIR/punky" < "$IN" > "$OUT"
+diff "$EXPECT" "$OUT"

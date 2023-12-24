@@ -17,16 +17,16 @@ punky_SOURCES =   \
 BUILT_SOURCES = builtin.c builtin.h parse.h punky.h scan.l
 
 builtin.c: builtin.c.in mkbuiltins.py
-	$(PYTHON) mkbuiltins.py < $< > $@
+	$(PYTHON) mkbuiltins.py $< > $@
 
 builtin.h: builtin.h.in mkbuiltins.py
-	$(PYTHON) mkbuiltins.py < $< > $@
+	$(PYTHON) mkbuiltins.py $< > $@
 
 punky.h: punky.h.in mkbuiltins.py
-	$(PYTHON) mkbuiltins.py < $< > $@
+	$(PYTHON) mkbuiltins.py $< > $@
 
 scan.l: scan.l.in mkbuiltins.py
-	$(PYTHON) mkbuiltins.py < $< > $@
+	$(PYTHON) mkbuiltins.py $< > $@
 
 ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -Wall -Werror

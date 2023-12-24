@@ -65,10 +65,17 @@ sexpr_apply (environment *env, const sexpr *e, const sexpr *args)
     {
     case S_BUILTIN:
       return sexpr_apply_builtin (env, e, args);
-    case S_FUN:
-      return sexpr_apply_function (env, e->car, e->cdr, args);
     default:
-      return new_err ("attempt to apply inapplicable type");
+      sexpr *fun = sexpr_eval (env, e);
+      if (fun->s_type != S_FUN)
+        {
+          sexpr *err = new_err ("attempt to apply inapplicable type");
+          err->cdr = fun;
+          return err;
+        }
+      sexpr *result = sexpr_apply_function (env, fun->car, fun->cdr, args);
+      sexpr_free (fun);
+      return result;
     }
 }
 
@@ -92,12 +99,9 @@ sexpr_eval (environment *env, const sexpr *e)
     case S_FUN:
       return new_err ("<function>");
     case S_LIST:
-      sexpr *applicable = sexpr_eval (env, e->car);
-      sexpr *result = sexpr_apply (env, applicable, e->cdr);
-      sexpr_free (applicable);
-      return result;
+      return sexpr_apply (env, e->car, e->cdr);
     case S_BUILTIN:
-      return (sexpr *)e; // this should be fine
+      return new_err ("<builtin> %s", e->sval);
     default:
       return new_err ("eval: unknown expression type %i", e->s_type);
     }

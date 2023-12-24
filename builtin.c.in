@@ -1,8 +1,6 @@
-#include "alloc.h"
 #include "builtin.h"
 #include "constants.h"
-#include "env.h"
-#include "punky.h"
+#include "alloc.h"
 
 #define ZERO_ARGS(e) ((e) == &NIL)
 

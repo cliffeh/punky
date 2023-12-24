@@ -7,17 +7,18 @@ punky_SOURCES =     \
 		builtin.h   \
         constants.c \
         constants.h \
-        enum.h      \
         env.c       \
         env.h       \
         eval.c      \
+        eval.h      \
         main.c      \
         parse.y     \
         print.c     \
-        punky.h     \
-        scan.l
+        print.h     \
+        scan.l      \
+        types.h
 
-BUILT_SOURCES = builtin.c builtin.h constants.c constants.h enum.h parse.h scan.l
+BUILT_SOURCES = builtin.c builtin.h constants.c constants.h parse.h scan.l types.h
 
 builtin.c: builtin.c.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
@@ -31,10 +32,10 @@ constants.c: constants.c.in mkbuiltins.py
 constants.h: constants.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
 
-enum.h: enum.h.in mkbuiltins.py
+scan.l: scan.l.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
 
-scan.l: scan.l.in mkbuiltins.py
+types.h: types.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
 
 ACLOCAL_AMFLAGS = -I m4
@@ -60,7 +61,7 @@ TESTS_OUTPUTS = test/atoms.expect test/builtins.expect test/functions.expect
 
 CLEANFILES = test/*.out
 
-EXTRA_DIST = mkbuiltins.py builtin.c.in builtin.h.in constants.c.in constants.h.in enum.h.in scan.l.in \
+EXTRA_DIST = mkbuiltins.py builtin.c.in builtin.h.in constants.c.in constants.h.in scan.l.in types.h.in \
 	$(check_SCRIPTS) $(TESTS_INPUTS) $(TESTS_OUTPUTS)
 
 dist_doc_DATA = LICENSE README.md TODO.md

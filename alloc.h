@@ -1,6 +1,6 @@
 #pragma once
 
-#include "punky.h"
+#include "types.h"
 
 sexpr *new_err (sexpr *stack, const char *fmt, ...);
 sexpr *new_int (int ival);

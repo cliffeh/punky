@@ -21,3 +21,17 @@ typedef enum builtin_type
   B_TYPE_NIL = 0,
   /* @BUILTIN_TYPEDEFS@ */
 } builtin_type;
+
+typedef struct sexpr
+{
+  sexpr_type s_type;
+  builtin_type b_type;
+  union
+  {
+    int ival;
+    char *sval;
+    // float fval; // TODO double? other data types?
+    struct sexpr *car;
+  };
+  struct sexpr *cdr;
+} sexpr;

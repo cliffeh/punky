@@ -63,11 +63,11 @@ Makefile
 /config.h
 /constants.c
 /constants.h
-/enum.h
 /parse.c
 /parse.h
 /scan.c
 /scan.l
+/types.h
 
 # generated object files
 *.o

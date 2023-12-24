@@ -4,8 +4,6 @@
 #include "env.h"
 #include "punky.h"
 
-/* @BUILTIN_SINGLETONS@ */
-
 #define ZERO_ARGS(e) ((e) == &NIL)
 
 #define ATLEAST_ONE_ARG(e) ((e)->s_type == S_LIST)

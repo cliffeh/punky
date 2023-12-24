@@ -1,12 +1,9 @@
 #include "alloc.h"
 #include "builtin.h"
+#include "constants.h"
 #include "env.h"
 #include "punky.h"
 #include <stdlib.h>
-
-const sexpr NIL = { .s_type = S_NIL };
-const sexpr TRUE = { .s_type = S_BOOL };
-const sexpr FALSE = { .s_type = S_BOOL };
 
 static sexpr *
 bind_params (environment *fenv, const sexpr *params, const sexpr *args,

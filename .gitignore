@@ -65,7 +65,6 @@ Makefile
 /enum.h
 /parse.c
 /parse.h
-/punky.h
 /scan.c
 /scan.l
 

@@ -4,9 +4,6 @@
 
 #include "enum.h"
 
-/* builtin procedure types */
-typedef enum builtin_type builtin_type; // builtin.h
-
 typedef struct sexpr
 {
   sexpr_type s_type;

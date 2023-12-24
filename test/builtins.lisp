@@ -15,3 +15,4 @@ x
 (lambda (x) (* x 2))
 (define double (lambda (x) (* x 2)))
 (car '(a b c))
+(cdr '(x y z))

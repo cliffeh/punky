@@ -127,6 +127,25 @@ builtin_apply_CAR (environment *env, const sexpr *args)
 }
 
 static sexpr *
+builtin_apply_CDR (environment *env, const sexpr *args)
+{
+  if (args->s_type != S_LIST || args->cdr != &NIL)
+    return new_err ("cdr requires exactly one argument");
+
+  sexpr *list = sexpr_eval (env, args->car);
+  if (list->s_type != S_LIST)
+    {
+      sexpr *err = new_err ("cdr requires a list argument");
+      err->cdr = list;
+      return err;
+    }
+
+  sexpr *cdr = sexpr_copy(list->cdr); // TODO inefficient...
+  sexpr_free (list);
+  return cdr;
+}
+
+static sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
   EXPECT (args, S_LIST, "malformed arguments to define");

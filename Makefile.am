@@ -6,6 +6,7 @@ punky_SOURCES =     \
         builtin.c   \
 		builtin.h   \
         constants.h \
+        enum.h      \
         env.c       \
         env.h       \
         eval.c      \
@@ -15,7 +16,7 @@ punky_SOURCES =     \
         punky.h     \
         scan.l
 
-BUILT_SOURCES = builtin.c builtin.h constants.h parse.h punky.h scan.l
+BUILT_SOURCES = builtin.c builtin.h constants.h enum.h parse.h punky.h scan.l
 
 builtin.c: builtin.c.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
@@ -24,6 +25,9 @@ builtin.h: builtin.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
 
 constants.h: constants.h.in mkbuiltins.py
+	$(PYTHON) mkbuiltins.py $< > $@
+
+enum.h: enum.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
 
 punky.h: punky.h.in mkbuiltins.py
@@ -55,7 +59,7 @@ TESTS_OUTPUTS = test/atoms.expect test/builtins.expect test/functions.expect
 
 CLEANFILES = test/*.out
 
-EXTRA_DIST = mkbuiltins.py builtin.c.in builtin.h.in constants.h.in punky.h.in scan.l.in \
+EXTRA_DIST = mkbuiltins.py builtin.c.in builtin.h.in constants.h.in enum.h.in punky.h.in scan.l.in \
 	$(check_SCRIPTS) $(TESTS_INPUTS) $(TESTS_OUTPUTS)
 
 dist_doc_DATA = LICENSE README.md TODO.md

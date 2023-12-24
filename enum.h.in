@@ -1,0 +1,23 @@
+#pragma once
+
+/* s-expression types */
+typedef enum sexpr_type
+{
+  S_ERR = -1,
+  S_NIL = 0,
+  S_BOOL,
+  S_INT,
+  S_STR,
+  S_QUOTE,
+  // S_FLOAT, // TODO
+  S_IDENT,
+  S_FUN,
+  S_LIST,
+  S_BUILTIN
+} sexpr_type;
+
+typedef enum builtin_type
+{
+  B_TYPE_NIL = 0,
+  /* @BUILTIN_TYPEDEFS@ */
+} builtin_type;

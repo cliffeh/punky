@@ -20,10 +20,8 @@ BUILTIN_SINGLETON_MACRO = '@BUILTIN_SINGLETONS@'
 BUILTIN_CASES_MACRO = '@BUILTIN_CASES@'
 BUILTIN_DECLS_MACRO = '@BUILTIN_DECLS@'
 
-# BUILTIN_TYPEDEFS_MACRO
 
-
-def print_typedefs():
+def print_typedefs():  # BUILTIN_TYPEDEFS_MACRO
     typedefs = []
     for builtin in BUILTINS:
         typedef = f'B_TYPE_{builtin[0]}'
@@ -33,42 +31,32 @@ def print_typedefs():
 
     print('  ' + ',\n  '.join(typedefs))
 
-# BUILTIN_EXTERN_MACRO
 
-
-def print_externs():
+def print_externs():  # BUILTIN_EXTERN_MACRO
     for builtin in BUILTINS:
         print(f'extern const sexpr B_{builtin[0]};')
 
-# BUILTIN_PATTERN_MACRO
 
-
-def print_scanner_patterns():
+def print_scanner_patterns():  # BUILTIN_PATTERN_MACRO
     for builtin in BUILTINS:
         print(
             f'{builtin[3]} {{ *yylval = (sexpr *)&B_{builtin[0]}; return(BUILTIN); }}')
 
-# BUILTIN_SINGLETON_MACRO
 
-
-def print_singletons():
+def print_singletons():  # BUILTIN_SINGLETON_MACRO
     for builtin in BUILTINS:
         b_type = f"'{builtin[1]}'" if builtin[1] else f'B_TYPE_{builtin[0]}'
         print(
             f'const sexpr B_{builtin[0]} = {{ .s_type = S_BUILTIN, .b_type = {b_type}, .sval = "{builtin[2]}" }};')
 
-# BUILTIN_CASES_MACRO
 
-
-def print_builtin_cases():
+def print_builtin_cases():  # BUILTIN_CASES_MACRO
     for builtin in BUILTINS:
         print(f'    case B_TYPE_{builtin[0]}:')
         print(f'      return builtin_apply_{builtin[0]} (env, args);')
 
-# BUILTIN_DECLS_MACRO
 
-
-def print_builtin_decls():
+def print_builtin_decls():  # BUILTIN_DECLS_MACRO
     for builtin in BUILTINS:
         print(
             f'static sexpr *builtin_apply_{builtin[0]} (environment *env, const sexpr *args);')

@@ -4,13 +4,19 @@ import sys
 
 BUILTINS = [
     # name,    .b_type, .sval,    pattern
+    # arithmetic
     ("ADD",    '+',     "+",      "\\+"),
     ("SUB",    '-',     "-",      "\\-"),
     ("MUL",    '*',     "*",      "\\*"),
     ("DIV",    '/',     "/",      "\\/"),
+    # lists
     ("CAR",    None,    "car",    "[cC][aA][rR]"),
     ("CDR",    None,    "cdr",    "[cC][dD][rR]"),
     ("CONS",   None,    "cons",   "[cC][oO][nN][sS]"),
+    # boolean
+    ("OR",     None,    "or",     "[oO][rR]"),
+    ("AND",    None,    "and",    "[aA][nN][dD]"),
+    # special
     ("DEFINE", None,    "define", "[dD][eE][fF][iI][nN][eE]"),
     ("LAMBDA", None,    "lambda", "[lL][aA][mM][bB][dD][aA]"),
 ]

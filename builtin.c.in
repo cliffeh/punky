@@ -157,6 +157,26 @@ builtin_apply_CONS (environment *env, const sexpr *args)
 }
 
 static sexpr *
+builtin_apply_OR (environment *env, const sexpr *args)
+{
+  sexpr *b = (sexpr *)&FALSE;
+  WALK_LIST (env, args, e, S_BOOL,
+             b = (sexpr *)((b == &TRUE || e == &TRUE) ? &TRUE : &FALSE),
+             "boolean type required");
+  return b;
+}
+
+static sexpr *
+builtin_apply_AND (environment *env, const sexpr *args)
+{
+  sexpr *b = (sexpr *)&TRUE;
+  WALK_LIST (env, args, e, S_BOOL,
+             b = (sexpr *)((b == &TRUE && e == &TRUE) ? &TRUE : &FALSE),
+             "boolean type required");
+  return b;
+}
+
+static sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
   if (!ATLEAST_ONE_ARG (args))

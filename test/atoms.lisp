@@ -10,3 +10,5 @@
 ''"Lorem ipsum est"
 '(x . 9)
 '(foo bar baz)
+#t
+#f

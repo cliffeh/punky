@@ -81,7 +81,7 @@ atom:
 elements:
   sexpr[car]
 {
-  $$ = new_list($car, &NIL);
+  $$ = new_list($car, (sexpr *)&NIL);
 }
 | sexpr[car] elements[cdr]
 {

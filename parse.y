@@ -27,7 +27,7 @@
 }
 
 // literals & identifiers
-%token BUILTIN IDENT INTLIT STRLIT
+%token BOOL BUILTIN IDENT INTLIT STRLIT
 
 %start program
 
@@ -71,6 +71,7 @@ atom:
 {
   $$ = (sexpr *)&NIL;
 }
+| BOOL
 | IDENT
 | INTLIT
 | STRLIT

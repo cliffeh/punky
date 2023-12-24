@@ -16,6 +16,9 @@ sexpr_print (FILE *out, int flags, const sexpr *e)
     case S_NIL:
       fprintf (out, "()");
       break;
+    case S_BOOL:
+      fprintf (out, e == &TRUE ? "#t" : "#f");
+      break;
     case S_INT:
       fprintf (out, "%d", e->ival);
       break;

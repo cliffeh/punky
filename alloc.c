@@ -91,6 +91,7 @@ sexpr_copy (const sexpr *e)
   switch (e->s_type)
     {
     case S_NIL:
+    case S_BOOL:
     case S_BUILTIN:
       return (sexpr *)e; // this should be okay
     case S_ERR:
@@ -123,6 +124,7 @@ sexpr_free (sexpr *e)
   switch (e->s_type)
     {
     case S_NIL:
+    case S_BOOL:
     case S_BUILTIN:
       return;
     case S_ERR:

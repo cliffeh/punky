@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 const sexpr NIL = { .s_type = S_NIL };
+const sexpr TRUE = { .s_type = S_BOOL };
+const sexpr FALSE = { .s_type = S_BOOL };
 
 static sexpr *
 bind_params (environment *fenv, const sexpr *params, const sexpr *args,
@@ -88,6 +90,8 @@ sexpr_eval (environment *env, const sexpr *e)
       return sexpr_copy (e);
     case S_NIL:
       return (sexpr *)&NIL;
+    case S_BOOL:
+      return (sexpr *)e;
     case S_INT:
       return new_int (e->ival);
     case S_STR:

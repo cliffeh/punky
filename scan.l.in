@@ -28,6 +28,9 @@
  /* builtins */
  /* @BUILTIN_PATTERNS@ */
 
+#t                       { *yylval = (sexpr *)&TRUE;          return(BOOL); }
+#f                       { *yylval = (sexpr *)&FALSE;         return(BOOL); }
+
  /* TODO make identifiers accept more characters */
 [_!#$?\-a-zA-Z]+         { *yylval = new_ident(yytext);     return(IDENT);  }
 

@@ -14,3 +14,4 @@ x
 32
 (lambda (x) (* x 2))
 double
+a

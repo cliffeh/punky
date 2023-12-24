@@ -14,3 +14,4 @@ x
 (/ 256 4 2)
 (lambda (x) (* x 2))
 (define double (lambda (x) (* x 2)))
+(car '(a b c))

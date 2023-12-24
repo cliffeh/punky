@@ -8,7 +8,7 @@ BUILTINS = [
     ("SUB",    '-',     "-",      "\\-"),
     ("MUL",    '*',     "*",      "\\*"),
     ("DIV",    '/',     "/",      "\\/"),
-    ("CONS",   None,    "cons",   "[cC][oO][nN][sS]"),
+    ("CAR",    None,    "car",    "[cC][aR][rR]"),
     ("DEFINE", None,    "define", "[dD][eE][fF][iI][nN][eE]"),
     ("LAMBDA", None,    "lambda", "[lL][aA][mM][bB][dD][aA]"),
 ]

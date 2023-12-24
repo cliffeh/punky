@@ -108,9 +108,22 @@ builtin_apply_DIV (environment *env, const sexpr *args)
 }
 
 static sexpr *
-builtin_apply_CONS (environment *env, const sexpr *args)
+builtin_apply_CAR (environment *env, const sexpr *args)
 {
-  return new_err("i don't know from CONS");
+  if (args->s_type != S_LIST || args->cdr != &NIL)
+    return new_err ("car requires exactly one argument");
+
+  sexpr *list = sexpr_eval (env, args->car);
+  if (list->s_type != S_LIST)
+    {
+      sexpr *err = new_err ("car requires a list argument");
+      err->cdr = list;
+      return err;
+    }
+
+  sexpr *car = sexpr_copy(list->car); // TODO inefficient...
+  sexpr_free (list);
+  return car;
 }
 
 static sexpr *

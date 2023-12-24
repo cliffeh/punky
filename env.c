@@ -24,7 +24,7 @@ env_get (environment *env, const char *key)
     return env_get (env->parent, key);
 
   // didn't find it
-  return new_err ("unbound variable '%s'", key);
+  return new_err (0, "unbound variable '%s'", key);
 }
 
 void

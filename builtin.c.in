@@ -9,15 +9,13 @@
 
 #define EXPECT(e, TYPE, errmsg)                                               \
   if (e->s_type != (TYPE))                                                    \
-  return new_err (errmsg)
+  return new_err (0, errmsg)
 
 #define EVAL_EXPECT(env, arg, e, TYPE, errmsg)                                \
   sexpr *e = sexpr_eval (env, arg);                                           \
   if (e->s_type != TYPE)                                                      \
     {                                                                         \
-      sexpr *err = new_err (errmsg);                                          \
-      err->cdr = e;                                                           \
-      return err;                                                             \
+      return new_err (e, errmsg);                                             \
     }
 
 #define WALK_LIST(env, args, e, TYPE, ACTION, errmsg)                         \
@@ -29,7 +27,7 @@
       sexpr_free (e);                                                         \
     }                                                                         \
   if (list != &NIL)                                                           \
-  return new_err ("malformed arguments")
+  return new_err (0, "malformed arguments")
 
 static sexpr *
 builtin_apply_ADD (environment *env, const sexpr *args)
@@ -80,11 +78,8 @@ builtin_apply_DIV (environment *env, const sexpr *args)
   if (args->cdr == &NIL)
     { // special case
       if (e->ival == 0)
-        {
-          sexpr *err = new_err ("divide by zero");
-          err->cdr = e;
-          return err;
-        }
+        return new_err (e, "divide by zero");
+
       e->ival = 1 / e->ival;
       return e;
     }
@@ -96,12 +91,9 @@ builtin_apply_DIV (environment *env, const sexpr *args)
   sexpr *rest = builtin_apply_MUL (env, args->cdr);
   if (rest->s_type == S_ERR)
     return rest;
+
   if (rest->ival == 0)
-    {
-      sexpr *err = new_err ("divide by zero");
-      err->cdr = e;
-      return err;
-    }
+    return new_err (rest, "divide by zero");
 
   rest->ival = r / rest->ival;
   return rest;
@@ -111,17 +103,13 @@ static sexpr *
 builtin_apply_CAR (environment *env, const sexpr *args)
 {
   if (args->s_type != S_LIST || args->cdr != &NIL)
-    return new_err ("car requires exactly one argument");
+    return new_err (0, "car requires exactly one argument");
 
   sexpr *list = sexpr_eval (env, args->car);
   if (list->s_type != S_LIST)
-    {
-      sexpr *err = new_err ("car requires a list argument");
-      err->cdr = list;
-      return err;
-    }
+    return new_err (list, "car requires a list argument");
 
-  sexpr *car = sexpr_copy(list->car); // TODO inefficient...
+  sexpr *car = sexpr_copy (list->car); // TODO inefficient...
   sexpr_free (list);
   return car;
 }
@@ -130,17 +118,13 @@ static sexpr *
 builtin_apply_CDR (environment *env, const sexpr *args)
 {
   if (args->s_type != S_LIST || args->cdr != &NIL)
-    return new_err ("cdr requires exactly one argument");
+    return new_err (0, "cdr requires exactly one argument");
 
   sexpr *list = sexpr_eval (env, args->car);
   if (list->s_type != S_LIST)
-    {
-      sexpr *err = new_err ("cdr requires a list argument");
-      err->cdr = list;
-      return err;
-    }
+    return new_err (list, "cdr requires a list argument");
 
-  sexpr *cdr = sexpr_copy(list->cdr); // TODO inefficient...
+  sexpr *cdr = sexpr_copy (list->cdr); // TODO inefficient...
   sexpr_free (list);
   return cdr;
 }
@@ -159,7 +143,7 @@ builtin_apply_DEFINE (environment *env, const sexpr *args)
     }
   EXPECT (args->cdr, S_LIST, "malformed arguments to define");
   if (args->cdr->cdr != &NIL)
-    return new_err ("unexpected extra arguments to define");
+    return new_err (0, "unexpected extra arguments to define");
 
   sexpr *value = sexpr_eval (env, args->cdr->car);
 
@@ -185,7 +169,7 @@ builtin_apply_LAMBDA (environment *env, const sexpr *args)
 
   EXPECT (args->cdr, S_LIST, "malformed arguments to lambda");
   if (args->cdr->cdr != &NIL)
-    return new_err ("unexpected extra arguments to lambda");
+    return new_err (0, "unexpected extra arguments to lambda");
   sexpr *body = args->cdr->car;
 
   return new_fun (sexpr_copy (params), sexpr_copy (body));
@@ -199,6 +183,6 @@ sexpr_apply_builtin (environment *env, const sexpr *builtin, const sexpr *args)
       /* @BUILTIN_CASES@ */
 
     default:
-      return new_err ("unknown/unimplemented builtin %d\n", builtin->b_type);
+      return new_err (0, "unknown/unimplemented builtin %d\n", builtin->b_type);
     }
 }

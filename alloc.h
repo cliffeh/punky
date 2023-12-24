@@ -2,7 +2,7 @@
 
 #include "punky.h"
 
-sexpr *new_err (const char *fmt, ...);
+sexpr *new_err (sexpr *stack, const char *fmt, ...);
 sexpr *new_int (int ival);
 sexpr *new_str (const char *str);
 sexpr *new_quote (sexpr *q);

@@ -95,6 +95,6 @@ void
 yyerror (YYLTYPE* yyllocp, sexpr **result, yyscan_t scanner, const char *msg)
 {
   // TODO destructor for the expression that caused the error?
-  *result = new_err("[line %d, column %d]: %s",
+  *result = new_err(0, "[line %d, column %d]: %s",
             yyllocp->first_line, yyllocp->first_column, msg);
 }

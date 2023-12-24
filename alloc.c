@@ -7,7 +7,7 @@
 #define SEXPR_ALLOC(e) calloc (1, sizeof (*e))
 
 sexpr *
-new_err (const char *fmt, ...)
+new_err (sexpr *stack, const char *fmt, ...)
 {
   sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_ERR;
@@ -25,6 +25,7 @@ new_err (const char *fmt, ...)
   va_end (args);
 
   e->sval = msg;
+  e->cdr = stack ? stack : (sexpr *)&NIL;
 
   return e;
 }
@@ -95,9 +96,7 @@ sexpr_copy (const sexpr *e)
     case S_BUILTIN:
       return (sexpr *)e; // this should be okay
     case S_ERR:
-      sexpr *r = new_err (e->sval);
-      r->cdr = sexpr_copy (e->cdr);
-      return r;
+      return new_err (sexpr_copy (e->cdr), e->sval);
     case S_INT:
       return new_int (e->ival);
     case S_STR:
@@ -111,7 +110,7 @@ sexpr_copy (const sexpr *e)
     case S_LIST:
       return new_list (sexpr_copy (e->car), sexpr_copy (e->cdr));
     default:
-      return new_err ("I don't know how to copy type %d", e->s_type);
+      return new_err (0, "I don't know how to copy type %d", e->s_type);
     }
 }
 

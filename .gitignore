@@ -61,6 +61,7 @@ Makefile
 /builtin.c
 /builtin.h
 /config.h
+/constants.h
 /parse.c
 /parse.h
 /punky.h

@@ -1,11 +1,10 @@
 #include "alloc.h"
 #include "builtin.h"
+#include "constants.h"
 #include "env.h"
 #include "punky.h"
 
 /* @BUILTIN_SINGLETONS@ */
-
-/* @BUILTIN_DECLS@ */
 
 #define ZERO_ARGS(e) ((e) == &NIL)
 
@@ -38,7 +37,7 @@
   if (list != &NIL)                                                           \
   return new_err (0, "malformed arguments")
 
-static sexpr *
+sexpr *
 builtin_apply_ADD (environment *env, const sexpr *args)
 {
   int r = 0;
@@ -46,7 +45,7 @@ builtin_apply_ADD (environment *env, const sexpr *args)
   return new_int (r);
 }
 
-static sexpr *
+sexpr *
 builtin_apply_MUL (environment *env, const sexpr *args)
 {
   int r = 1;
@@ -54,7 +53,7 @@ builtin_apply_MUL (environment *env, const sexpr *args)
   return new_int (r);
 }
 
-static sexpr *
+sexpr *
 builtin_apply_SUB (environment *env, const sexpr *args)
 {
   if (!ATLEAST_ONE_ARG (args))
@@ -79,7 +78,7 @@ builtin_apply_SUB (environment *env, const sexpr *args)
   return rest;
 }
 
-static sexpr *
+sexpr *
 builtin_apply_DIV (environment *env, const sexpr *args)
 {
   if (!ATLEAST_ONE_ARG (args))
@@ -110,7 +109,7 @@ builtin_apply_DIV (environment *env, const sexpr *args)
   return rest;
 }
 
-static sexpr *
+sexpr *
 builtin_apply_CAR (environment *env, const sexpr *args)
 {
   if (!EXACTLY_ONE_ARG (args))
@@ -123,7 +122,7 @@ builtin_apply_CAR (environment *env, const sexpr *args)
   return car;
 }
 
-static sexpr *
+sexpr *
 builtin_apply_CDR (environment *env, const sexpr *args)
 {
   if (!EXACTLY_ONE_ARG (args))
@@ -136,7 +135,7 @@ builtin_apply_CDR (environment *env, const sexpr *args)
   return cdr;
 }
 
-static sexpr *
+sexpr *
 builtin_apply_CONS (environment *env, const sexpr *args)
 {
   if (!EXACTLY_TWO_ARG (args))
@@ -156,7 +155,7 @@ builtin_apply_CONS (environment *env, const sexpr *args)
   return new_list (car, cdr);
 }
 
-static sexpr *
+sexpr *
 builtin_apply_OR (environment *env, const sexpr *args)
 {
   sexpr *b = (sexpr *)&FALSE;
@@ -166,7 +165,7 @@ builtin_apply_OR (environment *env, const sexpr *args)
   return b;
 }
 
-static sexpr *
+sexpr *
 builtin_apply_AND (environment *env, const sexpr *args)
 {
   sexpr *b = (sexpr *)&TRUE;
@@ -176,7 +175,7 @@ builtin_apply_AND (environment *env, const sexpr *args)
   return b;
 }
 
-static sexpr *
+sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
   if (!ATLEAST_ONE_ARG (args))
@@ -202,7 +201,7 @@ builtin_apply_DEFINE (environment *env, const sexpr *args)
   return new_ident (key->sval);
 }
 
-static sexpr *
+sexpr *
 builtin_apply_LAMBDA (environment *env, const sexpr *args)
 {
   if (!EXACTLY_TWO_ARG (args))

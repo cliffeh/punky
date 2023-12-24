@@ -7,3 +7,5 @@
 
 sexpr *sexpr_apply_builtin (environment *env, const sexpr *builtin,
                             const sexpr *args);
+
+/* @BUILTIN_DECLS@ */

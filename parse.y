@@ -8,6 +8,7 @@
 %code requires {
   #include "alloc.h"
   #include "builtin.h"
+  #include "constants.h"
   #include <string.h>
   #include <stdio.h>
   #include <stdlib.h>

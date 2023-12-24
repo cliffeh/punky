@@ -67,7 +67,7 @@ def print_builtin_cases():  # BUILTIN_CASES_MACRO
 def print_builtin_decls():  # BUILTIN_DECLS_MACRO
     for builtin in BUILTINS:
         print(
-            f'static sexpr *builtin_apply_{builtin[0]} (environment *env, const sexpr *args);')
+            f'sexpr *builtin_apply_{builtin[0]} (environment *env, const sexpr *args);')
 
 
 def replace_macros(filename):

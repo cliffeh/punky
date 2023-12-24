@@ -1,0 +1,8 @@
+#pragma once
+
+#include "punky.h"
+
+extern const sexpr NIL;
+extern const sexpr TRUE;
+extern const sexpr FALSE;
+/* @BUILTIN_EXTERNS@ */

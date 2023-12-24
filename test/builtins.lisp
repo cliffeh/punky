@@ -16,3 +16,5 @@ x
 (define double (lambda (x) (* x 2)))
 (car '(a b c))
 (cdr '(x y z))
+(cons 'p 'q)
+(cons 'a '(b c d))

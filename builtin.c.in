@@ -7,6 +7,15 @@
 
 /* @BUILTIN_DECLS@ */
 
+#define ZERO_ARGS(e) ((e) == &NIL)
+
+#define ATLEAST_ONE_ARG(e) ((e)->s_type == S_LIST)
+
+#define EXACTLY_ONE_ARG(e) ATLEAST_ONE_ARG ((e)) && ZERO_ARGS ((e)->cdr)
+
+#define EXACTLY_TWO_ARG(e)                                                    \
+  ((e)->s_type == S_LIST && EXACTLY_ONE_ARG ((e)->cdr))
+
 #define EXPECT(e, TYPE, errmsg)                                               \
   if (e->s_type != (TYPE))                                                    \
   return new_err (0, errmsg)
@@ -48,10 +57,11 @@ builtin_apply_MUL (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_SUB (environment *env, const sexpr *args)
 {
-  EXPECT (args, S_LIST, "subtraction requires at least one argument");
+  if (!ATLEAST_ONE_ARG (args))
+    return new_err (0, "subtraction requires at least one argument");
   EVAL_EXPECT (env, args->car, e, S_INT, "numeric type required");
 
-  if (args->cdr == &NIL)
+  if (ZERO_ARGS (args->cdr))
     { // special case
       e->ival = -e->ival;
       return e;
@@ -72,10 +82,11 @@ builtin_apply_SUB (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_DIV (environment *env, const sexpr *args)
 {
-  EXPECT (args, S_LIST, "division requires at least one argument");
+  if (!ATLEAST_ONE_ARG (args))
+    return new_err (0, "division requires at least one argument");
   EVAL_EXPECT (env, args->car, e, S_INT, "numeric type required");
 
-  if (args->cdr == &NIL)
+  if (ZERO_ARGS (args->cdr))
     { // special case
       if (e->ival == 0)
         return new_err (e, "divide by zero");
@@ -102,12 +113,10 @@ builtin_apply_DIV (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_CAR (environment *env, const sexpr *args)
 {
-  if (args->s_type != S_LIST || args->cdr != &NIL)
+  if (!EXACTLY_ONE_ARG (args))
     return new_err (0, "car requires exactly one argument");
 
-  sexpr *list = sexpr_eval (env, args->car);
-  if (list->s_type != S_LIST)
-    return new_err (list, "car requires a list argument");
+  EVAL_EXPECT (env, args->car, list, S_LIST, "car requires a list argument")
 
   sexpr *car = sexpr_copy (list->car); // TODO inefficient...
   sexpr_free (list);
@@ -117,12 +126,10 @@ builtin_apply_CAR (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_CDR (environment *env, const sexpr *args)
 {
-  if (args->s_type != S_LIST || args->cdr != &NIL)
-    return new_err (0, "cdr requires exactly one argument");
+  if (!EXACTLY_ONE_ARG (args))
+    return new_err (0, "car requires exactly one argument");
 
-  sexpr *list = sexpr_eval (env, args->car);
-  if (list->s_type != S_LIST)
-    return new_err (list, "cdr requires a list argument");
+  EVAL_EXPECT (env, args->car, list, S_LIST, "cdr requires a list argument")
 
   sexpr *cdr = sexpr_copy (list->cdr); // TODO inefficient...
   sexpr_free (list);
@@ -130,19 +137,39 @@ builtin_apply_CDR (environment *env, const sexpr *args)
 }
 
 static sexpr *
+builtin_apply_CONS (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_TWO_ARG (args))
+    return new_err (0, "cons requires exactly two arguments");
+
+  sexpr *car = sexpr_eval (env, args->car);
+  if (car->s_type == S_ERR)
+    return car;
+
+  sexpr *cdr = sexpr_eval (env, args->cdr->car);
+  if (cdr->s_type == S_ERR)
+    {
+      sexpr_free (car);
+      return cdr;
+    }
+
+  return new_list (car, cdr);
+}
+
+static sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
-  EXPECT (args, S_LIST, "malformed arguments to define");
+  if (!ATLEAST_ONE_ARG (args))
+    return new_err (0, "malformed arguments to define");
 
   const sexpr *key;
   EXPECT ((key = args->car), S_IDENT, "non-identifier provided to define");
 
-  if (args->cdr == &NIL)
+  if (ZERO_ARGS (args->cdr))
     { // special case
       return env_del (env, key->sval);
     }
-  EXPECT (args->cdr, S_LIST, "malformed arguments to define");
-  if (args->cdr->cdr != &NIL)
+  else if (!EXACTLY_ONE_ARG (args->cdr))
     return new_err (0, "unexpected extra arguments to define");
 
   sexpr *value = sexpr_eval (env, args->cdr->car);
@@ -158,7 +185,9 @@ builtin_apply_DEFINE (environment *env, const sexpr *args)
 static sexpr *
 builtin_apply_LAMBDA (environment *env, const sexpr *args)
 {
-  EXPECT (args, S_LIST, "malformed arguments to lambda");
+  if (!EXACTLY_TWO_ARG (args))
+    return new_err (0, "lambda requires exactly two arguments");
+
   EXPECT (args->car, S_LIST, "malformed arguments to lambda");
 
   sexpr *params = args->car, *e;
@@ -167,9 +196,6 @@ builtin_apply_LAMBDA (environment *env, const sexpr *args)
       EXPECT (e->car, S_IDENT, "non-identifier in lambda param list");
     }
 
-  EXPECT (args->cdr, S_LIST, "malformed arguments to lambda");
-  if (args->cdr->cdr != &NIL)
-    return new_err (0, "unexpected extra arguments to lambda");
   sexpr *body = args->cdr->car;
 
   return new_fun (sexpr_copy (params), sexpr_copy (body));
@@ -183,6 +209,7 @@ sexpr_apply_builtin (environment *env, const sexpr *builtin, const sexpr *args)
       /* @BUILTIN_CASES@ */
 
     default:
-      return new_err (0, "unknown/unimplemented builtin %d\n", builtin->b_type);
+      return new_err (0, "unknown/unimplemented builtin %d\n",
+                      builtin->b_type);
     }
 }

@@ -10,6 +10,7 @@ BUILTINS = [
     ("DIV",    '/',     "/",      "\\/"),
     ("CAR",    None,    "car",    "[cC][aA][rR]"),
     ("CDR",    None,    "cdr",    "[cC][dD][rR]"),
+    ("CONS",   None,    "cons",   "[cC][oO][nN][sS]"),
     ("DEFINE", None,    "define", "[dD][eE][fF][iI][nN][eE]"),
     ("LAMBDA", None,    "lambda", "[lL][aA][mM][bB][dD][aA]"),
 ]

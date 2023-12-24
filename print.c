@@ -37,20 +37,18 @@ sexpr_print (FILE *out, int flags, const sexpr *e)
       sexpr_print (out, flags + 1, e->cdr);
       fprintf (out, ")");
       break;
-    case S_PAIR:
-      fprintf (out, "(");
-      sexpr_print (out, flags + 1, e->car);
-      fprintf (out, " . ");
-      sexpr_print (out, flags + 1, e->cdr);
-      fprintf (out, ")");
-      break;
     case S_LIST:
       fprintf (out, "(");
       sexpr_print (out, flags + 1, e->car);
-      for (sexpr *cdr = e->cdr; cdr != &NIL; cdr = cdr->cdr)
+      for (e = e->cdr; e->s_type == S_LIST && e != &NIL; e = e->cdr)
         {
           fprintf (out, " ");
-          sexpr_print (out, flags + 1, cdr->car);
+          sexpr_print (out, flags + 1, e->car);
+        }
+      if (e != &NIL)
+        {
+          fprintf (out, " . ");
+          sexpr_print (out, flags + 1, e);
         }
       fprintf (out, ")");
       break;

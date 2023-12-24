@@ -91,8 +91,6 @@ sexpr_eval (environment *env, const sexpr *e)
       return env_get (env, e->sval);
     case S_FUN:
       return new_err ("<function>");
-    case S_PAIR:
-      return new_err ("eval: cannot evaluate pair");
     case S_LIST:
       sexpr *applicable = sexpr_eval (env, e->car);
       sexpr *result = sexpr_apply (env, applicable, e->cdr);

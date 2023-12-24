@@ -58,7 +58,7 @@ sexpr:
 }
 | '(' sexpr[car] '.' sexpr[cdr] ')'
 { // pair
-  $$ = new_pair($car, $cdr);
+  $$ = new_list($car, $cdr);
 }
 | '\'' sexpr
 { // quote

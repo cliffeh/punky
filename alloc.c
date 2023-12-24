@@ -76,16 +76,6 @@ new_fun (sexpr *params, sexpr *body)
 }
 
 sexpr *
-new_pair (sexpr *car, sexpr *cdr)
-{
-  sexpr *e = SEXPR_ALLOC (e);
-  e->s_type = S_PAIR;
-  e->car = car;
-  e->cdr = cdr;
-  return e;
-}
-
-sexpr *
 new_list (sexpr *car, sexpr *cdr)
 {
   sexpr *e = SEXPR_ALLOC (e);
@@ -117,8 +107,6 @@ sexpr_copy (const sexpr *e)
       return new_ident (e->sval);
     case S_FUN:
       return new_fun (sexpr_copy (e->car), sexpr_copy (e->cdr));
-    case S_PAIR:
-      return new_pair (sexpr_copy (e->car), sexpr_copy (e->cdr));
     case S_LIST:
       return new_list (sexpr_copy (e->car), sexpr_copy (e->cdr));
     default:
@@ -151,7 +139,6 @@ sexpr_free (sexpr *e)
       free (e->sval);
       break;
     case S_FUN:
-    case S_PAIR:
     case S_LIST:
       sexpr_free (e->car);
       sexpr_free (e->cdr);

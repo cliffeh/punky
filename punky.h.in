@@ -13,7 +13,6 @@ typedef enum sexpr_type
   // S_FLOAT, // TODO
   S_IDENT,
   S_FUN,
-  S_PAIR,
   S_LIST,
   S_BUILTIN
 } sexpr_type;

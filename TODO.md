@@ -4,3 +4,4 @@
 * moar tests
   * error testing!
   * fuzzing?
+* make equality checks work with more types

@@ -105,6 +105,41 @@ builtin_apply_DIV (environment *env, const sexpr *args)
   return rest;
 }
 
+sexpr * // TODO this should really support comparison of other types...
+builtin_apply_EQ (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+  EVAL_EXPECT (env, args->car, e1, S_INT, "= expects integer arguments");
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type != S_INT)
+        {
+          sexpr_free (e1);
+          return new_err (e2, "= expects integer arguments");
+        }
+      if (!(e1->ival == e2->ival))
+        r = (sexpr *)&FALSE;
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
 sexpr *
 builtin_apply_LT (environment *env, const sexpr *args)
 {

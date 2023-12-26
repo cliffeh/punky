@@ -4,4 +4,3 @@
 * moar tests
   * error testing!
   * fuzzing?
-* boolean types

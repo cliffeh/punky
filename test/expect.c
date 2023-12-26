@@ -39,10 +39,14 @@ main (int argc, char *argv[])
           if ((p = strrchr (buf, '\n'))) // strip newline
             *p = 0;
 
-          fprintf (stdout, "expect: %s | got: %s\n", expect, buf);
+          fprintf (stdout, "expect: %s | got: %s", expect, buf);
 
           if (!read || strcmp (buf, expect) != 0)
-            errcount++;
+            {
+              fprintf (stdout, "  !!!");
+              errcount++;
+            }
+          fprintf (stdout, "\n");
         }
     }
 

@@ -59,11 +59,8 @@ check_PROGRAMS = test/expect
 TESTS = $(check_SCRIPTS)
 TESTS_ENVIRONMENT = SRCDIR=$(srcdir) BUILDDIR=$(builddir)
 TESTS_INPUTS = test/atoms.lisp test/builtins.lisp test/functions.lisp
-TESTS_OUTPUTS = test/atoms.expect
-
-CLEANFILES = test/*.out
 
 EXTRA_DIST = mkbuiltins.py builtin.c.in builtin.h.in constants.c.in constants.h.in scan.l.in types.h.in \
-	$(check_SCRIPTS) $(TESTS_INPUTS) $(TESTS_OUTPUTS)
+	$(check_SCRIPTS) $(TESTS_INPUTS)
 
 dist_doc_DATA = LICENSE README.md TODO.md

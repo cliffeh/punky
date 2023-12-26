@@ -11,10 +11,9 @@ SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
 IN="$SRCDIR/test/atoms.lisp"
-OUT="$BUILDDIR/test/atoms.valgrind.out"
 
 valgrind \
   --leak-check=full \
   --show-leak-kinds=all \
   --error-exitcode=1 \
-  "$BUILDDIR/punky" < "$IN" > "$OUT"
+  "$BUILDDIR/punky" < "$IN" > /dev/null

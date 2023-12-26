@@ -11,6 +11,7 @@ BUILTINS = [
     ("DIV",    '/',     "/",      "\\/"),
     # boolean
     ("LT",     '<',     "<",      "\\<"),
+    ("GT",     '>',     ">",      "\\>"),
     ("OR",     None,    "or",     "[oO][rR]"),
     ("AND",    None,    "and",    "[aA][nN][dD]"),
     # lists

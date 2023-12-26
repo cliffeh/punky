@@ -11,6 +11,9 @@
 #define EXACTLY_TWO_ARG(e)                                                    \
   ((e)->s_type == S_LIST && EXACTLY_ONE_ARG ((e)->cdr))
 
+#define EXACTLY_THREE_ARG(e)                                                  \
+  ((e)->s_type == S_LIST && EXACTLY_TWO_ARG ((e)->cdr))
+
 #define EXPECT(e, TYPE, errmsg)                                               \
   if (e->s_type != (TYPE))                                                    \
   return new_err (0, errmsg)
@@ -226,6 +229,17 @@ builtin_apply_AND (environment *env, const sexpr *args)
   WALK_LIST (env, args, e, S_BOOL, if (e == &FALSE) r = 0,
              "and expects boolean arguments");
   return r ? (sexpr *)&TRUE : (sexpr *)&FALSE;
+}
+
+sexpr *
+builtin_apply_IF (environment *env, const sexpr *args)
+{
+  if(!EXACTLY_THREE_ARG(args))
+    return new_err(0, "if expects exactly 3 arguments");
+  
+  sexpr *pred = sexpr_eval(env, args->car), *r;
+  if(pred == &FALSE)
+    r = // TODO
 }
 
 sexpr *

@@ -15,6 +15,9 @@ BUILTINS = [
     ("GT",     '>',     ">",      "\\>"),
     ("OR",     None,    "or",     "[oO][rR]"),
     ("AND",    None,    "and",    "[aA][nN][dD]"),
+    # control flow
+    ("IF",     None,    "if",     "[iI][fF]"),
+    
     # lists
     ("CAR",    None,    "car",    "[cC][aA][rR]"),
     ("CDR",    None,    "cdr",    "[cC][dD][rR]"),

@@ -9,8 +9,5 @@ SRCDIR=${SRCDIR:-$DIR/..}
 BUILDDIR=${BUILDDIR:-$DIR/..}
 
 IN="$SRCDIR/test/functions.lisp"
-EXPECT="$SRCDIR/test/functions.expect"
-OUT="$BUILDDIR/test/functions.out"
 
-"$BUILDDIR/punky" < "$IN" > "$OUT"
-diff "$EXPECT" "$OUT"
+"$BUILDDIR/punky" < "$IN" | "$BUILDDIR/test/expect" "$IN"

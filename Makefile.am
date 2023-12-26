@@ -38,6 +38,7 @@ scan.l: scan.l.in mkbuiltins.py
 types.h: types.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
 
+AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -Wall -Werror
 AM_YFLAGS = -d -Wno-yacc -Wcounterexamples
@@ -53,11 +54,12 @@ MEMCHECKS =                      \
 
 # uncomment for memory checks (SLOW)
 check_SCRIPTS += $(MEMCHECKS)
+check_PROGRAMS = test/expect
 
 TESTS = $(check_SCRIPTS)
 TESTS_ENVIRONMENT = SRCDIR=$(srcdir) BUILDDIR=$(builddir)
 TESTS_INPUTS = test/atoms.lisp test/builtins.lisp test/functions.lisp
-TESTS_OUTPUTS = test/atoms.expect test/builtins.expect test/functions.expect
+TESTS_OUTPUTS = test/atoms.expect
 
 CLEANFILES = test/*.out
 

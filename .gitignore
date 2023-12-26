@@ -74,6 +74,7 @@ Makefile
 
 # generated binaries
 punky
+test/expect
 
 # generated dist files
 punky-*/

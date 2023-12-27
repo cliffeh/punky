@@ -234,12 +234,17 @@ builtin_apply_AND (environment *env, const sexpr *args)
 sexpr *
 builtin_apply_IF (environment *env, const sexpr *args)
 {
-  if(!EXACTLY_THREE_ARG(args))
-    return new_err(0, "if expects exactly 3 arguments");
-  
-  sexpr *pred = sexpr_eval(env, args->car), *r;
-  if(pred == &FALSE)
-    r = // TODO
+  if (!EXACTLY_THREE_ARG (args))
+    return new_err (0, "if expects exactly 3 arguments");
+
+  sexpr *pred = sexpr_eval (env, args->car), *r;
+  if (pred == &FALSE)
+    r = sexpr_eval (env, args->cdr->cdr->car);
+  else
+    r = sexpr_eval (env, args->cdr->car);
+
+  sexpr_free (pred);
+  return r;
 }
 
 sexpr *

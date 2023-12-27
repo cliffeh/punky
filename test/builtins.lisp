@@ -41,3 +41,5 @@ x                                    ;expect: 13
 (define z 12)                        ;expect: z
 (= 12 z)                             ;expect: #t
 (= z z z z)                          ;expect: #t
+(if #t (+ 1 2) (+ 2 3))              ;expect: 3
+(if (< 4 3) 3 4)                     ;expect: 4

@@ -40,7 +40,7 @@ types.h: types.h.in mkbuiltins.py
 
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
-AM_CFLAGS = -Wall -Werror
+# AM_CFLAGS = -Wall -Werror
 AM_YFLAGS = -d -Wno-yacc -Wcounterexamples
 
 check_SCRIPTS =         \

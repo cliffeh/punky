@@ -17,11 +17,11 @@ BUILTINS = [
     ("AND",    None,    "and",    "[aA][nN][dD]"),
     # control flow
     ("IF",     None,    "if",     "[iI][fF]"),
-    
     # lists
     ("CAR",    None,    "car",    "[cC][aA][rR]"),
     ("CDR",    None,    "cdr",    "[cC][dD][rR]"),
     ("CONS",   None,    "cons",   "[cC][oO][nN][sS]"),
+    ("APPEND", None,    "append", "[aA][pP][pP][eE][nN][dD]"),
     # special
     ("DEFINE", None,    "define", "[dD][eE][fF][iI][nN][eE]"),
     ("LAMBDA", None,    "lambda", "[lL][aA][mM][bB][dD][aA]"),

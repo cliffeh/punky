@@ -52,7 +52,7 @@ sexpr_compare (sexpr *e1, sexpr *e2)
       return new_err (0, "attempt to compare integer and non-integer types");
     case S_STR:
       if (e2->s_type == S_STR)
-        return new_int(strcmp (e1->sval, e2->sval));
+        return new_int (strcmp (e1->sval, e2->sval));
       return new_err (0, "attempt to compare string and non-string types");
     case S_QUOTE:
       if (e2->s_type == S_QUOTE)
@@ -60,7 +60,7 @@ sexpr_compare (sexpr *e1, sexpr *e2)
       return new_err (0, "attempt to compare quote and non-quote types");
     case S_IDENT:
       if (e2->s_type == S_IDENT)
-        return new_int(strcmp (e1->sval, e2->sval));
+        return new_int (strcmp (e1->sval, e2->sval));
       return new_err (0, "attempt to compare ident and non-ident types");
     case S_FUN:
       if (e2->s_type == S_FUN)
@@ -365,6 +365,31 @@ builtin_apply_CONS (environment *env, const sexpr *args)
     }
 
   return new_list (car, cdr);
+}
+
+sexpr *
+builtin_apply_APPEND (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_TWO_ARG (args))
+    return new_err (0, "cons requires exactly two arguments");
+
+  EVAL_EXPECT (env, args->car, list, S_LIST, "append takes a list argument");
+  sexpr *cdr = sexpr_eval (env, args->cdr->car);
+  if (cdr->s_type == S_ERR)
+    {
+      sexpr_free (list);
+      return cdr;
+    }
+
+  sexpr *tail;
+  for (tail = list; tail->s_type == S_LIST && tail->cdr != &NIL;
+       tail = tail->cdr)
+    ;
+  if (tail->cdr != &NIL)
+    return new_err (list, "attempt to append to an improper list");
+
+  tail->cdr = cdr;
+  return list;
 }
 
 sexpr *

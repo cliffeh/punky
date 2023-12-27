@@ -43,3 +43,5 @@ x                                    ;expect: 13
 (= z z z z)                          ;expect: #t
 (if #t (+ 1 2) (+ 2 3))              ;expect: 3
 (if (< 4 3) 3 4)                     ;expect: 4
+(append '(1 2 3) 4)                  ;expect: (1 2 3 . 4)
+(append '(a b c) '(d e f))           ;expect: (a b c d e f)

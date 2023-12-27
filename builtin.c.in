@@ -1,6 +1,7 @@
 #include "alloc.h"
 #include "builtin.h"
 #include "constants.h"
+#include <string.h> // for strcmp
 
 #define ZERO_ARGS(e) ((e) == &NIL)
 
@@ -35,6 +36,79 @@
     }                                                                         \
   if (list != &NIL)                                                           \
   return new_err (0, "malformed arguments")
+
+sexpr *
+sexpr_compare (sexpr *e1, sexpr *e2)
+{
+  switch (e1->s_type)
+    {
+    case S_NIL:
+    case S_BOOL:
+    case S_BUILTIN:
+      return new_int (e1 == e2 ? 0 : 1);
+    case S_INT:
+      if (e2->s_type == S_INT)
+        return new_int (e1->ival - e2->ival);
+      return new_err (0, "attempt to compare integer and non-integer types");
+    case S_STR:
+      if (e2->s_type == S_STR)
+        return new_int(strcmp (e1->sval, e2->sval));
+      return new_err (0, "attempt to compare string and non-string types");
+    case S_QUOTE:
+      if (e2->s_type == S_QUOTE)
+        return sexpr_compare (e1->car, e2->car);
+      return new_err (0, "attempt to compare quote and non-quote types");
+    case S_IDENT:
+      if (e2->s_type == S_IDENT)
+        return new_int(strcmp (e1->sval, e2->sval));
+      return new_err (0, "attempt to compare ident and non-ident types");
+    case S_FUN:
+      if (e2->s_type == S_FUN)
+        {
+          sexpr *param_compare = sexpr_compare (e1->car, e2->car);
+          sexpr *body_compare = sexpr_compare (e2->cdr, e2->cdr);
+          if (param_compare->ival == 0 && body_compare->ival == 0)
+            {
+              sexpr_free (param_compare);
+              return body_compare;
+            }
+          else
+            {
+              sexpr_free (param_compare);
+              body_compare->ival = 1;
+              return body_compare;
+            }
+        }
+      return new_err (0, "attempt to compare function and non-function types");
+    case S_LIST:
+      if (e2->s_type == S_LIST)
+        {
+          for (; e1->s_type == S_LIST && e2->s_type == S_LIST;
+               e1 = e1->cdr, e2 = e2->cdr)
+            {
+              sexpr *e = sexpr_compare (e1->car, e2->car);
+              if (e->ival != 0)
+                return e; // return the first non-matching element we see
+              sexpr_free (e);
+            }
+          if (e1 == &NIL)
+            {
+              if (e2 == &NIL)
+                return new_int (0);
+              return new_int (-1); // e2 is the longer list (e1 < e2)
+            }
+          else
+            {
+              if (e2 == &NIL)
+                return new_int (1);          // e1 is the longer list (e1 > e2)
+              return sexpr_compare (e1, e2); // compare non-nil cdrs
+            }
+        }
+      return new_err (0, "attempt to compare list and non-list types");
+    default:
+      return new_err (0, "I don't know how to compare these two expressions");
+    }
+}
 
 sexpr *
 builtin_apply_ADD (environment *env, const sexpr *args)

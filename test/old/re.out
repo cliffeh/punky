@@ -1,8 +1,0 @@
-re/(abc)/
-re/(abc)/e
-re/(abc)/ie
-()
-("abc" "b")
-("AbC" "b")
-("foobar" "foobar" "o")
-("foobar" "foobar" "oo")

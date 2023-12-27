@@ -46,11 +46,13 @@ AM_YFLAGS = -d -Wno-yacc -Wcounterexamples
 check_SCRIPTS =         \
     test/atoms.test     \
     test/builtins.test  \
-    test/functions.test
+    test/functions.test \
+    test/sort.test
 MEMCHECKS =                      \
     test/valgrind.atoms.test     \
     test/valgrind.builtins.test  \
-    test/valgrind.functions.test
+    test/valgrind.functions.test \
+    test/valgrind.sort.test
 
 # uncomment for memory checks (SLOW)
 check_SCRIPTS += $(MEMCHECKS)

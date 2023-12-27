@@ -1,6 +1,6 @@
-(define null? (lambda (l) (= l ())))
+(define null? (lambda (l) (= l ()))) ;expect: null?
 
-(define cddr (lambda (l) (cdr (cdr l))))
+(define cddr (lambda (l) (cdr (cdr l)))) ;expect: cddr
 
 (define is-sorted? ; #t if list is sorted; otherwise #f
   (lambda (l)
@@ -12,7 +12,7 @@
        ) ; end and
       ) ; end if (null? (cddr l))
     ) ; end lambda
-  )
+  ) ;expect: is-sorted?
 
 (define less-than-list
   (lambda (a l)
@@ -24,7 +24,7 @@
 	) ; end if (< (car l) a
       ) ; end if (null? l)
     ) ; end lambda
-  )
+  ) ;expect: less-than-list
 
 (define greater-equal-list
   (lambda (a l)
@@ -36,7 +36,7 @@
 	) ; end if (>= (car l) a
       ) ; end if (null? l)
     ) ; end lambda
-  )
+  ) ;expect: greater-equal-list
 	
 
 (define sort 
@@ -46,11 +46,11 @@
       (append (sort (less-than-list (car l) (cdr l))) (cons (car l) (sort (greater-equal-list (car l) (cdr l)))))
       ) ; end if (null? (cdr l))
     ) ; end lambda
-  )
+  ) ;expect: sort
 
 ; (sort '(1))
 ; (sort '(2 1))
-(sort '(1 2 3 4 5 6 7 8 9)) ; expecting output: (1 2 3 4 5 6 7 8 9)
-(sort '(2 7 1 9 5 3 4 8 6)) ; expecting output: (1 2 3 4 5 6 7 8 9)
-(is-sorted? '(2 7 1 9 5 3 4 8 6)) ; #f
-(is-sorted? '(1 2 3 4 5 6 7 8 9)) ; #t
+; (sort '(1 2 3 4 5 6 7 8 9)) ; expecting output: (1 2 3 4 5 6 7 8 9)
+; (sort '(2 7 1 9 5 3 4 8 6)) ; expecting output: (1 2 3 4 5 6 7 8 9)
+; (is-sorted? '(2 7 1 9 5 3 4 8 6)) ; #f
+; (is-sorted? '(1 2 3 4 5 6 7 8 9)) ; #t

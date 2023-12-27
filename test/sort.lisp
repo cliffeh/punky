@@ -4,53 +4,54 @@
 
 (define is-sorted? ; #t if list is sorted; otherwise #f
   (lambda (l)
-    (if (null? (cdr l))
-        #t ; single-element lists are always sorted
-      (and
-       (< (car l) (car (cdr l)))
-       (is-sorted? (cdr l))
-       ) ; end and
-      ) ; end if (null? (cddr l))
-    ) ; end lambda
-  ) ;expect: is-sorted?
+    (if (null? (cdr l)) #t ; single-element lists are always sorted
+      ; else
+      (and 
+        (< (car l) (car (cdr l)))
+        (is-sorted? (cdr l))
+      ))
+  )
+) ;expect: is-sorted?
 
 (define less-than-list
   (lambda (a l)
-    (if (null? l)
-	()
+    (if (null? l) ()
+      ; else
       (if (< (car l) a)
-	  (cons (car l) (less-than-list a (cdr l)))
-	(less-than-list a (cdr l))
-	) ; end if (< (car l) a
-      ) ; end if (null? l)
-    ) ; end lambda
-  ) ;expect: less-than-list
+	      (cons (car l) (less-than-list a (cdr l)))
+        ; else
+	      (less-than-list a (cdr l))
+	    ))
+  )
+) ;expect: less-than-list
 
 (define greater-equal-list
   (lambda (a l)
-    (if (null? l)
-	()
+    (if (null? l) ()
+      ; else
       (if (>= (car l) a)
-	  (cons (car l) (greater-equal-list a (cdr l)))
-	(greater-equal-list a (cdr l))
-	) ; end if (>= (car l) a
-      ) ; end if (null? l)
-    ) ; end lambda
-  ) ;expect: greater-equal-list
+	      (cons (car l) (greater-equal-list a (cdr l)))
+	      (greater-equal-list a (cdr l))
+	    ))
+  )
+) ;expect: greater-equal-list
 	
 
 (define sort 
   (lambda (l)
-    (if (null? l)
-	() ; zero-element lists are always sorted
-      (append (sort (less-than-list (car l) (cdr l))) (cons (car l) (sort (greater-equal-list (car l) (cdr l)))))
-      ) ; end if (null? (cdr l))
-    ) ; end lambda
-  ) ;expect: sort
+    (if (null? l) ()
+      ; else
+      (append 
+        (sort (less-than-list (car l) (cdr l)))                    ; sorted list of everything <  (car l)
+        (cons (car l) (sort (greater-equal-list (car l) (cdr l)))) ; sorted list of everything >= (car l)
+      )
+    )
+  )
+) ;expect: sort
 
-; (sort '(1))
-; (sort '(2 1))
-; (sort '(1 2 3 4 5 6 7 8 9)) ; expecting output: (1 2 3 4 5 6 7 8 9)
-; (sort '(2 7 1 9 5 3 4 8 6)) ; expecting output: (1 2 3 4 5 6 7 8 9)
-; (is-sorted? '(2 7 1 9 5 3 4 8 6)) ; #f
-; (is-sorted? '(1 2 3 4 5 6 7 8 9)) ; #t
+(sort '(1))                       ;expect: (1)
+(sort '(2 1))                     ;expect: (1 2)
+(sort '(1 2 3 4 5 6 7 8 9))       ;expect: (1 2 3 4 5 6 7 8 9)
+(sort '(2 7 1 9 5 3 4 8 6))       ;expect: (1 2 3 4 5 6 7 8 9)
+(is-sorted? '(2 7 1 9 5 3 4 8 6)) ;expect: #f
+(is-sorted? '(1 2 3 4 5 6 7 8 9)) ;expect: #t

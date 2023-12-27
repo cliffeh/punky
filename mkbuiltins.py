@@ -13,6 +13,8 @@ BUILTINS = [
     ("EQ",     '=',     "=",      "\\="),
     ("LT",     '<',     "<",      "\\<"),
     ("GT",     '>',     ">",      "\\>"),
+    ("LE",     None,    "<=",      "\\<\\="),
+    ("GE",     None,    ">=",      "\\>\\="),
     ("OR",     None,    "or",     "[oO][rR]"),
     ("AND",    None,    "and",    "[aA][nN][dD]"),
     # control flow

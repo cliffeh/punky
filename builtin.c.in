@@ -38,7 +38,7 @@
   return new_err (0, "malformed arguments")
 
 sexpr *
-sexpr_compare (sexpr *e1, sexpr *e2)
+sexpr_compare (const sexpr *e1, const sexpr *e2)
 {
   switch (e1->s_type)
     {
@@ -49,19 +49,19 @@ sexpr_compare (sexpr *e1, sexpr *e2)
     case S_INT:
       if (e2->s_type == S_INT)
         return new_int (e1->ival - e2->ival);
-      return new_err (0, "attempt to compare integer and non-integer types");
+      return new_int (1);
     case S_STR:
       if (e2->s_type == S_STR)
         return new_int (strcmp (e1->sval, e2->sval));
-      return new_err (0, "attempt to compare string and non-string types");
+      return new_int (1);
     case S_QUOTE:
       if (e2->s_type == S_QUOTE)
         return sexpr_compare (e1->car, e2->car);
-      return new_err (0, "attempt to compare quote and non-quote types");
+      return new_int (1);
     case S_IDENT:
       if (e2->s_type == S_IDENT)
         return new_int (strcmp (e1->sval, e2->sval));
-      return new_err (0, "attempt to compare ident and non-ident types");
+      return new_int (1);
     case S_FUN:
       if (e2->s_type == S_FUN)
         {
@@ -79,7 +79,7 @@ sexpr_compare (sexpr *e1, sexpr *e2)
               return body_compare;
             }
         }
-      return new_err (0, "attempt to compare function and non-function types");
+      return new_int (1);
     case S_LIST:
       if (e2->s_type == S_LIST)
         {
@@ -104,7 +104,7 @@ sexpr_compare (sexpr *e1, sexpr *e2)
               return sexpr_compare (e1, e2); // compare non-nil cdrs
             }
         }
-      return new_err (0, "attempt to compare list and non-list types");
+      return new_int (1);
     default:
       return new_err (0, "I don't know how to compare these two expressions");
     }
@@ -182,13 +182,17 @@ builtin_apply_DIV (environment *env, const sexpr *args)
   return rest;
 }
 
-sexpr * // TODO this should really support comparison of other types...
+sexpr *
 builtin_apply_EQ (environment *env, const sexpr *args)
 {
   sexpr *r = (sexpr *)&TRUE;
   if (!ATLEAST_ONE_ARG (args))
     return r;
-  EVAL_EXPECT (env, args->car, e1, S_INT, "= expects integer arguments");
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
   if (!ATLEAST_ONE_ARG (args->cdr))
     {
       sexpr_free (e1);
@@ -199,13 +203,21 @@ builtin_apply_EQ (environment *env, const sexpr *args)
        args = args->cdr)
     {
       sexpr *e2 = sexpr_eval (env, args->car);
-      if (e2->s_type != S_INT)
+      if (e2->s_type == S_ERR)
         {
           sexpr_free (e1);
-          return new_err (e2, "= expects integer arguments");
+          return e2;
         }
-      if (!(e1->ival == e2->ival))
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival == 0))
         r = (sexpr *)&FALSE;
+      sexpr_free (compare);
       sexpr_free (e1);
       e1 = e2;
     }
@@ -223,7 +235,11 @@ builtin_apply_LT (environment *env, const sexpr *args)
   sexpr *r = (sexpr *)&TRUE;
   if (!ATLEAST_ONE_ARG (args))
     return r;
-  EVAL_EXPECT (env, args->car, e1, S_INT, "< expects integer arguments");
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
   if (!ATLEAST_ONE_ARG (args->cdr))
     {
       sexpr_free (e1);
@@ -234,19 +250,27 @@ builtin_apply_LT (environment *env, const sexpr *args)
        args = args->cdr)
     {
       sexpr *e2 = sexpr_eval (env, args->car);
-      if (e2->s_type != S_INT)
+      if (e2->s_type == S_ERR)
         {
           sexpr_free (e1);
-          return new_err (e2, "< expects integer arguments");
+          return e2;
         }
-      if (!(e1->ival < e2->ival))
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival < 0))
         r = (sexpr *)&FALSE;
+      sexpr_free (compare);
       sexpr_free (e1);
       e1 = e2;
     }
 
   if (args != &NIL)
-    return new_err (e1, "malformed arguments to <");
+    return new_err (e1, "malformed arguments to =");
   sexpr_free (e1);
 
   return r;
@@ -258,7 +282,11 @@ builtin_apply_GT (environment *env, const sexpr *args)
   sexpr *r = (sexpr *)&TRUE;
   if (!ATLEAST_ONE_ARG (args))
     return r;
-  EVAL_EXPECT (env, args->car, e1, S_INT, "> expects integer arguments");
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
   if (!ATLEAST_ONE_ARG (args->cdr))
     {
       sexpr_free (e1);
@@ -269,19 +297,121 @@ builtin_apply_GT (environment *env, const sexpr *args)
        args = args->cdr)
     {
       sexpr *e2 = sexpr_eval (env, args->car);
-      if (e2->s_type != S_INT)
+      if (e2->s_type == S_ERR)
         {
           sexpr_free (e1);
-          return new_err (e2, "> expects integer arguments");
+          return e2;
         }
-      if (!(e1->ival > e2->ival))
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival > 0))
         r = (sexpr *)&FALSE;
+      sexpr_free (compare);
       sexpr_free (e1);
       e1 = e2;
     }
 
   if (args != &NIL)
-    return new_err (e1, "malformed arguments to >");
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
+sexpr *
+builtin_apply_LE (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          return e2;
+        }
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival <= 0))
+        r = (sexpr *)&FALSE;
+      sexpr_free (compare);
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
+sexpr *
+builtin_apply_GE (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          return e2;
+        }
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival >= 0))
+        r = (sexpr *)&FALSE;
+      sexpr_free (compare);
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
   sexpr_free (e1);
 
   return r;
@@ -373,13 +503,19 @@ builtin_apply_APPEND (environment *env, const sexpr *args)
   if (!EXACTLY_TWO_ARG (args))
     return new_err (0, "cons requires exactly two arguments");
 
-  EVAL_EXPECT (env, args->car, list, S_LIST, "append takes a list argument");
+  sexpr *list = sexpr_eval (env, args->car);
+  if (list->s_type == S_ERR)
+    return list;
+
   sexpr *cdr = sexpr_eval (env, args->cdr->car);
   if (cdr->s_type == S_ERR)
     {
       sexpr_free (list);
       return cdr;
     }
+
+  if (list == &NIL) // special case
+    return cdr;
 
   sexpr *tail;
   for (tail = list; tail->s_type == S_LIST && tail->cdr != &NIL;

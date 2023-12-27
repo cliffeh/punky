@@ -1,10 +1,6 @@
-#ifndef _PUNKY_PRINT_H
-#define _PUNKY_PRINT_H 1
+#pragma once
+
 #include "types.h"
+#include <stdio.h>
 
-void print_list(FILE *out, expr_t *e);
-void print_str(FILE *out, expr_t *e);
-void print_int(FILE *out, expr_t *e);
-void print_float(FILE *out, expr_t *e);
-
-#endif
+void sexpr_print (FILE *out, int flags, const sexpr *value);

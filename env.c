@@ -1,52 +1,86 @@
-#include "punky.h"
+#include "env.h"
+#include "alloc.h"
+#include <stdlib.h>
+#include <string.h>
 
-expr_t *new_env(expr_t *parent)
+void
+env_init (environment *env, environment *parent)
 {
-  return _env_expr(&NIL, parent);
+  memset (env, 0, sizeof (*env));
+  env->parent = parent;
 }
 
-static expr_t *find_entry(const expr_t *env, const char *id)
+sexpr *
+env_get (environment *env, const char *key)
 {
-  // TODO something with O(log n) lookup time instead of a simple linked list
-  expr_t *r;
-  for(r = env->car; r != &NIL; r = r->cdr) {
-    if(strcmp(id, r->car->car->strval) == 0) return r;
-  }
-  return r;
+  for (entry *ent = env->entries; ent; ent = ent->next)
+    {
+      if (strcmp (key, ent->key) == 0) // found it
+        return sexpr_copy (ent->value);
+    }
+
+  if (env->parent)
+    return env_get (env->parent, key);
+
+  // didn't find it
+  return new_err (0, "unbound variable '%s'", key);
 }
 
-void put(expr_t *env, const char *id, const expr_t *e)
+void
+env_set (environment *env, const char *key, sexpr *value)
 {
-  expr_t *new_record = _list_expr(_id_expr(strdup(id)), _clone_expr(e));
+  for (entry *ent = env->entries; ent; ent = ent->next)
+    {
+      if (strcmp (key, ent->key) == 0) // found existing entry
+        {
+          sexpr_free (ent->value);
+          ent->value = value;
+          return;
+        }
+    }
 
-  expr_t *entry = find_entry(env, id);
-  if(entry == &NIL) { // new entry
-    entry = _list_expr(new_record, env->car);
-    env->car = entry;
-  } else { // replacement entry
-    _free_expr(entry->car);
-    entry->car = new_record;
-  }
+  // didn't find it
+  entry *ent = calloc (1, sizeof (entry));
+  ent->key = strdup (key);
+  ent->value = value;
+  // insert at head
+  ent->next = env->entries;
+  env->entries = ent;
+  env->count++;
 }
 
-expr_t *get(expr_t *env, const char *id)
+sexpr *
+env_del (environment *env, const char *key)
 {
-  expr_t *entry = find_entry(env, id);
-  if(entry != &NIL) return _clone_expr(entry->car->cdr);
-  if(env->cdr != &NIL) return get(env->cdr, id);
-  return _err_expr(0, "get: unbound variable", id);
+  entry *prev = env->entries;
+  for (entry *ent = env->entries; ent; ent = ent->next)
+    {
+      if (strcmp (key, ent->key) == 0) // found it
+        {
+          prev->next = ent->next;
+          free (ent->key);
+          sexpr_free (ent->value);
+          free (ent);
+          if (--env->count == 0)
+            env->entries = 0;
+          return new_ident (key);
+        }
+      prev = ent;
+    }
+  // return the key even if we didn't find it
+  return new_ident (key);
 }
 
-expr_t *keys(const expr_t *env)
+void
+env_destroy (environment *env)
 {
-  expr_t *e, *r = &NIL;
-  for(e = env->car; e != &NIL; e = e->cdr) {
-    r = _list_expr(_clone_expr(e->car->car), r);
-  }
-  return r;
-}
-
-void free_env(expr_t *env) 
-{
-  _free_expr(env);
+  entry *ent = env->entries;
+  while (ent)
+    {
+      entry *next = ent->next;
+      free (ent->key);
+      sexpr_free (ent->value);
+      free (ent);
+      ent = next;
+    }
 }

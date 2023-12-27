@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euxo pipefail
+
+# tests for memory leaks
+
+which valgrind >& /dev/null || { echo "can't find valgrind; skipping test..."; exit 77; }
+
+# if unset we'll expect our input to reside in the directory alongside our script
+DIR=$(dirname "$0")
+SRCDIR=${SRCDIR:-$DIR/..}
+BUILDDIR=${BUILDDIR:-$DIR/..}
+
+IN="$SRCDIR/test/atoms.lisp"
+
+valgrind \
+  --leak-check=full \
+  --show-leak-kinds=all \
+  --error-exitcode=1 \
+  "$BUILDDIR/punky" < "$IN" > /dev/null

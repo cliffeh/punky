@@ -1,11 +1,24 @@
-#ifndef _PUNKY_ENV_H
-#define _PUNKY_ENV_H 1
+#pragma once
+
 #include "types.h"
 
-expr_t *new_env(expr_t *parent);
-void put(expr_t *env, const char *id, const expr_t *e);
-expr_t *get(expr_t *env, const char *id);
-expr_t *keys(const expr_t *env);
-void free_env(expr_t *env);
+// TODO something better than linear search through a linked list
+typedef struct entry
+{
+  char *key;
+  sexpr *value;
+  struct entry *next;
+} entry;
 
-#endif
+typedef struct environment
+{
+  int count;
+  entry *entries;
+  struct environment *parent;
+} environment;
+
+void env_init (environment *env, environment *parent);
+sexpr *env_get (environment *env, const char *key);
+void env_set (environment *env, const char *key, sexpr *e);
+sexpr *env_del (environment *env, const char *key);
+void env_destroy (environment *env);

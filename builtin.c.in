@@ -1,0 +1,587 @@
+#include "alloc.h"
+#include "builtin.h"
+#include "constants.h"
+#include <string.h> // for strcmp
+
+#define ZERO_ARGS(e) ((e) == &NIL)
+
+#define ATLEAST_ONE_ARG(e) ((e)->s_type == S_LIST)
+
+#define EXACTLY_ONE_ARG(e) ATLEAST_ONE_ARG ((e)) && ZERO_ARGS ((e)->cdr)
+
+#define EXACTLY_TWO_ARG(e)                                                    \
+  ((e)->s_type == S_LIST && EXACTLY_ONE_ARG ((e)->cdr))
+
+#define EXACTLY_THREE_ARG(e)                                                  \
+  ((e)->s_type == S_LIST && EXACTLY_TWO_ARG ((e)->cdr))
+
+#define EXPECT(e, TYPE, errmsg)                                               \
+  if (e->s_type != (TYPE))                                                    \
+  return new_err (0, errmsg)
+
+#define EVAL_EXPECT(env, arg, e, TYPE, errmsg)                                \
+  sexpr *e = sexpr_eval (env, arg);                                           \
+  if (e->s_type != TYPE)                                                      \
+    {                                                                         \
+      return new_err (e, errmsg);                                             \
+    }
+
+#define WALK_LIST(env, args, e, TYPE, ACTION, errmsg)                         \
+  const sexpr *list = args;                                                   \
+  for (; list->s_type == S_LIST; list = list->cdr)                            \
+    {                                                                         \
+      EVAL_EXPECT (env, list->car, e, TYPE, errmsg);                          \
+      ACTION;                                                                 \
+      sexpr_free (e);                                                         \
+    }                                                                         \
+  if (list != &NIL)                                                           \
+  return new_err (0, "malformed arguments")
+
+sexpr *
+sexpr_compare (const sexpr *e1, const sexpr *e2)
+{
+  switch (e1->s_type)
+    {
+    case S_NIL:
+    case S_BOOL:
+    case S_BUILTIN:
+      return new_int (e1 == e2 ? 0 : 1);
+    case S_INT:
+      if (e2->s_type == S_INT)
+        return new_int (e1->ival - e2->ival);
+      return new_int (1);
+    case S_STR:
+      if (e2->s_type == S_STR)
+        return new_int (strcmp (e1->sval, e2->sval));
+      return new_int (1);
+    case S_QUOTE:
+      if (e2->s_type == S_QUOTE)
+        return sexpr_compare (e1->car, e2->car);
+      return new_int (1);
+    case S_IDENT:
+      if (e2->s_type == S_IDENT)
+        return new_int (strcmp (e1->sval, e2->sval));
+      return new_int (1);
+    case S_FUN:
+      if (e2->s_type == S_FUN)
+        {
+          sexpr *param_compare = sexpr_compare (e1->car, e2->car);
+          sexpr *body_compare = sexpr_compare (e2->cdr, e2->cdr);
+          if (param_compare->ival == 0 && body_compare->ival == 0)
+            {
+              sexpr_free (param_compare);
+              return body_compare;
+            }
+          else
+            {
+              sexpr_free (param_compare);
+              body_compare->ival = 1;
+              return body_compare;
+            }
+        }
+      return new_int (1);
+    case S_LIST:
+      if (e2->s_type == S_LIST)
+        {
+          for (; e1->s_type == S_LIST && e2->s_type == S_LIST;
+               e1 = e1->cdr, e2 = e2->cdr)
+            {
+              sexpr *e = sexpr_compare (e1->car, e2->car);
+              if (e->ival != 0)
+                return e; // return the first non-matching element we see
+              sexpr_free (e);
+            }
+          if (e1 == &NIL)
+            {
+              if (e2 == &NIL)
+                return new_int (0);
+              return new_int (-1); // e2 is the longer list (e1 < e2)
+            }
+          else
+            {
+              if (e2 == &NIL)
+                return new_int (1);          // e1 is the longer list (e1 > e2)
+              return sexpr_compare (e1, e2); // compare non-nil cdrs
+            }
+        }
+      return new_int (1);
+    default:
+      return new_err (0, "I don't know how to compare these two expressions");
+    }
+}
+
+sexpr *
+builtin_apply_ADD (environment *env, const sexpr *args)
+{
+  int r = 0;
+  WALK_LIST (env, args, e, S_INT, r += e->ival, "numeric type required");
+  return new_int (r);
+}
+
+sexpr *
+builtin_apply_MUL (environment *env, const sexpr *args)
+{
+  int r = 1;
+  WALK_LIST (env, args, e, S_INT, r *= e->ival, "numeric type required");
+  return new_int (r);
+}
+
+sexpr *
+builtin_apply_SUB (environment *env, const sexpr *args)
+{
+  if (!ATLEAST_ONE_ARG (args))
+    return new_err (0, "subtraction requires at least one argument");
+  EVAL_EXPECT (env, args->car, e, S_INT, "numeric type required");
+
+  if (ZERO_ARGS (args->cdr))
+    { // special case
+      e->ival = -e->ival;
+      return e;
+    }
+
+  int r = e->ival;
+  sexpr_free (e);
+
+  // guaranteed to be either S_INT or S_ERR
+  sexpr *rest = builtin_apply_ADD (env, args->cdr);
+  if (rest->s_type == S_ERR)
+    return rest;
+
+  rest->ival = r - rest->ival;
+  return rest;
+}
+
+sexpr *
+builtin_apply_DIV (environment *env, const sexpr *args)
+{
+  if (!ATLEAST_ONE_ARG (args))
+    return new_err (0, "division requires at least one argument");
+  EVAL_EXPECT (env, args->car, e, S_INT, "numeric type required");
+
+  if (ZERO_ARGS (args->cdr))
+    { // special case
+      if (e->ival == 0)
+        return new_err (e, "divide by zero");
+
+      e->ival = 1 / e->ival;
+      return e;
+    }
+
+  int r = e->ival;
+  sexpr_free (e);
+
+  // guaranteed to be either S_INT or S_ERR
+  sexpr *rest = builtin_apply_MUL (env, args->cdr);
+  if (rest->s_type == S_ERR)
+    return rest;
+
+  if (rest->ival == 0)
+    return new_err (rest, "divide by zero");
+
+  rest->ival = r / rest->ival;
+  return rest;
+}
+
+sexpr *
+builtin_apply_EQ (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          return e2;
+        }
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival == 0))
+        r = (sexpr *)&FALSE;
+      sexpr_free (compare);
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
+sexpr *
+builtin_apply_LT (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          return e2;
+        }
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival < 0))
+        r = (sexpr *)&FALSE;
+      sexpr_free (compare);
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
+sexpr *
+builtin_apply_GT (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          return e2;
+        }
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival > 0))
+        r = (sexpr *)&FALSE;
+      sexpr_free (compare);
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
+sexpr *
+builtin_apply_LE (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          return e2;
+        }
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival <= 0))
+        r = (sexpr *)&FALSE;
+      sexpr_free (compare);
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
+sexpr *
+builtin_apply_GE (environment *env, const sexpr *args)
+{
+  sexpr *r = (sexpr *)&TRUE;
+  if (!ATLEAST_ONE_ARG (args))
+    return r;
+
+  sexpr *e1 = sexpr_eval (env, args->car);
+  if (e1->s_type == S_ERR)
+    return e1;
+
+  if (!ATLEAST_ONE_ARG (args->cdr))
+    {
+      sexpr_free (e1);
+      return r;
+    }
+
+  for (args = args->cdr; args->s_type == S_LIST && args != &NIL;
+       args = args->cdr)
+    {
+      sexpr *e2 = sexpr_eval (env, args->car);
+      if (e2->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          return e2;
+        }
+      sexpr *compare = sexpr_compare (e1, e2);
+      if (compare->s_type == S_ERR)
+        {
+          sexpr_free (e1);
+          sexpr_free (e2);
+          return compare;
+        }
+      if (!(compare->ival >= 0))
+        r = (sexpr *)&FALSE;
+      sexpr_free (compare);
+      sexpr_free (e1);
+      e1 = e2;
+    }
+
+  if (args != &NIL)
+    return new_err (e1, "malformed arguments to =");
+  sexpr_free (e1);
+
+  return r;
+}
+
+sexpr *
+builtin_apply_OR (environment *env, const sexpr *args)
+{
+  int r = 0;
+  WALK_LIST (env, args, e, S_BOOL, if (e == &TRUE) r = 1,
+             "or expects boolean arguments");
+  return r ? (sexpr *)&TRUE : (sexpr *)&FALSE;
+}
+
+sexpr *
+builtin_apply_AND (environment *env, const sexpr *args)
+{
+  int r = 1;
+  WALK_LIST (env, args, e, S_BOOL, if (e == &FALSE) r = 0,
+             "and expects boolean arguments");
+  return r ? (sexpr *)&TRUE : (sexpr *)&FALSE;
+}
+
+sexpr *
+builtin_apply_IF (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_THREE_ARG (args))
+    return new_err (0, "if expects exactly 3 arguments");
+
+  sexpr *pred = sexpr_eval (env, args->car), *r;
+  if (pred == &FALSE)
+    r = sexpr_eval (env, args->cdr->cdr->car);
+  else
+    r = sexpr_eval (env, args->cdr->car);
+
+  sexpr_free (pred);
+  return r;
+}
+
+sexpr *
+builtin_apply_CAR (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_ONE_ARG (args))
+    return new_err (0, "car requires exactly one argument");
+
+  EVAL_EXPECT (env, args->car, list, S_LIST, "car requires a list argument")
+
+  sexpr *car = sexpr_copy (list->car); // TODO inefficient...
+  sexpr_free (list);
+  return car;
+}
+
+sexpr *
+builtin_apply_CDR (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_ONE_ARG (args))
+    return new_err (0, "car requires exactly one argument");
+
+  EVAL_EXPECT (env, args->car, list, S_LIST, "cdr requires a list argument")
+
+  sexpr *cdr = sexpr_copy (list->cdr); // TODO inefficient...
+  sexpr_free (list);
+  return cdr;
+}
+
+sexpr *
+builtin_apply_CONS (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_TWO_ARG (args))
+    return new_err (0, "cons requires exactly two arguments");
+
+  sexpr *car = sexpr_eval (env, args->car);
+  if (car->s_type == S_ERR)
+    return car;
+
+  sexpr *cdr = sexpr_eval (env, args->cdr->car);
+  if (cdr->s_type == S_ERR)
+    {
+      sexpr_free (car);
+      return cdr;
+    }
+
+  return new_list (car, cdr);
+}
+
+sexpr *
+builtin_apply_APPEND (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_TWO_ARG (args))
+    return new_err (0, "cons requires exactly two arguments");
+
+  sexpr *list = sexpr_eval (env, args->car);
+  if (list->s_type == S_ERR)
+    return list;
+
+  sexpr *cdr = sexpr_eval (env, args->cdr->car);
+  if (cdr->s_type == S_ERR)
+    {
+      sexpr_free (list);
+      return cdr;
+    }
+
+  if (list == &NIL) // special case
+    return cdr;
+
+  sexpr *tail;
+  for (tail = list; tail->s_type == S_LIST && tail->cdr != &NIL;
+       tail = tail->cdr)
+    ;
+  if (tail->cdr != &NIL)
+    return new_err (list, "attempt to append to an improper list");
+
+  tail->cdr = cdr;
+  return list;
+}
+
+sexpr *
+builtin_apply_DEFINE (environment *env, const sexpr *args)
+{
+  if (!ATLEAST_ONE_ARG (args))
+    return new_err (0, "malformed arguments to define");
+
+  const sexpr *key;
+  EXPECT ((key = args->car), S_IDENT, "non-identifier provided to define");
+
+  if (ZERO_ARGS (args->cdr))
+    { // special case
+      return env_del (env, key->sval);
+    }
+  else if (!EXACTLY_ONE_ARG (args->cdr))
+    return new_err (0, "unexpected extra arguments to define");
+
+  sexpr *value = sexpr_eval (env, args->cdr->car);
+
+  if (value->s_type == S_ERR)
+    return value;
+
+  env_set (env, key->sval, value);
+
+  return new_ident (key->sval);
+}
+
+sexpr *
+builtin_apply_LAMBDA (environment *env, const sexpr *args)
+{
+  if (!EXACTLY_TWO_ARG (args))
+    return new_err (0, "lambda requires exactly two arguments");
+
+  EXPECT (args->car, S_LIST, "malformed arguments to lambda");
+
+  sexpr *params = args->car, *e;
+  for (e = params; e->s_type == S_LIST; e = e->cdr)
+    {
+      EXPECT (e->car, S_IDENT, "non-identifier in lambda param list");
+    }
+
+  sexpr *body = args->cdr->car;
+
+  return new_fun (sexpr_copy (params), sexpr_copy (body));
+}
+
+sexpr *
+sexpr_apply_builtin (environment *env, const sexpr *builtin, const sexpr *args)
+{
+  switch (builtin->b_type)
+    {
+      /* @BUILTIN_CASES@ */
+
+    default:
+      return new_err (0, "unknown/unimplemented builtin %d\n",
+                      builtin->b_type);
+    }
+}

@@ -1,98 +1,67 @@
-#include "punky.h"
+#include "print.h"
+#include "constants.h"
 
-static void nl_and_spaces(FILE *out, int count)
+void
+sexpr_print (FILE *out, int flags, const sexpr *e)
 {
-  fprintf(out, "\n");
-  int i;
-  for(i = 0; i < count; i++) fputc(' ', out);
-}
-
-char *type_to_string(int t)
-{
-  switch(t) {
-  case LIST_T: return "LIST";
-  case BOOL_T: return "BOOL";
-  case INT_T: return "INTEGER";
-  case FLOAT_T: return "FLOAT";
-  case STRING_T: return "STRING";
-  case IDENT_T: return "IDENT";
-  case OP_T: return "OP";
-  case FUN_T: return "FUN";
-  case PORT_T: return "PORT";
-  case RE_T: return "RE";
-    
-    /* special types */
-  case NIL_T: return "NIL";
-  case ERR_T: return "ERR";
-  case EOF_T: return "<<EOF>>"; // this probably shouldn't happen
-    
-  default: return "UNKNOWN";
-  }
-}
-
-/* static */ void _print(FILE *out, const expr_t *e, int indent, int depth)
-{
-  switch(e->type){
-
-  case LIST_T: {
-    // is this the only case where we need to pretty-print something?
-    if(indent && depth) nl_and_spaces(out, indent*depth); 
-    fprintf(out, "(");
-    _print(out, e->car, indent, depth+1);
-    const expr_t *ptr;
-    for(ptr = e->cdr; ptr->type == LIST_T; ptr = ptr->cdr) {
-      fprintf(out, " ");
-      _print(out, ptr->car, indent, depth+1);
-      //      if(ptr->cdr != &NIL) fprintf(out, " ");
+  switch (e->s_type)
+    {
+    case S_ERR:
+      fprintf (out, "%s", e->sval);
+      // print the rest of the stack trace
+      for (const sexpr *err = e->cdr; err && err->s_type == S_ERR;
+           err = err->cdr)
+        fprintf (out, "\n%s", err->sval);
+      break;
+    case S_NIL:
+      fprintf (out, "()");
+      break;
+    case S_BOOL:
+      fprintf (out, e == &TRUE ? "#t" : "#f");
+      break;
+    case S_INT:
+      fprintf (out, "%d", e->ival);
+      break;
+    case S_STR:
+      fprintf (out, "\"%s\"", e->sval);
+      break;
+    case S_QUOTE:
+      fprintf (out, "(quote ");
+      sexpr_print (out, flags + 1, e->car);
+      fprintf (out, ")");
+      break;
+    case S_IDENT:
+      fprintf (out, "%s", e->sval);
+      break;
+    case S_FUN:
+      fprintf (out, "(lambda "); // TODO is this correct?
+      sexpr_print (out, flags + 1, e->car);
+      fprintf (out, " ");
+      sexpr_print (out, flags + 1, e->cdr);
+      fprintf (out, ")");
+      break;
+    case S_LIST:
+      fprintf (out, "(");
+      sexpr_print (out, flags + 1, e->car);
+      for (e = e->cdr; e->s_type == S_LIST && e != &NIL; e = e->cdr)
+        {
+          fprintf (out, " ");
+          sexpr_print (out, flags + 1, e->car);
+        }
+      if (e != &NIL)
+        {
+          fprintf (out, " . ");
+          sexpr_print (out, flags + 1, e);
+        }
+      fprintf (out, ")");
+      break;
+    case S_BUILTIN:
+      fprintf (out, "%s", e->sval);
+      break;
+    default:
+      fprintf (stderr, "print: unknown expression type %d\n", e->s_type);
     }
-    if(ptr != &NIL) { // we must have a dot expression
-      fprintf(out, " . ");
-      _print(out, ptr, indent, depth+1);
-    }
-    fprintf(out, ")");
-    if(indent && depth) nl_and_spaces(out, indent*(depth-1)); 
-  }break;
 
-  case BOOL_TRUE_T: fprintf(out, "#t"); break;
-  case BOOL_FALSE_T: fprintf(out, "#f"); break;
-  case INT_T: fprintf(out, "%i", e->intval); break;
-  case FLOAT_T: fprintf(out, "%f", e->floatval); break;
-  case STRING_T: fprintf(out, "\"%s\"", e->strval); break;
-  case IDENT_T: fprintf(out, "%s", e->strval); break;
-
-  case OP_T: {
-    fprintf(out, "%s", e->strval);
-  }break;
-
-  case FUN_T: fprintf(out, "<function>"); break; // TODO make this prettier?
-
-  case PORT_T: fprintf(out, "<port>"); break;
-    
-  case NIL_T: fprintf(out, "()"); break;
-  case ERR_T: {
-    for(const expr_t *cdr = e; cdr != &NIL; cdr = cdr->cdr) {
-      if(cdr && cdr->car && cdr->car->strval)
-	fprintf(out, "\nerror: %s", cdr->car->strval);
-    }
-  }break;
-  case EOF_T: fprintf(out, "<<EOF>>"); break; // this probably shouldn't happen
-
-  case ENV_T: {
-    _print(out, e->car, 0, 0);
-  }
-
-  case RE_T: fprintf(out, "%s", e->strval); break;
-    
-  default: fprintf(stderr, "print: error: unknown expression type: %s\n", type_to_string(e->type)); return;
-  }
-
-  // we're always going to want a newline after the initial print
-  if(!depth) fprintf(out, "\n");
-}
-
-punky_t *punky_print(punky_t *p)
-{
-  // TODO error-checking of p->e?
-  _print(p->out, p->e, (p->pretty) ? p->indent : 0, 0);
-  return p;
+  if ((flags & 0x00FFFFFF) == 0)
+    fprintf (out, "\n");
 }

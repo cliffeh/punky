@@ -4,7 +4,7 @@ punky_SOURCES =     \
         alloc.c     \
         alloc.h     \
         builtin.c   \
-		builtin.h   \
+	builtin.h   \
         constants.c \
         constants.h \
         env.c       \
@@ -38,7 +38,6 @@ scan.l: scan.l.in mkbuiltins.py
 types.h: types.h.in mkbuiltins.py
 	$(PYTHON) mkbuiltins.py $< > $@
 
-AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 # AM_CFLAGS = -Wall -Werror
 AM_YFLAGS = -d -Wno-yacc -Wcounterexamples

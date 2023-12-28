@@ -1,5 +1,5 @@
 AC_INIT([punky], m4_esyscmd_s([cat VERSION]), [cliff.snyder@gmail.com])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 
 AC_PROG_CC
 AM_PROG_LEX

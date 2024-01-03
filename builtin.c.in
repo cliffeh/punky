@@ -557,7 +557,8 @@ builtin_apply_DEFINE (environment *env, const sexpr *args)
 
   if (ZERO_ARGS (args->cdr))
     { // special case
-      return env_del (env, key->sval);
+      env_set (env, key->sval, 0);
+      return new_ident (key->sval);
     }
   else if (!EXACTLY_ONE_ARG (args->cdr))
     return new_err (0, "unexpected extra arguments to define");

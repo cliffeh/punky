@@ -25,6 +25,7 @@ BUILTINS = [
     ("CONS",   None,    "cons",   "[cC][oO][nN][sS]"),
     ("APPEND", None,    "append", "[aA][pP][pP][eE][nN][dD]"),
     # special
+    ("DEFUN",  None,    "defun",  "[dD][eE][fF][uU][nN]"),
     ("DEFINE", None,    "define", "[dD][eE][fF][iI][nN][eE]"),
     ("LAMBDA", None,    "lambda", "[lL][aA][mM][bB][dD][aA]"),
 ]

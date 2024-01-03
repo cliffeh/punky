@@ -529,6 +529,24 @@ builtin_apply_APPEND (environment *env, const sexpr *args)
 }
 
 sexpr *
+builtin_apply_DEFUN (environment *env, const sexpr *args)
+{
+  if (!ATLEAST_ONE_ARG (args))
+    return new_err (0, "malformed arguments to defun");
+
+  const sexpr *key;
+  EXPECT ((key = args->car), S_IDENT, "non-identifier provided to defun");
+
+  sexpr *value = builtin_apply_LAMBDA (env, args->cdr);
+  if (value->s_type == S_ERR)
+    return value;
+
+  env_set (env, key->sval, value);
+
+  return new_ident (key->sval);
+}
+
+sexpr *
 builtin_apply_DEFINE (environment *env, const sexpr *args)
 {
   if (!ATLEAST_ONE_ARG (args))

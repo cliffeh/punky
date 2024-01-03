@@ -45,3 +45,5 @@ x                                    ;expect: 13
 (if (< 4 3) 3 4)                     ;expect: 4
 (append '(1 2 3) 4)                  ;expect: (1 2 3 . 4)
 (append '(a b c) '(d e f))           ;expect: (a b c d e f)
+(defun triple (x) (* x 3))           ;expect: triple
+(triple 27)                          ;expect: 81

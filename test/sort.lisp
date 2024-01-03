@@ -37,14 +37,12 @@
 ) ;expect: greater-equal-list
 	
 
-(define sort 
-  (lambda (l)
-    (if (null? l) ()
-      ; else
-      (append 
-        (sort (less-than-list (car l) (cdr l)))                    ; sorted list of everything <  (car l)
-        (cons (car l) (sort (greater-equal-list (car l) (cdr l)))) ; sorted list of everything >= (car l)
-      )
+(defun sort (l)
+  (if (null? l) ()
+    ; else
+    (append
+      (sort (less-than-list (car l) (cdr l)))                    ; sorted list of everything <  (car l)
+      (cons (car l) (sort (greater-equal-list (car l) (cdr l)))) ; sorted list of everything >= (car l)
     )
   )
 ) ;expect: sort

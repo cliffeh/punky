@@ -1,5 +1,6 @@
 #include "alloc.h"
 #include "constants.h"
+#include "eval.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,9 @@ new_err (sexpr *stack, const char *fmt, ...)
   e->sval = msg;
   e->cdr = stack ? stack : (sexpr *)&NIL;
 
+  e->eval = sexpr_eval_copy;
+  e->apply = sexpr_apply_inapplicable;
+
   return e;
 }
 
@@ -37,6 +41,10 @@ new_int (int ival)
   sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_INT;
   e->ival = ival;
+
+  e->eval = sexpr_eval_copy;
+  e->apply = sexpr_apply_inapplicable;
+
   return e;
 }
 
@@ -46,6 +54,10 @@ new_str (const char *str)
   sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_STR;
   e->sval = strdup (str);
+
+  e->eval = sexpr_eval_copy;
+  e->apply = sexpr_apply_inapplicable;
+
   return e;
 }
 
@@ -55,6 +67,10 @@ new_quote (sexpr *q)
   sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_QUOTE;
   e->car = q;
+
+  e->eval = sexpr_eval_quote;
+  e->apply = sexpr_apply_inapplicable;
+
   return e;
 }
 
@@ -64,6 +80,10 @@ new_ident (const char *name)
   sexpr *e = SEXPR_ALLOC (e);
   e->s_type = S_IDENT;
   e->sval = strdup (name);
+
+  e->eval = sexpr_eval_ident;
+  e->apply = sexpr_apply_inapplicable;
+
   return e;
 }
 
@@ -74,6 +94,10 @@ new_fun (sexpr *params, sexpr *body)
   e->s_type = S_FUN;
   e->car = params;
   e->cdr = body;
+
+  e->eval = sexpr_eval_function;
+  e->apply = sexpr_apply_function;
+
   return e;
 }
 
@@ -84,6 +108,10 @@ new_list (sexpr *car, sexpr *cdr)
   e->s_type = S_LIST;
   e->car = car;
   e->cdr = cdr;
+
+  e->eval = sexpr_eval_list;
+  e->apply = sexpr_apply_inapplicable;
+
   return e;
 }
 
@@ -97,7 +125,7 @@ sexpr_copy (const sexpr *e)
     case S_BUILTIN:
       return (sexpr *)e; // this should be okay
     case S_ERR:
-      return new_err (sexpr_copy (e->cdr), e->sval);
+      return new_err (sexpr_copy (e->cdr), e->sval); // TODO is this necessary?
     case S_INT:
       return new_int (e->ival);
     case S_STR:

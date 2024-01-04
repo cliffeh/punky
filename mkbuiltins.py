@@ -2,7 +2,7 @@
 
 import sys
 
-    # name,    .b_type, .sval,    pattern
+# name,    .b_type, .sval,    pattern
 BUILTINS = [
     # arithmetic
     ("ADD",    '+',     "+",      "\\+"),
@@ -13,8 +13,8 @@ BUILTINS = [
     ("EQ",     '=',     "=",      "\\="),
     ("LT",     '<',     "<",      "\\<"),
     ("GT",     '>',     ">",      "\\>"),
-    ("LE",     None,    "<=",      "\\<\\="),
-    ("GE",     None,    ">=",      "\\>\\="),
+    ("LE",     None,    "<=",     "\\<\\="),
+    ("GE",     None,    ">=",     "\\>\\="),
     ("OR",     None,    "or",     "[oO][rR]"),
     ("AND",    None,    "and",    "[aA][nN][dD]"),
     # control flow
@@ -34,7 +34,6 @@ BUILTIN_TYPEDEFS_MACRO = '@BUILTIN_TYPEDEFS@'
 BUILTIN_EXTERN_MACRO = '@BUILTIN_EXTERNS@'
 BUILTIN_PATTERN_MACRO = '@BUILTIN_PATTERNS@'
 BUILTIN_SINGLETON_MACRO = '@BUILTIN_SINGLETONS@'
-BUILTIN_CASES_MACRO = '@BUILTIN_CASES@'
 BUILTIN_DECLS_MACRO = '@BUILTIN_DECLS@'
 
 
@@ -64,19 +63,16 @@ def print_singletons():  # BUILTIN_SINGLETON_MACRO
     for builtin in BUILTINS:
         b_type = f"'{builtin[1]}'" if builtin[1] else f'B_TYPE_{builtin[0]}'
         print(
-            f'const sexpr B_{builtin[0]} = {{ .s_type = S_BUILTIN, .b_type = {b_type}, .sval = "{builtin[2]}" }};')
-
-
-def print_builtin_cases():  # BUILTIN_CASES_MACRO
-    for builtin in BUILTINS:
-        print(f'    case B_TYPE_{builtin[0]}:')
-        print(f'      return builtin_apply_{builtin[0]} (env, args);')
-
+            f'const sexpr B_{builtin[0]} = {{ .s_type = S_BUILTIN,\n\
+                .b_type = {b_type},\n\
+                .sval = "{builtin[2]}",\n\
+                .eval = sexpr_eval_builtin,\n\
+                .apply = sexpr_apply_{builtin[0]} }};')
 
 def print_builtin_decls():  # BUILTIN_DECLS_MACRO
     for builtin in BUILTINS:
         print(
-            f'sexpr *builtin_apply_{builtin[0]} (environment *env, const sexpr *args);')
+            f'sexpr *sexpr_apply_{builtin[0]} (const sexpr *self, const sexpr *args, environment *env);')
 
 
 def replace_macros(filename):
@@ -97,9 +93,6 @@ def replace_macros(filename):
             elif BUILTIN_SINGLETON_MACRO in line:
                 # print(f'#line {lineno} "{filename}"')
                 print_singletons()
-            elif BUILTIN_CASES_MACRO in line:
-                # print(f'#line {lineno} "{filename}"')
-                print_builtin_cases()
             elif BUILTIN_DECLS_MACRO in line:
                 # print(f'#line {lineno} "{filename}"')
                 print_builtin_decls()

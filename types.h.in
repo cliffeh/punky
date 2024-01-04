@@ -22,6 +22,8 @@ typedef enum builtin_type
   /* @BUILTIN_TYPEDEFS@ */
 } builtin_type;
 
+struct environment;
+
 typedef struct sexpr
 {
   sexpr_type s_type;
@@ -34,4 +36,7 @@ typedef struct sexpr
     struct sexpr *car;
   };
   struct sexpr *cdr;
+  struct sexpr *(*eval) (const struct sexpr *self, struct environment *env);
+  struct sexpr *(*apply) (const struct sexpr *self, const struct sexpr *args,
+                          struct environment *env);
 } sexpr;

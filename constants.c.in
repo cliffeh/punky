@@ -1,6 +1,14 @@
+#include "builtin.h"
+#include "eval.h"
 #include "types.h"
 
-const sexpr NIL = { .s_type = S_NIL };
-const sexpr TRUE = { .s_type = S_BOOL };
-const sexpr FALSE = { .s_type = S_BOOL };
+const sexpr NIL = { .s_type = S_NIL,
+                    .eval = sexpr_eval_copy,
+                    .apply = sexpr_apply_inapplicable };
+const sexpr TRUE = { .s_type = S_BOOL,
+                     .eval = sexpr_eval_copy,
+                     .apply = sexpr_apply_inapplicable };
+const sexpr FALSE = { .s_type = S_BOOL,
+                      .eval = sexpr_eval_copy,
+                      .apply = sexpr_apply_inapplicable };
 /* @BUILTIN_SINGLETONS@ */

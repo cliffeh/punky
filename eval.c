@@ -1,6 +1,6 @@
 #include "eval.h"
-#include "constants.h"
 #include "alloc.h"
+#include "constants.h"
 
 static sexpr *
 bind_params (environment *fenv, const sexpr *params, const sexpr *args,
@@ -15,7 +15,7 @@ bind_params (environment *fenv, const sexpr *params, const sexpr *args,
           return new_err (0, "non-identifier in parameter list");
         }
       // evaluate arguments in the parent env
-      else if ((value = sexpr_eval (penv, args->car))->s_type == S_ERR)
+      else if ((value = args->car->eval (args->car, penv))->s_type == S_ERR)
         {
           return value;
         }
@@ -33,69 +33,67 @@ bind_params (environment *fenv, const sexpr *params, const sexpr *args,
   return (sexpr *)&NIL;
 }
 
-static sexpr *
-sexpr_apply_function (environment *env, const sexpr *params, const sexpr *body,
-                      const sexpr *args)
+sexpr *
+sexpr_eval_builtin (const sexpr *self, environment *env)
+{
+  // return new_err (0, "<builtin> %s", self->sval);
+  return (sexpr *)self; // TODO is this right?
+}
+
+sexpr *
+sexpr_eval_copy (const sexpr *self, environment *env)
+{
+  return sexpr_copy (self);
+}
+
+sexpr *
+sexpr_eval_ident (const sexpr *self, environment *env)
+{
+  return env_get (env, self->sval);
+}
+
+sexpr *
+sexpr_eval_function (const sexpr *self, environment *env)
+{
+  return new_err (0, "<function>");
+}
+
+sexpr *
+sexpr_eval_list (const sexpr *self, environment *env)
+{
+  sexpr *fun = self->car->eval (self->car, env);
+  sexpr *result = fun->apply (fun, self->cdr, env);
+  sexpr_free (fun);
+  return result;
+}
+
+sexpr *
+sexpr_eval_quote (const sexpr *self, environment *env)
+{
+  return sexpr_copy (self->car);
+}
+
+sexpr *
+sexpr_apply_function (const sexpr *self, const sexpr *args, environment *env)
 {
   environment fenv;
   env_init (&fenv, env);
 
-  sexpr *result = bind_params (&fenv, params, args, env);
+  sexpr *result = bind_params (&fenv, self->car, args, env);
   if (result != &NIL)
     {
       env_destroy (&fenv);
       return new_err (result, "error evaluating function");
     }
 
-  result = sexpr_eval (&fenv, body);
+  result = self->cdr->eval (self->cdr, &fenv);
   env_destroy (&fenv);
   return result;
 }
 
-static sexpr *
-sexpr_apply (environment *env, const sexpr *e, const sexpr *args)
-{
-  switch (e->s_type)
-    {
-    case S_BUILTIN:
-      return sexpr_apply_builtin (env, e, args);
-    default:
-      sexpr *fun = sexpr_eval (env, e);
-      if (fun->s_type != S_FUN)
-        return new_err (fun, "attempt to apply inapplicable type");
-
-      sexpr *result = sexpr_apply_function (env, fun->car, fun->cdr, args);
-      sexpr_free (fun);
-      return result;
-    }
-}
-
 sexpr *
-sexpr_eval (environment *env, const sexpr *e)
+sexpr_apply_inapplicable (const sexpr *self, const sexpr *args,
+                          environment *env)
 {
-  switch (e->s_type)
-    {
-    case S_ERR:
-      return sexpr_copy (e);
-    case S_NIL:
-      return (sexpr *)&NIL;
-    case S_BOOL:
-      return (sexpr *)e;
-    case S_INT:
-      return new_int (e->ival);
-    case S_STR:
-      return new_str (e->sval);
-    case S_QUOTE:
-      return sexpr_copy (e->car);
-    case S_IDENT:
-      return env_get (env, e->sval);
-    case S_FUN:
-      return new_err (0, "<function>");
-    case S_LIST:
-      return sexpr_apply (env, e->car, e->cdr);
-    case S_BUILTIN:
-      return new_err (0, "<builtin> %s", e->sval);
-    default:
-      return new_err (0, "eval: unknown expression type %i", e->s_type);
-    }
+  return new_err (0, "attempt to apply inapplicable type");
 }
